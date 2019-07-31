@@ -15,6 +15,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "dev": "npm run compile && npm run server",
+    "compile": "tsc --esModuleInterop server.ts",
+    "server": "node server.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -36,6 +39,7 @@
   "devDependencies": {
     "@types/express": "^4.17.0",
     "@types/node": "^12.6.8",
+    "nodemon": "^1.19.1",
     "ts-node": "^8.3.0"
   }
 }
