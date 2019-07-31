@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Question from './Components/Question/Question';
 
 const App: React.FC = () => {
   return (
