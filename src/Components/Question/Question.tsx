@@ -16,7 +16,6 @@ const Question: React.FC<QuestionProps> = ({ question, helper }: QuestionProps) 
   
   return (
     <p onClick={incrementCount}>
-      <span>dssdsd</span>
       {question} {currentCount}
       {helper && <span> {helper} </span>}
     </p>
