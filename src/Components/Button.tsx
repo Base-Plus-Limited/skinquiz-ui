@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Tick from './../Tick/Tick';
+import Tick from './Tick';
 
 export interface ButtonProps {
   answerType: string;
