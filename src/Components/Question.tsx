@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { InitialState } from './../../State/InitialState';
-import { increment } from './../../Actions/QuestionActions';
+import { InitialState } from './../State/InitialState';
+import { increment } from './../Actions/QuestionActions';
 
 export interface QuestionProps {
   question: string;

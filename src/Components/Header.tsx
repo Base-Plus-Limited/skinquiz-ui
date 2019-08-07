@@ -1,14 +1,14 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import logo from './../../Assets/base_light_green.png';
-import StyledLink from '../Shared/Link';
-import StyledImage from '../Shared/Image';
+import logo from './../Assets/base_light_green.png';
+import StyledLink from './Shared/Link';
+import StyledImage from './Shared/Image';
 
 export interface HeaderProps {
   
 }
  
-const StyledHeader: React.SFC<HeaderProps> = () => (
+const StyledHeader: React.FC<HeaderProps> = () => (
   <Header>
     <StyledLink href={"/"}>
       <StyledImage src={logo} width={90} alt={"base plus"}></StyledImage>
