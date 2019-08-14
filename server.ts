@@ -2,8 +2,8 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
-import { WordpressQuestion } from './interfaces/WordpressQuestion';
-import { QuizQuestion } from './interfaces/QuizQuestion';
+import { WordpressQuestion } from './src/Interfaces/WordpressQuestion';
+import { QuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
 dotenv.config();
 
@@ -20,10 +20,10 @@ class App {
     this.express.use('/', router);
     this.express.use(bodyParser.json());
 
-    /**
+    /*************************
      *  GET ALL QUESTIONS
-     */
-    router.get('/', async (req, res) => {
+     *************************/
+    router.get('/quiz', async (req, res) => {
       await request.get(`https://baseplus.co.uk/wp-json/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
         .then(res => res.body)
         .then((questions: WordpressQuestion[]) => questions.map(question => {
@@ -31,7 +31,6 @@ class App {
         }))
         .then(quiz => {
           res.send(JSON.stringify(quiz));
-          console.log(quiz);
         })
         .catch((error: Error) => res.json({ error: error.message }))
     });
