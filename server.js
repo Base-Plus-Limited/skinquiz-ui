@@ -61,10 +61,10 @@ var App = /** @class */ (function () {
         var router = express_1["default"].Router();
         this.express.use('/', router);
         this.express.use(body_parser_1["default"].json());
-        /**
+        /*************************
          *  GET ALL QUESTIONS
-         */
-        router.get('/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+         *************************/
+        router.get('/quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -75,8 +75,7 @@ var App = /** @class */ (function () {
                         }); })
                             .then(function (quiz) {
                             res.send(JSON.stringify(quiz));
-                            console.log(quiz);
-                        })["catch"](function (error) { return console.log(error); })];
+                        })["catch"](function (error) { return res.json({ error: error.message }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -132,13 +131,3 @@ exports["default"] = App;
 //       console.log(`ERROR: ${err.message}`)
 //     })
 //   }
-//   private initialiseRoutes() {
-//     this.app.use('/', this.router.getAllQuizQuestions);
-//   }
-// }
-// /*********************************
-//  * Routes
-//  ********************************/
-// app.get('/', (req: Request, res: Response) => {
-//   res.send('hello');
-// })
