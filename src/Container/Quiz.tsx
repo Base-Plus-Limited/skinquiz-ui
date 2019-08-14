@@ -24,11 +24,9 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   return ( 
     <Quiz>
-      <StyledHeader></StyledHeader>
       {
         quizData.length ? quizData.length : 'Loading...'
       }
-      <StyledFooter></StyledFooter>
     </Quiz>
    );
 }
