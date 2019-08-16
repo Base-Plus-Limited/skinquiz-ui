@@ -26,7 +26,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
   return ( 
     <Welcome>
       <WelcomeWrapper maxWidth>
-        <StyledH1 text="Skincare made for you"></StyledH1>
+        <StyledH1 text={`Skincare made for ${name ? name : 'you'}`}></StyledH1>
         <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
         <StyledInput logName={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
         <Link to={{ pathname: '/quiz', state: { name } }}> 
