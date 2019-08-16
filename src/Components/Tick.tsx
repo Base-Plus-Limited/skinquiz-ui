@@ -1,13 +1,22 @@
+import React from 'react';
+import styled from 'styled-components';
+
 export interface TickProps {
   
 }
  
-const Tick: React.SFC<TickProps> = () => {
+const StyledTick: React.SFC<TickProps> = () => {
   return ( 
-    <span>
-      {/* tick icon */}
-    </span>
+    <Tick> M </Tick>
    );
 }
+
+const Tick = styled.span`
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: ${props => props.theme.brandColours.baseLightGreen}
+  border-radius: 50%;
+`
  
-export default Tick;
+export default StyledTick;

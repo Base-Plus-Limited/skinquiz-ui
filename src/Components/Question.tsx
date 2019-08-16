@@ -1,22 +1,30 @@
 import React from 'react';
 import styled from 'styled-components';
-import { QuizQuestion } from '../Interfaces/QuizQuestion';
+import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
+import Answer from './Answer';
 
 export interface QuestionProps {
   helper?: string;
-  questions: QuizQuestion[];
+  questions: IQuizQuestion[];
 }
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: QuestionProps) => {
+  const [questionOne, questionTwo ] = questions;
   return (
     <QuestionWrapper>
       <Question>
-        {questions[0].question}
-        {helper && <span> {helper} </span>}
+        {questionOne.question} <br/>
+        {helper && <span> {helper} </span>}  <br/>
+        {questionOne.answers.map((answer: IAnswer) => {
+          return <Answer>{answer.value}</Answer>
+        })}
       </Question>
       <Question>
-        {questions[1].question}
-        {helper && <span> {helper} </span>}
+        {questionTwo.question} <br/>
+        {helper && <span> {helper} </span>} <br/>
+        {questionTwo.answers.map((answer: IAnswer) => {
+          return <Answer>{answer.value}</Answer>
+        })}
       </Question>
     </QuestionWrapper>
   )
@@ -30,6 +38,7 @@ const Question = styled.p`
 const QuestionWrapper = styled.div`
   display: grid;
   width: 100vw;
+  align-items: center;
   text-align: center;
 `;
 

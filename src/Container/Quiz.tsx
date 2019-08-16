@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { QuizQuestion } from '../Interfaces/QuizQuestion';
+import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
 
 export interface QuizProps {
@@ -9,19 +9,19 @@ export interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const [quizData, updateQuizData]: [QuizQuestion[], Function] = useState([]);
+  const [quizData, updateQuizData]: [IQuizQuestion[], Function] = useState([]);
 
   useEffect(() => {
     fetch('/quiz')
       .then(res => res.json())
-      .then((questions: QuizQuestion[]) => updateQuizData(questions))
+      .then((questions: IQuizQuestion[]) => updateQuizData(questions))
       .catch(error => console.error(error));
   }, []);
 
   const formattedQuiz = (quizData.map((q, i) => {
     if(i % 2 === 0)
       return quizData.slice(i, i+2)
-  }).filter(quizArr => quizArr !== undefined) as (QuizQuestion[])[]);
+  }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]);
 
   return ( 
     <Quiz rows={formattedQuiz.length}>
