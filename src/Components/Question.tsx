@@ -1,18 +1,36 @@
-import * as React from 'react';
+import React from 'react';
+import styled from 'styled-components';
+import { QuizQuestion } from '../Interfaces/QuizQuestion';
 
 export interface QuestionProps {
-  question: string;
   helper?: string;
+  questions: QuizQuestion[];
 }
 
-const Question: React.FC<QuestionProps> = ({ question, helper }: QuestionProps) => {
+const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: QuestionProps) => {
   return (
-    <p>
-      {question}
-      {helper && <span> {helper} </span>}
-    </p>
+    <QuestionWrapper>
+      <Question>
+        {questions[0].question}
+        {helper && <span> {helper} </span>}
+      </Question>
+      <Question>
+        {questions[1].question}
+        {helper && <span> {helper} </span>}
+      </Question>
+    </QuestionWrapper>
   )
 }
 
+const Question = styled.p`
+  margin: 0;
+  padding: 0;
+`;
 
-export default Question;
+const QuestionWrapper = styled.div`
+  display: grid;
+  width: 100vw;
+  text-align: center;
+`;
+
+export default StyledQuestion;

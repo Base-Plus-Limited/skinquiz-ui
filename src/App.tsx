@@ -1,5 +1,4 @@
-import React from 'react';
-import './App.css';
+import React, { useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import theme from './theme';
 import StyledQuiz from './Container/Quiz';
@@ -9,6 +8,9 @@ import StyledHeader from './Components/Header';
 import StyledFooter from './Components/Footer';
 
 const App: React.FC = () => {
+
+  const [count, updateCount] = useState(0);
+
   return (
     <ThemeProvider theme={theme}>
       <AppWrapper>
@@ -19,7 +21,7 @@ const App: React.FC = () => {
             <Route path="/quiz" component={StyledQuiz} />
           </Switch>
         </BrowserRouter>
-        <StyledFooter></StyledFooter>
+        <StyledFooter progressCount={count}></StyledFooter>
       </AppWrapper>
     </ThemeProvider>
   );
