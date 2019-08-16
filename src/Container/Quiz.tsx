@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { QuizQuestion } from '../Interfaces/QuizQuestion';
+import StyledQuestion from '../Components/Question';
 
 export interface QuizProps {
-  
+  rows: number;
 }
 
 const StyledQuiz: React.FC<QuizProps> = () => {
@@ -17,19 +18,25 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       .catch(error => console.error(error));
   }, []);
 
+  const formattedQuiz = (quizData.map((q, i) => {
+    if(i % 2 === 0)
+      return quizData.slice(i, i+2)
+  }).filter(quizArr => quizArr !== undefined) as (QuizQuestion[])[]);
 
   return ( 
-    <Quiz>
+    <Quiz rows={formattedQuiz.length}>
       {
-        quizData.length ? quizData.length : 'Loading...'
+        formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
       }
     </Quiz>
    );
 }
 
 const Quiz = styled.div`
-  height: 100vh;
-  position: relative;
+  width: 100%;
+  grid-template-columns: ${(props: QuizProps) => `repeat(${props.rows}, 100vw)`};
+  overflow-x: scroll;
+  display: grid;
 `;
  
 export default StyledQuiz;
