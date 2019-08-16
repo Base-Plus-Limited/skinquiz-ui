@@ -16,12 +16,10 @@ const StyledFooter: React.FC<FooterProps> = ({ progressCount }: FooterProps) => 
 }
 
 const Footer = styled.footer`
-
-  border-top: solid 1px ${props => props.theme.brandColours.lightGreen};
+  border-top: solid 1px ${props => props.theme.brandColours.baseLightGreen};
   text-align: center;
-  position: absolute;
   width: 100%;
-  bottom: 0;
+  background: #fff;
   padding: 20px 0;
 `
 
