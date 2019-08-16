@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import StyledHeader from "../Components/Header";
-import StyledFooter from '../Components/Footer';
 import styled from 'styled-components';
 import { QuizQuestion } from '../Interfaces/QuizQuestion';
 
@@ -18,8 +16,6 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       .then((questions: QuizQuestion[]) => updateQuizData(questions))
       .catch(error => console.error(error));
   }, []);
-
-
 
 
   return ( 

@@ -5,16 +5,16 @@ export interface ImageProps {
   src: string;
   alt: string;
   position?: string;
-  width: number;
+  width?: number;
+  isWelcomeScreen?: boolean;
 }
  
-const StyledImage: React.SFC<ImageProps> = ({alt, src, width, position}) => (
-  <Image width={width} src={src} alt={alt}></Image>
+const StyledImage: React.SFC<ImageProps> = ({alt, src, width}) => (
+  <Image isWelcomeScreen width={width} src={src} alt={alt}></Image>
 )
  
 const Image = styled.img`
-  width: ${props => props.width}px;
-  max-width: 100%;
+  max-width: ${(props: ImageProps) => props.isWelcomeScreen ? '95%' : '100%'};
 `;
 
 export default StyledImage;

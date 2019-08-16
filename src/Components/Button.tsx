@@ -11,10 +11,15 @@ const StyledButton: React.FC<ButtonProps> = ({ value }: ButtonProps) => (
 
 const Button = styled.button`
   padding: 10px 15px;
-  background: green;
+  background: #fff;
   outline: none;
-  border-radius: 3px;
-  border: none;
+  border: solid 2px ${props => props.theme.brandColours.baseDarkGreen};
+  margin: 0 auto;
+  cursor: pointer;
+  text-transform: uppercase;
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-family: ${props => props.theme.subHeadingFont};
+  font-weight: 600;
 `;
 
 
