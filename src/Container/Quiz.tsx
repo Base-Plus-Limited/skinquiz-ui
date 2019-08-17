@@ -1,33 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
+import { QuizContext } from '../QuizContext';
 
-export interface QuizProps {
+
+interface QuizProps {
   rows: number;
 }
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const [quizData, updateQuizData]: [IQuizQuestion[], Function] = useState([]);
+  const { updateCount, quizQuestions, updateQuizQuestions } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/quiz')
       .then(res => res.json())
-      .then((questions: IQuizQuestion[]) => updateQuizData(questions))
+      .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch(error => console.error(error));
   }, []);
 
-  const formattedQuiz = (quizData.map((q, i) => {
+  const formattedQuiz = (quizQuestions.map((q, i) => {
     if(i % 2 === 0)
-      return quizData.slice(i, i+2)
+      return quizQuestions.slice(i, i+2)
   }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]);
 
   return ( 
     <Quiz rows={formattedQuiz.length}>
-      {
-        formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
-      }
+        {
+          formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
+        }
     </Quiz>
    );
 }

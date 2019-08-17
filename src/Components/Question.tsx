@@ -15,15 +15,15 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
       <Question>
         {questionOne.question} <br/>
         {helper && <span> {helper} </span>}  <br/>
-        {questionOne.answers.map((answer: IAnswer) => {
-          return <Answer>{answer.value}</Answer>
+        {questionOne.answers.map((answer: IAnswer, id: number) => {
+          return <Answer key={id}>{answer.value}</Answer>
         })}
       </Question>
       <Question>
         {questionTwo.question} <br/>
         {helper && <span> {helper} </span>} <br/>
-        {questionTwo.answers.map((answer: IAnswer) => {
-          return <Answer>{answer.value}</Answer>
+        {questionTwo.answers.map((answer: IAnswer, id: number) => {
+          return <Answer key={id}>{answer.value}</Answer>
         })}
       </Question>
     </QuestionWrapper>

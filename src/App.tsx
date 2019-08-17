@@ -6,23 +6,25 @@ import StyledWelcome from './Container/Welcome';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import StyledHeader from './Components/Header';
 import StyledFooter from './Components/Footer';
+import { QuizProvider } from './QuizContext';
 
 const App: React.FC = () => {
 
-  const [count, updateCount] = useState(0);
 
   return (
     <ThemeProvider theme={theme}>
-      <AppWrapper>
-        <StyledHeader></StyledHeader>
-        <BrowserRouter>
-          <Switch>
-            <Route path="/" exact component={StyledWelcome} />
-            <Route path="/quiz" component={StyledQuiz} />
-          </Switch>
-        </BrowserRouter>
-        <StyledFooter progressCount={count}></StyledFooter>
-      </AppWrapper>
+        <AppWrapper>
+          <QuizProvider>
+            <StyledHeader></StyledHeader>
+            <BrowserRouter>
+              <Switch>
+                <Route path="/" exact component={StyledWelcome} />
+                <Route path="/quiz" component={StyledQuiz} />
+              </Switch>
+            </BrowserRouter>
+            <StyledFooter progressCount={0}></StyledFooter>
+          </QuizProvider>
+        </AppWrapper>
     </ThemeProvider>
   );
 }
