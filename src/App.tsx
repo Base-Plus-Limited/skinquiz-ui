@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import theme from './theme';
 import StyledQuiz from './Container/Quiz';

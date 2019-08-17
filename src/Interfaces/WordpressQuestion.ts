@@ -1,4 +1,8 @@
-export interface WordpressQuestion {
+export interface IIngredient extends IWordpressQuestion {
+  rank: number;
+}
+
+export interface IWordpressQuestion {
   id: number;
   date: string;
   date_gmt: string;

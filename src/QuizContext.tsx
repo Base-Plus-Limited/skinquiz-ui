@@ -1,12 +1,15 @@
 import React, { createContext, SetStateAction, useState } from 'react';
 import { IQuizQuestion } from './Interfaces/QuizQuestion';
 import IQuiz from './Interfaces/QuizState';
+import { IIngredient } from './Interfaces/WordpressQuestion';
 
 const state: IQuiz = {
   progressCount: 0,
-  quizQuestions: [],
   updateCount: (previousCount: SetStateAction<number>) => previousCount,
-  updateQuizQuestions: (previousQuizQuestions: SetStateAction<IQuizQuestion[]>) => previousQuizQuestions
+  quizQuestions: [],
+  updateQuizQuestions: (previousQuizQuestions: SetStateAction<IQuizQuestion[]>) => previousQuizQuestions,
+  ingredients: [],
+  updateIngredients: (previousIngredients: SetStateAction<IIngredient[]>) => previousIngredients
 }
 
 export const QuizContext = createContext(state);
@@ -18,13 +21,16 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
 
   const [progressCount, updateCount] = useState<number>(0);
   const [quizQuestions, updateQuizQuestions] = useState<IQuizQuestion[]>([]);
+  const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
 
   return (
     <QuizContext.Provider value={{
       progressCount,
       updateCount,
       quizQuestions,
-      updateQuizQuestions
+      updateQuizQuestions,
+      ingredients,
+      updateIngredients
     }}>
       {children}
     </QuizContext.Provider>
