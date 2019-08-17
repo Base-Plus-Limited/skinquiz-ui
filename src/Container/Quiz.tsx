@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';

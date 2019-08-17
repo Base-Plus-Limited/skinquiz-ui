@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
-import Answer from './Answer';
+import StyledAnswer from './Answer';
+import { QuizContext } from '../QuizContext';
 
 export interface QuestionProps {
   helper?: string;
@@ -9,21 +10,41 @@ export interface QuestionProps {
 }
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: QuestionProps) => {
-  const [questionOne, questionTwo ] = questions;
+  const [questionOne, questionTwo] = questions;
+
+  const { quizQuestions, updateQuizQuestions } = useContext(QuizContext);
+
+
+  const selectAnswer = (answeredQuestion: IQuizQuestion, answerId: string) => {
+    const updatedQuestions = quizQuestions.map(question => {
+      if(answeredQuestion.id === question.id) {
+        question.answered = true;
+        question.answers.forEach(answer => {
+          answer.selected = false;
+          if(answer.id === answerId)
+            answer.selected = true;
+        })
+      }
+      return question;
+    });
+    updateQuizQuestions(updatedQuestions);
+  }
+
+
   return (
     <QuestionWrapper>
       <Question>
         {questionOne.question} <br/>
         {helper && <span> {helper} </span>}  <br/>
         {questionOne.answers.map((answer: IAnswer, id: number) => {
-          return <Answer key={id}>{answer.value}</Answer>
+          return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionOne, answer.id)} key={id}>{answer.value}</StyledAnswer>
         })}
       </Question>
       <Question>
         {questionTwo.question} <br/>
         {helper && <span> {helper} </span>} <br/>
         {questionTwo.answers.map((answer: IAnswer, id: number) => {
-          return <Answer key={id}>{answer.value}</Answer>
+          return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionTwo, answer.id)} key={id}>{answer.value}</StyledAnswer>
         })}
       </Question>
     </QuestionWrapper>
