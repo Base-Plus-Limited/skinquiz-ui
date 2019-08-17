@@ -2,8 +2,8 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
-import { WordpressQuestion } from './src/Interfaces/WordpressQuestion';
-import { QuizQuestion } from './src/Interfaces/QuizQuestion';
+import { IWordpressQuestion, IIngredient } from './src/Interfaces/WordpressQuestion';
+import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
 dotenv.config();
 
@@ -20,24 +20,38 @@ class App {
     this.express.use('/', router);
     this.express.use(bodyParser.json());
 
+    
     /*************************
      *  GET ALL QUESTIONS
      *************************/
     router.get('/quiz', async (req, res) => {
-      await request.get(`https://baseplus.co.uk/wp-json/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
+      await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
         .then(res => res.body)
-        .then((questions: WordpressQuestion[]) => questions.map(question => {
+        .then((questions: IWordpressQuestion[]) => questions.map(question => {
           return this.returnQuizQuestion(question);
         }))
-        .then(quiz => {
-          res.send(JSON.stringify(quiz));
-        })
+        .then(quiz => res.send(JSON.stringify(quiz)))
+        .catch((error: Error) => res.json({ error: error.message }))
+    });
+
+
+    /*************************
+     *  GET ALL INGREDIENTS
+     *************************/
+    router.get('/ingredients', async (req, res) => {
+      await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
+        .then(res => res.body)
+        .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
+          ingredient.rank = 0;
+          return ingredient;
+        }))
+        .then((ingredients: IIngredient[]) => res.send(JSON.stringify(ingredients)))
         .catch((error: Error) => res.json({ error: error.message }))
     });
 
   }
 
-  private returnQuizQuestion(question: WordpressQuestion): QuizQuestion {
+  private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
     const entities = new Html5Entities();
     const answerArr = question.content.rendered.replace(/<(?:.|\n)*?>/gm, '').split(',');
     const separatedMeta = question.excerpt.rendered.replace(/<(?:.|\n)*?>/gm, '').split('|');
