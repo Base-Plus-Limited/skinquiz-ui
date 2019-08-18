@@ -1,7 +1,7 @@
 import React, { createContext, SetStateAction, useState } from 'react';
 import { IQuizQuestion } from './Interfaces/QuizQuestion';
 import IQuiz from './Interfaces/QuizState';
-import { IIngredient } from './Interfaces/WordpressQuestion';
+import { IIngredient } from './Interfaces/WordpressProduct';
 
 const state: IQuiz = {
   progressCount: 0,

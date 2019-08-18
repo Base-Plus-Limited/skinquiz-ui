@@ -2,7 +2,8 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
-import { IWordpressQuestion, IIngredient } from './src/Interfaces/WordpressQuestion';
+import { IWordpressQuestion } from './src/Interfaces/WordpressQuestion';
+import { IIngredient } from './src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
 dotenv.config();
@@ -20,7 +21,7 @@ class App {
     this.express.use('/', router);
     this.express.use(bodyParser.json());
 
-    
+
     /*************************
      *  GET ALL QUESTIONS
      *************************/
@@ -65,7 +66,7 @@ class App {
           value: entities.decode(answer.trim()),
           selected: false,
           id: answer.trim(),
-          meta: separatedMeta
+          meta: separatedMeta.map(meta => meta.trim())
         }
       })
     }

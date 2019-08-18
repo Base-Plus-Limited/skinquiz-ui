@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
 import { QuizContext } from '../QuizContext';
-import { IIngredient } from '../Interfaces/WordpressQuestion';
+import { IIngredient } from '../Interfaces/WordpressProduct';
 
 
 interface QuizProps {

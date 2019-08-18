@@ -114,7 +114,7 @@ var App = /** @class */ (function () {
                     value: entities.decode(answer.trim()),
                     selected: false,
                     id: answer.trim(),
-                    meta: separatedMeta
+                    meta: separatedMeta.map(function (meta) { return meta.trim(); })
                 };
             })
         };

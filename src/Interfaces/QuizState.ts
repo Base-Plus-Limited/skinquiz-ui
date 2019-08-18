@@ -1,6 +1,6 @@
 import { IQuizQuestion } from "./QuizQuestion";
 import { Dispatch, SetStateAction } from 'react';
-import { IIngredient } from "./WordpressQuestion";
+import { IIngredient } from "./WordpressProduct";
 
 interface IQuiz {
   progressCount: number;
