@@ -1,12 +1,12 @@
-export interface QuizQuestion {
+export interface IQuizQuestion {
   id: number;
   answered: boolean;
   hide: boolean;
   question: string;
-  answers: Answer[];
+  answers: IAnswer[];
 }
 
-interface Answer {
+export interface IAnswer {
   value: string;
   selected: boolean;
   id: string;

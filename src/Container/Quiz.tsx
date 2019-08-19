@@ -1,42 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useContext } from 'react';
 import styled from 'styled-components';
-import { QuizQuestion } from '../Interfaces/QuizQuestion';
+import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
+import { QuizContext } from '../QuizContext';
+import { IIngredient } from '../Interfaces/WordpressProduct';
 
-export interface QuizProps {
+
+interface QuizProps {
   rows: number;
+  marginValue: number | undefined;
 }
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const [quizData, updateQuizData]: [QuizQuestion[], Function] = useState([]);
+  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/quiz')
       .then(res => res.json())
-      .then((questions: QuizQuestion[]) => updateQuizData(questions))
+      .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
+      .catch(error => console.error(error));
+
+    fetch('/ingredients')
+      .then(res => res.json())
+      .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
       .catch(error => console.error(error));
   }, []);
 
-  const formattedQuiz = (quizData.map((q, i) => {
-    if(i % 2 === 0)
-      return quizData.slice(i, i+2)
-  }).filter(quizArr => quizArr !== undefined) as (QuizQuestion[])[]);
+  const formattedQuiz = (quizQuestions.map((q, i) => {
+    if (i % 2 === 0)
+      return quizQuestions.slice(i, i + 2)
+  }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]);
+
+  const returnMarginAmount = () => {
+    switch (questionsAnswered.length) {
+      case 2:
+        return 1;
+      case 4:
+        return 2;
+      case 6:
+        return 3;
+      default:
+        return 0;
+    }
+  }
 
   return ( 
-    <Quiz rows={formattedQuiz.length}>
-      {
-        formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
-      }
-    </Quiz>
+    <ScrollWrapper>
+      <Quiz rows={formattedQuiz.length} marginValue={returnMarginAmount()}>
+        {
+          formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
+        }
+      </Quiz>
+    </ScrollWrapper>
    );
 }
 
+const ScrollWrapper = styled.div`
+  width: 100%;
+  overflow-x: hidden;
+`;
+
 const Quiz = styled.div`
   width: 100%;
+  transition: all 1s ease-out;
   grid-template-columns: ${(props: QuizProps) => `repeat(${props.rows}, 100vw)`};
-  overflow-x: scroll;
   display: grid;
+  height: 100%;
+  margin-left: ${(props: QuizProps) => `-${props.marginValue}00vw`}
 `;
  
 export default StyledQuiz;

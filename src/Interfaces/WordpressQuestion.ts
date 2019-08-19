@@ -1,4 +1,4 @@
-export interface WordpressQuestion {
+export interface IWordpressQuestion {
   id: number;
   date: string;
   date_gmt: string;
@@ -12,6 +12,7 @@ export interface WordpressQuestion {
   title: Guid;
   content: Content;
   excerpt: Content;
+  tags: Tag[];
   template: string;
   meta: any[];
   _links: Links;
@@ -42,4 +43,10 @@ interface Content {
 
 interface Guid {
   rendered: string;
+}
+
+interface Tag {
+  id: number;
+  name: string;
+  slug: string;
 }

@@ -9,7 +9,7 @@ const StyledFooter: React.FC<FooterProps> = ({ progressCount }: FooterProps) => 
   return (
     <Footer>
       <span>
-        {progressCount ? progressCount : 0}
+        {progressCount ? progressCount : 0}/4
       </span>
     </Footer>
   );

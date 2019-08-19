@@ -68,14 +68,31 @@ var App = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("https://baseplus.co.uk/wp-json/wp/v2/diagnostic_tool?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
                             .then(function (res) { return res.body; })
                             .then(function (questions) { return questions.map(function (question) {
                             return _this.returnQuizQuestion(question);
                         }); })
-                            .then(function (quiz) {
-                            res.send(JSON.stringify(quiz));
-                        })["catch"](function (error) { return res.json({ error: error.message }); })];
+                            .then(function (quiz) { return res.send(JSON.stringify(quiz)); })["catch"](function (error) { return res.json({ error: error.message }); })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        /*************************
+         *  GET ALL INGREDIENTS
+         *************************/
+        router.get('/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET + "&category=35&type=simple&per_page=30")
+                            .then(function (res) { return res.body; })
+                            .then(function (ingredients) { return ingredients.map(function (ingredient) {
+                            ingredient.rank = 0;
+                            return ingredient;
+                        }); })
+                            .then(function (ingredients) { return res.send(JSON.stringify(ingredients)); })["catch"](function (error) { return res.json({ error: error.message }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -97,7 +114,7 @@ var App = /** @class */ (function () {
                     value: entities.decode(answer.trim()),
                     selected: false,
                     id: answer.trim(),
-                    meta: separatedMeta
+                    meta: separatedMeta.map(function (meta) { return meta.trim(); })
                 };
             })
         };
