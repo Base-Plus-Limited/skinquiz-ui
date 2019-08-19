@@ -13,7 +13,7 @@ export interface QuestionProps {
 const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: QuestionProps) => {
   const [questionOne, questionTwo] = questions;
 
-  const { quizQuestions, updateQuizQuestions, ingredients, updateIngredients } = useContext(QuizContext);
+  const { quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, index: number) => {
     const updatedQuestions = quizQuestions.map(question => {
@@ -30,6 +30,19 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
       return question;
     });
     updateQuizQuestions(updatedQuestions);
+    doQuestionIdsMatch(answeredQuestion);
+  }
+
+  const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
+    if(questionsAnswered.length) {
+      questionsAnswered.forEach(answeredQ => {
+        if(answeredQ.id === answeredQuestion.id)
+          return;
+        updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
+      })
+      return;
+    }
+    updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
   }
 
 

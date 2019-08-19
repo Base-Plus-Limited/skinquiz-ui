@@ -8,11 +8,12 @@ import { IIngredient } from '../Interfaces/WordpressProduct';
 
 interface QuizProps {
   rows: number;
+  marginValue: number | undefined;
 }
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { quizQuestions, updateQuizQuestions, updateIngredients } = useContext(QuizContext);
+  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/quiz')
@@ -31,20 +32,42 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       return quizQuestions.slice(i, i + 2)
   }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]);
 
+  const returnMarginAmount = () => {
+    switch (questionsAnswered.length) {
+      case 2:
+        return 1;
+      case 4:
+        return 2;
+      case 6:
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
   return ( 
-    <Quiz rows={formattedQuiz.length}>
+    <ScrollWrapper>
+      <Quiz rows={formattedQuiz.length} marginValue={returnMarginAmount()}>
         {
           formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
         }
-    </Quiz>
+      </Quiz>
+    </ScrollWrapper>
    );
 }
 
+const ScrollWrapper = styled.div`
+  width: 100%;
+  overflow-x: hidden;
+`;
+
 const Quiz = styled.div`
   width: 100%;
+  transition: all 1s ease-out;
   grid-template-columns: ${(props: QuizProps) => `repeat(${props.rows}, 100vw)`};
-  overflow-x: scroll;
   display: grid;
+  height: 100%;
+  margin-left: ${(props: QuizProps) => `-${props.marginValue}00vw`}
 `;
  
 export default StyledQuiz;

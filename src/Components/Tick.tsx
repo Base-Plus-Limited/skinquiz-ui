@@ -13,10 +13,12 @@ const StyledTick: React.SFC<TickProps> = () => {
 
 const Tick = styled.span`
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -13px;
+  right: -12px;
   background: ${props => props.theme.brandColours.baseLightGreen}
   border-radius: 50%;
+  z-index: 10;
+  padding: 4px 6px;
 `
  
 export default StyledTick;

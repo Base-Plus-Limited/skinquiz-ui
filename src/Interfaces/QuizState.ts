@@ -9,6 +9,8 @@ interface IQuiz {
   updateQuizQuestions: Dispatch<SetStateAction<IQuizQuestion[]>>;
   ingredients: IIngredient[];
   updateIngredients: Dispatch<SetStateAction<IIngredient[]>>;
+  questionsAnswered: IQuizQuestion[];
+  updateQuestionsAnswered: Dispatch<SetStateAction<IQuizQuestion[]>>;
 }
 
 export default IQuiz;
