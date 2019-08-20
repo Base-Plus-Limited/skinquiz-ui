@@ -1,15 +1,18 @@
-import * as React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
+import { QuizContext } from '../QuizContext';
 
 export interface FooterProps {
-  progressCount?: number;
 }
 
-const StyledFooter: React.FC<FooterProps> = ({ progressCount }: FooterProps) => {
+const StyledFooter: React.FC<FooterProps> = () => {
+
+  const { progressCount } = useContext(QuizContext);
+  
   return (
     <Footer>
       <span>
-        {progressCount ? progressCount : 0}/4
+        {progressCount}/4
       </span>
     </Footer>
   );

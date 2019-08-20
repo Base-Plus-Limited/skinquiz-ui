@@ -22,7 +22,7 @@ const App: React.FC = () => {
                 <Route path="/quiz" component={StyledQuiz} />
               </Switch>
             </BrowserRouter>
-            <StyledFooter progressCount={0}></StyledFooter>
+            <StyledFooter></StyledFooter>
           </QuizProvider>
         </AppWrapper>
     </ThemeProvider>
