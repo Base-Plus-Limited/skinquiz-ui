@@ -35,12 +35,10 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
 
   const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
     if(questionsAnswered.length) {
-      questionsAnswered.forEach(answeredQ => {
-        if(answeredQ.id === answeredQuestion.id)
-          return;
-        updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
-      })
-      return;
+      if (questionsAnswered[questionsAnswered.length - 1].id === answeredQuestion.id){
+        return;
+      }
+      updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
     }
     updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
   }
@@ -59,6 +57,8 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
   const rankIngredients = (answer: IAnswer, answerIndex: number) => {
     ingredients.forEach((ingredient: IIngredient) => {
       ingredient.tags.forEach(tag => {
+        if(answer.meta[answerIndex] === undefined)
+          return;
         if (answer.meta[answerIndex].includes(',')) {
           const metaArray = answer.meta[answerIndex].split(',');
           doValuesMatch(metaArray[answerIndex], tag.name, ingredient);

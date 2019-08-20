@@ -8,7 +8,7 @@ import { IIngredient } from '../Interfaces/WordpressProduct';
 
 interface QuizProps {
   rows: number;
-  marginValue: number | undefined;
+  marginValue: number;
 }
 
 const StyledQuiz: React.FC<QuizProps> = () => {
@@ -35,23 +35,29 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   const returnMarginAmount = () => {
     switch (questionsAnswered.length) {
       case 2:
+      case 3:
         return 1;
       case 4:
+      case 5:
         return 2;
       case 6:
+      case 7:
         return 3;
+      case 8:
+        return 4;
       default:
         return 0;
     }
   }
 
-  updateCount(returnMarginAmount())
+  console.log(questionsAnswered.length)
+  updateCount(returnMarginAmount() + 1)
 
   return ( 
     <ScrollWrapper>
       <Quiz rows={formattedQuiz.length} marginValue={returnMarginAmount()}>
         {
-          formattedQuiz.map((formattedQ, i) => <StyledQuestion questions={formattedQ} key={i}></StyledQuestion>)
+          formattedQuiz.map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>)
         }
       </Quiz>
     </ScrollWrapper>
