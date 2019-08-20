@@ -13,7 +13,7 @@ interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered } = useContext(QuizContext);
+  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/quiz')
@@ -44,6 +44,8 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         return 0;
     }
   }
+
+  updateCount(returnMarginAmount())
 
   return ( 
     <ScrollWrapper>
