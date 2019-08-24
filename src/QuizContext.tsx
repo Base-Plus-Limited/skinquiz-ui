@@ -21,7 +21,7 @@ interface QuizProviderProps {
  
 export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
 
-  const [progressCount, updateCount] = useState<number>(0);
+  const [progressCount, updateCount] = useState<number>(1);
   const [quizQuestions, updateQuizQuestions] = useState<IQuizQuestion[]>([]);
   const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
   const [questionsAnswered, updateQuestionsAnswered] = useState<IQuizQuestion[]>([]);

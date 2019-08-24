@@ -4,6 +4,7 @@ import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
 import StyledAnswer from './Answer';
 import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
+import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
 
 export interface QuestionProps {
   helper?: string;
@@ -13,7 +14,7 @@ export interface QuestionProps {
 const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: QuestionProps) => {
   const [questionOne, questionTwo] = questions;
 
-  const { quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered } = useContext(QuizContext);
+  const { quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, index: number) => {
     const updatedQuestions = quizQuestions.map(question => {
@@ -23,7 +24,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
           answer.selected = false;
           if (answer.id === answeredQuestion.answers[index].id){
             answer.selected = true;
-            rankIngredients(answeredQuestion.answers[index], index)
+            rankIngredients(answeredQuestion.answers[index], index);
           }
         })
       }
@@ -31,21 +32,50 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
     });
     updateQuizQuestions(updatedQuestions);
     doQuestionIdsMatch(answeredQuestion);
+    getCompletedQuizQuestions();
+  }
+
+  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
+    if (progressCount === 4) {
+      const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
+        const { question, answers, id } = answeredQ;
+        return {
+          id,
+          question,
+          answer: answers.filter(answer => answer.selected)[0].value
+        }
+      })
+      try {
+        sendCompletedQuizQuestionsToApi(completedQuizAnswers)
+      }
+      catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
+  const sendCompletedQuizQuestionsToApi = (completedQuiz: ICompletedQuiz[]) => { 
+    return fetch('/quiz-answers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache',
+      body: JSON.stringify(completedQuiz)
+    })
+    .then(response => response.json())
+    .catch(error => console.error(error));
   }
 
   const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
     if(questionsAnswered.length) {
-      questionsAnswered.forEach(answeredQ => {
-        if(answeredQ.id === answeredQuestion.id)
-          return;
-        updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
-      })
-      return;
+      if (questionsAnswered[questionsAnswered.length - 1].id === answeredQuestion.id){
+        return;
+      }
+      updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
     }
     updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
   }
-
-
 
   const doValuesMatch = (answerValue: string, tagValue: string, ingredient: IIngredient) => {
     if (answerValue === tagValue) {
@@ -59,6 +89,8 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
   const rankIngredients = (answer: IAnswer, answerIndex: number) => {
     ingredients.forEach((ingredient: IIngredient) => {
       ingredient.tags.forEach(tag => {
+        if(answer.meta[answerIndex] === undefined)
+          return;
         if (answer.meta[answerIndex].includes(',')) {
           const metaArray = answer.meta[answerIndex].split(',');
           doValuesMatch(metaArray[answerIndex], tag.name, ingredient);
