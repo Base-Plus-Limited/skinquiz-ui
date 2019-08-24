@@ -50,7 +50,6 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     }
   }
 
-  console.log(questionsAnswered.length)
   updateCount(returnMarginAmount() + 1)
 
   return ( 
