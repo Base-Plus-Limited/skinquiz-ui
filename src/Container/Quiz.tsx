@@ -50,7 +50,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     }
   }
 
-  updateCount(returnMarginAmount() + 1)
+  updateCount(questionsAnswered.length)
 
   return ( 
     <ScrollWrapper>
