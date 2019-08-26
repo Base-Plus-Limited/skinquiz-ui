@@ -14,6 +14,7 @@ export interface IWordpressQuestion {
   excerpt: Content;
   tags: Tag[];
   template: string;
+  prompt: string;
   meta: any[];
   _links: Links;
 }

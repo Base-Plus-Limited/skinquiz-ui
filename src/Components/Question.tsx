@@ -7,11 +7,10 @@ import { IIngredient } from '../Interfaces/WordpressProduct';
 import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
 
 export interface QuestionProps {
-  helper?: string;
   questions: IQuizQuestion[];
 }
 
-const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: QuestionProps) => {
+const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
   const [questionOne, questionTwo] = questions;
 
   const { quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
@@ -108,14 +107,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
     <QuestionWrapper>
       <Question>
         {questionOne.question} <br/>
-        {helper && <span> {helper} </span>}  <br/>
+        {questionOne.prompt && <Prompt> {questionOne.prompt} </Prompt>}  <br/>
         {questionOne.answers.map((answer: IAnswer, index: number) => {
           return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionOne, index)} key={index}>{answer.value}</StyledAnswer>
         })}
       </Question>
       <Question>
         {questionTwo.question} <br/>
-        {helper && <span> {helper} </span>} <br/>
+        {questionTwo.prompt && <Prompt> {questionTwo.prompt} </Prompt>} <br/>
         {questionTwo.answers.map((answer: IAnswer, index: number) => {
           return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionTwo, index)} key={index}>{answer.value}</StyledAnswer>
         })}
@@ -127,6 +126,16 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions, helper }: Question
 const Question = styled.p`
   margin: 0;
   padding: 0;
+  font-size: 11pt;
+  font-family: ${props => props.theme.subHeadingFont}
+  `;
+  
+  const Prompt = styled.span`
+  margin: 4px 0 22px;
+  font-size: 9.4pt;
+  display: inline-block;
+  font-family: ${props => props.theme.bodyFont}
+  color: ${props => props.theme.brandColours.baseDarkGreen}
 `;
 
 const QuestionWrapper = styled.div`
