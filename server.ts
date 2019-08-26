@@ -60,6 +60,7 @@ class App {
       id: question.id,
       answered: false,
       hide: true,
+      prompt: question.prompt,
       question: entities.decode(question.title.rendered),
       answers: answerArr.map(answer => {
         return {

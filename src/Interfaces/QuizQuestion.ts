@@ -3,6 +3,7 @@ export interface IQuizQuestion {
   answered: boolean;
   hide: boolean;
   question: string;
+  prompt: string;
   answers: IAnswer[];
 }
 
