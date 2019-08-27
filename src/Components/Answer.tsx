@@ -10,7 +10,7 @@ export interface AnswerProps {
  
 const StyledAnswer: React.FC<AnswerProps> = ({ children, selectAnswer, selected }: AnswerProps) => {
   return <Answer onClick={selectAnswer}>
-    {selected ? <Tick></Tick> : ''}
+    {selected && <Tick></Tick>}
     {children}
   </Answer>
 }

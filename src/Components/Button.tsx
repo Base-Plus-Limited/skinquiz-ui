@@ -1,13 +1,16 @@
-import * as React from 'react';
 import styled from 'styled-components';
+import React, { useContext } from 'react';
+import { QuizContext } from '../QuizContext';
 
 export interface ButtonProps {
-  value: string;
+  children: string[] | string;
 }
 
-const StyledButton: React.FC<ButtonProps> = ({ value }: ButtonProps) => (
-  <Button> {value} </Button>
-);
+const StyledButton: React.FC<ButtonProps> = ({ children }: ButtonProps) => {
+
+  return <Button>{children}</Button>
+}
+
 
 const Button = styled.button`
   padding: 10px 15px;
@@ -22,5 +25,11 @@ const Button = styled.button`
   font-weight: 600;
 `;
 
+const StyledBackButton = styled(Button)`
+  color: ${props => props.theme.brandColours.basePink};
+  margin: 0;
+  padding: 3px 10px;
+  border: solid 2px ${props => props.theme.brandColours.basePink};
+`
 
-export default StyledButton;
+export { StyledButton, StyledBackButton };
