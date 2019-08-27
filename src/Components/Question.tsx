@@ -23,7 +23,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           answer.selected = false;
           if (answer.id === answeredQuestion.answers[index].id){
             answer.selected = true;
-            rankIngredients(answeredQuestion.answers[index], index);
+            doValuesMatch(answeredQuestion.answers[index], index);
           }
         })
       }
@@ -31,7 +31,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     });
     updateQuizQuestions(updatedQuestions);
     doQuestionIdsMatch(answeredQuestion);
-    getCompletedQuizQuestions();
+    // getCompletedQuizQuestions();
   }
 
   const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
@@ -76,25 +76,24 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
   }
 
-  const doValuesMatch = (answerValue: string, tagValue: string, ingredient: IIngredient) => {
+  const rankIngredients = (answerValue: string, tagValue: string, ingredient: IIngredient) => {
+    ingredient.previouslyRanked = false;
     if (answerValue === tagValue) {
-      ingredients.forEach(ingredientFromList => {
-        if (ingredientFromList.id === ingredient.id) 
-          ingredient.rank = ingredient.rank + 1;
-      })
+      ingredient.previouslyRanked = true;
+      ingredient.rank = ingredient.rank + 1;
     }
   }
 
-  const rankIngredients = (answer: IAnswer, answerIndex: number) => {
+  const doValuesMatch = (answer: IAnswer, answerIndex: number) => {
     ingredients.forEach((ingredient: IIngredient) => {
       ingredient.tags.forEach(tag => {
         if(answer.meta[answerIndex] === undefined)
           return;
         if (answer.meta[answerIndex].includes(',')) {
           const metaArray = answer.meta[answerIndex].split(',');
-          doValuesMatch(metaArray[answerIndex], tag.name, ingredient);
+          rankIngredients(metaArray[answerIndex], tag.name, ingredient);
         } else {
-          doValuesMatch(answer.meta[answerIndex], tag.name, ingredient);
+          rankIngredients(answer.meta[answerIndex], tag.name, ingredient);
         }
       })
     })

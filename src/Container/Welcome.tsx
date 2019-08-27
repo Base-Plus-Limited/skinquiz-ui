@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from 'react';
 import styled from "styled-components";
-import StyledButton from '../Components/Button';
+import { StyledButton } from '../Components/Button';
 import StyledInput from '../Components/Shared/Input';
 import StyledH1 from '../Components/Shared/H1';
 import StyledText from '../Components/Shared/Text';
@@ -30,7 +30,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
         <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
         <StyledInput logName={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
         <Link to={{ pathname: '/quiz', state: { name } }}> 
-          <StyledButton value="Start Quiz"></StyledButton>
+          <StyledButton>Start Quiz</StyledButton>
         </Link>
       </WelcomeWrapper>
       <WelcomeWrapper>

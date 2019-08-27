@@ -11,7 +11,7 @@ const state: IQuiz = {
   ingredients: [],
   updateIngredients: (previousIngredients: SetStateAction<IIngredient[]>) => previousIngredients,
   questionsAnswered: [],
-  updateQuestionsAnswered: (previousCount: SetStateAction<IQuizQuestion[]>) => previousCount
+  updateQuestionsAnswered: (previousQuestionsAnswered: SetStateAction<IQuizQuestion[]>) => previousQuestionsAnswered
 }
 
 export const QuizContext = createContext(state);

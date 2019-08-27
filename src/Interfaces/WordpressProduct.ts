@@ -1,5 +1,6 @@
 export interface IIngredient extends WordpressProduct {
   rank: number;
+  previouslyRanked: boolean
 }
 
 export interface WordpressProduct {

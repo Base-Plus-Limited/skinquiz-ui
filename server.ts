@@ -44,6 +44,7 @@ class App {
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           ingredient.rank = 0;
+          ingredient.previouslyRanked = false;
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(JSON.stringify(ingredients)))
