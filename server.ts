@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
@@ -6,6 +6,7 @@ import { IWordpressQuestion } from './src/Interfaces/WordpressQuestion';
 import { IIngredient } from './src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
+import { join } from 'path';
 dotenv.config();
 
 class App {
@@ -14,6 +15,21 @@ class App {
   constructor () {
     this.express = express();
     this.mountRoutes(); 
+    this.config(); 
+  }
+
+  private config () {
+    this.express.use(express.static(__dirname + '/build'))
+    this.express.use(express.static(__dirname + '/build/static/'))
+
+    if (process.env.NODE_ENV === 'production') {
+      this.express.get('/', (req: Request, res: Response) => {
+        res.sendFile(join(__dirname, '/build', 'index.html'));
+      });
+      this.express.get('/download', (req, res) => {
+        res.sendFile(join(__dirname, '/build', 'index.html'));
+      });
+    }
   }
 
   private mountRoutes (): void {
@@ -62,6 +78,7 @@ class App {
       answered: false,
       hide: true,
       prompt: question.prompt,
+      isInputVisible: false,
       question: entities.decode(question.title.rendered),
       answers: answerArr.map(answer => {
         return {

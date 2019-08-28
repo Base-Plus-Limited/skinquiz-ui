@@ -110,6 +110,7 @@ var App = /** @class */ (function () {
             answered: false,
             hide: true,
             prompt: question.prompt,
+            isInputVisible: false,
             question: entities.decode(question.title.rendered),
             answers: answerArr.map(function (answer) {
                 return {
