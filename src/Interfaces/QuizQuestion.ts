@@ -4,6 +4,7 @@ export interface IQuizQuestion {
   hide: boolean;
   question: string;
   prompt: string;
+  isInputVisible: boolean;
   answers: IAnswer[];
 }
 

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 interface InputProps {
   type: string;
   placeholderText: string;
-  logName: (event: ChangeEvent<HTMLInputElement>) => void;
+  logName?: (event: ChangeEvent<HTMLInputElement>) => void;
 }
  
 const StyledInput: React.SFC<InputProps> = ({type, placeholderText, logName}) => (

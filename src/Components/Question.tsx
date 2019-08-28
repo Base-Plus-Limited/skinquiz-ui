@@ -5,6 +5,7 @@ import StyledAnswer from './Answer';
 import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
+import StyledInput from './Shared/Input';
 
 export interface QuestionProps {
   questions: IQuizQuestion[];
@@ -18,20 +19,43 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   const selectAnswer = (answeredQuestion: IQuizQuestion, index: number) => {
     const updatedQuestions = quizQuestions.map(question => {
       if (answeredQuestion.id === question.id) {
-        question.answered = true;
         question.answers.forEach(answer => {
           answer.selected = false;
           if (answer.id === answeredQuestion.answers[index].id){
-            answer.selected = true;
-            doValuesMatch(answeredQuestion.answers[index], index);
+            if(answeredQuestion.answers[index].meta[index] === "custom") {
+              question.answered = false;
+              showInput(answeredQuestion.id);
+            } else {
+              question.answered = true;
+              answer.selected = true;
+              doValuesMatch(answeredQuestion.answers[index], index);
+            }
           }
         })
       }
       return question;
     });
     updateQuizQuestions(updatedQuestions);
-    doQuestionIdsMatch(answeredQuestion);
+    if(answeredQuestion.answered)
+      doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
+  }
+
+  const showInput = (questionId: number) => {
+    const updatedVisibilityQuestions = (questions.map(question => {
+      if (question.id === questionId) {
+        question.isInputVisible = true;
+        return question;
+      }
+    }) as IQuizQuestion[]);
+    updateQuizQuestions([...updatedVisibilityQuestions]);
+  }
+
+  const hideInput = () => {
+    quizQuestions.forEach(question => {
+      question.isInputVisible = false;
+    });
+    updateQuizQuestions([...quizQuestions]);
   }
 
   const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
@@ -107,27 +131,50 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       <Question>
         {questionOne.question} <br/>
         {questionOne.prompt && <Prompt> {questionOne.prompt} </Prompt>}  <br/>
-        {questionOne.answers.map((answer: IAnswer, index: number) => {
-          return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionOne, index)} key={index}>{answer.value}</StyledAnswer>
-        })}
+        {questionOne.isInputVisible ?
+          <span>
+            <StyledInput placeholderText="Let us know" type="text"></StyledInput>
+            <button onClick={hideInput}>close</button>
+            <button>submit</button>
+          </span>
+          :
+          <AnswersWrapper>
+            {questionOne.answers.map((answer: IAnswer, index: number) => {
+              return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionOne, index)} key={index}>{answer.value}</StyledAnswer>
+            })}
+          </AnswersWrapper>
+        }
       </Question>
       <Question>
         {questionTwo.question} <br/>
         {questionTwo.prompt && <Prompt> {questionTwo.prompt} </Prompt>} <br/>
-        {questionTwo.answers.map((answer: IAnswer, index: number) => {
-          return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionTwo, index)} key={index}>{answer.value}</StyledAnswer>
-        })}
+        {questionTwo.isInputVisible ?
+          <span>
+            <StyledInput placeholderText="Let us know" type="text"></StyledInput> 
+            <button onClick={hideInput}>close</button>
+            <button>submit</button>
+          </span>
+          :
+          <AnswersWrapper>
+            {questionTwo.answers.map((answer: IAnswer, index: number) => {
+              return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionTwo, index)} key={index}>{answer.value}</StyledAnswer>
+            })}
+          </AnswersWrapper>
+        }
       </Question>
     </QuestionWrapper>
   )
 }
+
+const AnswersWrapper = styled.span`
+`;
 
 const Question = styled.p`
   margin: 0;
   padding: 0;
   font-size: 11pt;
   font-family: ${props => props.theme.subHeadingFont}
-  `;
+`;
   
   const Prompt = styled.span`
   margin: 4px 0 22px;
