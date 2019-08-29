@@ -23,7 +23,7 @@ class App {
     this.express.use(express.static(__dirname + '/build/static/'));
 
     if (process.env.NODE_ENV === 'production') {
-      this.express.get('/', (req: Request, res: Response) => {
+      this.express.get('/', bodyParser.json(), (req: Request, res: Response) => {
         res.sendFile(join(__dirname, '/build', 'index.html'));
       });
       this.express.get('/download', (req, res) => {
