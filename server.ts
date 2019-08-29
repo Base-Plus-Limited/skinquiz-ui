@@ -21,9 +21,14 @@ class App {
   private config () {
     this.express.use(express.static(__dirname + '/build'));
     this.express.use(express.static(__dirname + '/build/static/'));
+    this.express.use((req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
 
     if (process.env.NODE_ENV === 'production') {
-      this.express.get('/', bodyParser.json(), (req: Request, res: Response) => {
+      this.express.get('/', (req: Request, res: Response) => {
         res.sendFile(join(__dirname, '/build', 'index.html'));
       });
       this.express.get('/download', (req, res) => {
@@ -34,20 +39,20 @@ class App {
 
   private mountRoutes (): void {
     const router = express.Router();
-    this.express.use('/', router);
-    this.express.use(bodyParser.json());
+    this.express.use('/', bodyParser.json(), router);
 
 
     /*************************
      *  GET ALL QUESTIONS
      *************************/
     router.get('/quiz', async (req, res) => {
+      res.setHeader('Content-Type', 'application/json');
       await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => {
           return this.returnQuizQuestion(question);
         }))
-        .then(quiz => res.send(JSON.stringify(quiz)))
+        .then(quiz => res.json(JSON.stringify(quiz)))
         .catch((error: Error) => res.json({ error: error.message }))
     });
 
@@ -56,6 +61,7 @@ class App {
      *  GET ALL INGREDIENTS
      *************************/
     router.get('/ingredients', async (req, res) => {
+      res.setHeader('Content-Type', 'application/json');
       await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
@@ -63,7 +69,7 @@ class App {
           ingredient.previouslyRanked = false;
           return ingredient;
         }))
-        .then((ingredients: IIngredient[]) => res.send(JSON.stringify(ingredients)))
+        .then((ingredients: IIngredient[]) => res.json(JSON.stringify(ingredients)))
         .catch((error: Error) => res.json({ error: error.message }))
     });
 
