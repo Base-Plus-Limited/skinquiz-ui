@@ -11,17 +11,14 @@ dotenv.config();
 
 class App {
   public express: Application;
-  private port: string | number;
 
   constructor () {
     this.express = express();
     this.mountRoutes(); 
     this.config(); 
-    this.port = process.env.PORT || 3001;
   }
 
   private config () {
-    this.express.listen(this.port, () => console.log(`Server started on port ${this.port}`));
     this.express.use(express.static(__dirname + '/build'))
     this.express.use(express.static(__dirname + '/build/static/'))
 
