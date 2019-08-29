@@ -19,8 +19,8 @@ class App {
   }
 
   private config () {
-    this.express.use(express.static(__dirname + '/build'))
-    this.express.use(express.static(__dirname + '/build/static/'))
+    this.express.use(express.static(__dirname + '/build'));
+    this.express.use(express.static(__dirname + '/build/static/'));
 
     if (process.env.NODE_ENV === 'production') {
       this.express.get('/', (req: Request, res: Response) => {
@@ -94,35 +94,3 @@ class App {
 
 export default App;
 
-// export default class App {
-
-//   private app: Application;
-//   private port: number;
-//   private router = new Routes();
-
-//   constructor() {
-//     this.port = Number(process.env.PORT) || 3001;
-//     this.app = express();
-//     this.config();
-//     this.initialiseRoutes();
-//   }
-  
-//   private config() {
-//     this.app.use(express.static(__dirname + '/build'))
-//     this.app.use(express.static(__dirname + '/build/static/'))
-
-//     if (process.env.NODE_ENV === 'production') {
-//       this.app.get('/', (req: Request, res: Response) => {
-//         res.sendFile(join(__dirname, '/build', 'index.html')); 
-//       });
-//       this.app.get('/download', (req, res) => {
-//         res.sendFile(join(__dirname, '/build', 'index.html')); 
-//       });
-//     }
-
-//     this.app.listen(this.port, () => console.log(`Server started on port ${this.port}`));
-//     process.on('uncaughtException', (err) => {
-//       console.log(`ERROR: ${err.message}`)
-//     })
-
-//   }

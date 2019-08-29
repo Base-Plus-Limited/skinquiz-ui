@@ -50,12 +50,31 @@ var body_parser_1 = __importDefault(require("body-parser"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
+var path_1 = require("path");
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
         this.express = express_1["default"]();
         this.mountRoutes();
+        this.config();
     }
+    App.prototype.config = function () {
+        var _this = this;
+        this.express.use(express_1["default"].static(__dirname + '/build'));
+        this.express.use(express_1["default"].static(__dirname + '/build/static/'));
+        this.port = Number(process.env.PORT) || 3001;
+        this.express.listen(this.port, function () {
+            console.log("server is listening on " + _this.port);
+        });
+        if (process.env.NODE_ENV === 'production') {
+            this.express.get('/', function (req, res) {
+                res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
+            });
+            this.express.get('/download', function (req, res) {
+                res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
+            });
+        }
+    };
     App.prototype.mountRoutes = function () {
         var _this = this;
         var router = express_1["default"].Router();
@@ -125,29 +144,3 @@ var App = /** @class */ (function () {
     return App;
 }());
 exports["default"] = App;
-// export default class App {
-//   private app: Application;
-//   private port: number;
-//   private router = new Routes();
-//   constructor() {
-//     this.port = Number(process.env.PORT) || 3001;
-//     this.app = express();
-//     this.config();
-//     this.initialiseRoutes();
-//   }
-//   private config() {
-//     this.app.use(express.static(__dirname + '/build'))
-//     this.app.use(express.static(__dirname + '/build/static/'))
-//     if (process.env.NODE_ENV === 'production') {
-//       this.app.get('/', (req: Request, res: Response) => {
-//         res.sendFile(join(__dirname, '/build', 'index.html')); 
-//       });
-//       this.app.get('/download', (req, res) => {
-//         res.sendFile(join(__dirname, '/build', 'index.html')); 
-//       });
-//     }
-//     this.app.listen(this.port, () => console.log(`Server started on port ${this.port}`));
-//     process.on('uncaughtException', (err) => {
-//       console.log(`ERROR: ${err.message}`)
-//     })
-//   }
