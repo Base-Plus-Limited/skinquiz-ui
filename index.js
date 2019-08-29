@@ -9,3 +9,6 @@ var port = process.env.PORT || 3001;
 app.listen(port, function () {
     console.log("server is listening on " + port);
 });
+process.on('uncaughtException', function (err) {
+    console.log("ERROR: " + err.message);
+});
