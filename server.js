@@ -59,13 +59,8 @@ var App = /** @class */ (function () {
         this.config();
     }
     App.prototype.config = function () {
-        var _this = this;
         this.express.use(express_1["default"].static(__dirname + '/build'));
         this.express.use(express_1["default"].static(__dirname + '/build/static/'));
-        this.port = Number(process.env.PORT) || 3001;
-        this.express.listen(this.port, function () {
-            console.log("server is listening on " + _this.port);
-        });
         if (process.env.NODE_ENV === 'production') {
             this.express.get('/', function (req, res) {
                 res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
