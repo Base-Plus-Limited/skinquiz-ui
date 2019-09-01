@@ -1,8 +1,8 @@
 export interface IQuizQuestion {
   id: number;
   answered: boolean;
-  hide: boolean;
   question: string;
+  customAnswer: string;
   prompt: string;
   isInputVisible: boolean;
   answers: IAnswer[];

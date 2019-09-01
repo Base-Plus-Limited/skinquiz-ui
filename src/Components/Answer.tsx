@@ -5,7 +5,7 @@ import styled from 'styled-components';
 export interface AnswerProps {
   children: string;
   selected: boolean;
-  selectAnswer: (event: React.MouseEvent<HTMLSpanElement>) => void
+  selectAnswer: () => void
 }
  
 const StyledAnswer: React.FC<AnswerProps> = ({ children, selectAnswer, selected }: AnswerProps) => {
