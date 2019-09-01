@@ -34,8 +34,7 @@ class App {
 
   private mountRoutes (): void {
     const router = express.Router();
-    this.express.use('/', router);
-    this.express.use(bodyParser.json());
+    this.express.use('/', bodyParser.json(), router);
 
 
     /*************************
