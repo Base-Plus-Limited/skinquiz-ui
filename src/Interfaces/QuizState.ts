@@ -11,6 +11,8 @@ interface IQuiz {
   updateIngredients: Dispatch<SetStateAction<IIngredient[]>>;
   questionsAnswered: IQuizQuestion[];
   updateQuestionsAnswered: Dispatch<SetStateAction<IQuizQuestion[]>>;
+  questionInputAnswer: string;
+  updateQuestionInputAnswer: Dispatch<SetStateAction<string>>;
 }
 
 export default IQuiz;

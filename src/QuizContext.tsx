@@ -11,7 +11,9 @@ const state: IQuiz = {
   ingredients: [],
   updateIngredients: (previousIngredients: SetStateAction<IIngredient[]>) => previousIngredients,
   questionsAnswered: [],
-  updateQuestionsAnswered: (previousQuestionsAnswered: SetStateAction<IQuizQuestion[]>) => previousQuestionsAnswered
+  updateQuestionsAnswered: (previousQuestionsAnswered: SetStateAction<IQuizQuestion[]>) => previousQuestionsAnswered,
+  questionInputAnswer: "",
+  updateQuestionInputAnswer: (previousQuestionsAnswered: SetStateAction<string>) => previousQuestionsAnswered
 }
 
 export const QuizContext = createContext(state);
@@ -25,6 +27,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [quizQuestions, updateQuizQuestions] = useState<IQuizQuestion[]>([]);
   const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
   const [questionsAnswered, updateQuestionsAnswered] = useState<IQuizQuestion[]>([]);
+  const [questionInputAnswer, updateQuestionInputAnswer] = useState<string>("");
 
   return (
     <QuizContext.Provider value={{
@@ -35,7 +38,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       ingredients,
       updateIngredients,
       questionsAnswered,
-      updateQuestionsAnswered
+      updateQuestionsAnswered,
+      questionInputAnswer,
+      updateQuestionInputAnswer
     }}>
       {children}
     </QuizContext.Provider>

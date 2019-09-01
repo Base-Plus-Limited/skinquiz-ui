@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
 import StyledAnswer from './Answer';
@@ -6,6 +6,7 @@ import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
 import StyledInput from './Shared/Input';
+import { StyledButton } from './Button';
 
 export interface QuestionProps {
   questions: IQuizQuestion[];
@@ -14,21 +15,22 @@ export interface QuestionProps {
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
   const [questionOne, questionTwo] = questions;
 
-  const { quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
 
-  const selectAnswer = (answeredQuestion: IQuizQuestion, index: number) => {
+  const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     const updatedQuestions = quizQuestions.map(question => {
       if (answeredQuestion.id === question.id) {
         question.answers.forEach(answer => {
           answer.selected = false;
-          if (answer.id === answeredQuestion.answers[index].id){
-            if(answeredQuestion.answers[index].meta[index] === "custom") {
+          if (answer.id === answeredQuestion.answers[answerIndex].id){
+            if(answeredQuestion.answers[answerIndex].meta[answerIndex] === "custom") {
               question.answered = false;
               showInput(answeredQuestion.id);
             } else {
               question.answered = true;
+              question.customAnswer = "";
               answer.selected = true;
-              doValuesMatch(answeredQuestion.answers[index], index);
+              doValuesMatch(answeredQuestion.answers[answerIndex], answerIndex);
             }
           }
         })
@@ -36,7 +38,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       return question;
     });
     updateQuizQuestions(updatedQuestions);
-    if(answeredQuestion.answered)
+    if (answeredQuestion.answered)
       doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
   }
@@ -51,11 +53,42 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateQuizQuestions([...updatedVisibilityQuestions]);
   }
 
+  const logQuestionInput = (e: ChangeEvent<HTMLInputElement>) => {
+    updateQuestionInputAnswer(e.target.value);
+  }
+
+  const customAnswerWrapperHandler = (questionId?: number) => {
+    if (questionId) {
+      if (questionInputAnswer.length) {
+        submitAnswer(questionId);
+      }
+      return;
+    }
+    hideInput();
+  }
+
   const hideInput = () => {
     quizQuestions.forEach(question => {
       question.isInputVisible = false;
     });
     updateQuizQuestions([...quizQuestions]);
+  }
+
+  const submitAnswer = (questionId: number) => {
+    quizQuestions.forEach(question => {
+      if (question.id === questionId) {
+        question.customAnswer = questionInputAnswer;
+        question.answered = true;
+        doQuestionIdsMatch(question);
+        setCustomAnswerAsSelected(question);
+      }
+    });
+    updateQuizQuestions([...quizQuestions]);
+    console.log(quizQuestions);
+  }
+
+  const setCustomAnswerAsSelected = (question: IQuizQuestion) => {
+    question.answers[question.answers.length - 1].selected = true;
   }
 
   const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
@@ -121,10 +154,8 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         }
       })
     })
-
     updateIngredients(ingredients);
   }
-
 
   return (
     <QuestionWrapper>
@@ -133,16 +164,16 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         {questionOne.prompt && <Prompt> {questionOne.prompt} </Prompt>}  <br/>
         {questionOne.isInputVisible ?
           <span>
-            <StyledInput placeholderText="Let us know" type="text"></StyledInput>
-            <button onClick={hideInput}>close</button>
-            <button>submit</button>
+            <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
+            <StyledButton extraAnswerButton onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+            <StyledButton onClickHandler={() => customAnswerWrapperHandler(questionOne.id)}>submit</StyledButton>
           </span>
           :
-          <AnswersWrapper>
+          <React.Fragment>
             {questionOne.answers.map((answer: IAnswer, index: number) => {
               return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionOne, index)} key={index}>{answer.value}</StyledAnswer>
             })}
-          </AnswersWrapper>
+          </React.Fragment>
         }
       </Question>
       <Question>
@@ -150,24 +181,21 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         {questionTwo.prompt && <Prompt> {questionTwo.prompt} </Prompt>} <br/>
         {questionTwo.isInputVisible ?
           <span>
-            <StyledInput placeholderText="Let us know" type="text"></StyledInput> 
-            <button onClick={hideInput}>close</button>
-            <button>submit</button>
+            <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput> 
+            <StyledButton extraAnswerButton onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+            <StyledButton onClickHandler={() => customAnswerWrapperHandler(questionTwo.id)}>submit</StyledButton>
           </span>
           :
-          <AnswersWrapper>
+          <React.Fragment>
             {questionTwo.answers.map((answer: IAnswer, index: number) => {
               return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionTwo, index)} key={index}>{answer.value}</StyledAnswer>
             })}
-          </AnswersWrapper>
+          </React.Fragment>
         }
       </Question>
     </QuestionWrapper>
   )
 }
-
-const AnswersWrapper = styled.span`
-`;
 
 const Question = styled.p`
   margin: 0;

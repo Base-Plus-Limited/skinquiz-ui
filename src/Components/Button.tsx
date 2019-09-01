@@ -1,23 +1,22 @@
 import styled from 'styled-components';
-import React, { useContext } from 'react';
-import { QuizContext } from '../QuizContext';
+import React from 'react';
 
 export interface ButtonProps {
   children: string[] | string;
+  onClickHandler?: (() => void) | undefined;
+  extraAnswerButton?: boolean;
 }
 
-const StyledButton: React.FC<ButtonProps> = ({ children }: ButtonProps) => {
-
-  return <Button>{children}</Button>
+const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, extraAnswerButton }: ButtonProps) => {
+  return <Button extraAnswerButton={extraAnswerButton} onClick={onClickHandler}>{children}</Button>
 }
-
 
 const Button = styled.button`
   padding: 10px 15px;
   background: #fff;
   outline: none;
   border: solid 2px ${props => props.theme.brandColours.baseDarkGreen};
-  margin: 0 auto;
+  margin: ${(props: ButtonProps) => props.extraAnswerButton ? "0 8px 0 0" : "0 auto"};
   cursor: pointer;
   text-transform: uppercase;
   color: ${props => props.theme.brandColours.baseDarkGreen};

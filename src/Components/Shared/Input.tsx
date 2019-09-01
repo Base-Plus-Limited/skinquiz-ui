@@ -3,16 +3,17 @@ import styled from 'styled-components';
 
 interface InputProps {
   type: string;
-  placeholderText: string;
-  logName?: (event: ChangeEvent<HTMLInputElement>) => void;
+  placeholderText?: string;
+  logInputValue?: (event: ChangeEvent<HTMLInputElement>) => void;
+  width?: string;
 }
  
-const StyledInput: React.SFC<InputProps> = ({type, placeholderText, logName}) => (
-  <Input onChange={logName} type={type} placeholder={placeholderText}></Input>
+const StyledInput: React.SFC<InputProps> = ({type, placeholderText, logInputValue, width}) => (
+  <Input width={width} onChange={logInputValue} type={type} placeholder={placeholderText}></Input>
 )
  
 const Input = styled.input`
-  width:100%;
+  width: ${(props: InputProps) => props.width ? props.width : "100%"};
   max-width:90%;
   border: none;
   text-align: center;
@@ -21,6 +22,7 @@ const Input = styled.input`
   background: none;
   font-size: 11pt;
   border-radius: none;
+  display: block;
   margin: 0 auto 20px auto;
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};

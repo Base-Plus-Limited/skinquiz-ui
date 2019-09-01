@@ -82,8 +82,8 @@ class App {
     return {
       id: question.id,
       answered: false,
-      hide: true,
       prompt: question.prompt,
+      customAnswer: "",
       isInputVisible: false,
       question: entities.decode(question.title.rendered),
       answers: answerArr.map(answer => {
