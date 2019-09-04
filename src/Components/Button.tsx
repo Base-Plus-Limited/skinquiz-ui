@@ -4,11 +4,11 @@ import React from 'react';
 export interface ButtonProps {
   children: string[] | string;
   onClickHandler?: (() => void) | undefined;
-  extraAnswerButton?: boolean;
+  addMargin?: boolean;
 }
 
-const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, extraAnswerButton }: ButtonProps) => {
-  return <Button extraAnswerButton={extraAnswerButton} onClick={onClickHandler}>{children}</Button>
+const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, addMargin }: ButtonProps) => {
+  return <Button addMargin={addMargin} onClick={onClickHandler}>{children}</Button>
 }
 
 const Button = styled.button`
@@ -16,7 +16,7 @@ const Button = styled.button`
   background: #fff;
   outline: none;
   border: solid 2px ${props => props.theme.brandColours.baseDarkGreen};
-  margin: ${(props: ButtonProps) => props.extraAnswerButton ? "0 8px 0 0" : "0 auto"};
+  margin: ${(props: ButtonProps) => props.addMargin ? "0 8px 0 0" : "0 auto"};
   cursor: pointer;
   text-transform: uppercase;
   color: ${props => props.theme.brandColours.baseDarkGreen};
@@ -31,4 +31,8 @@ const StyledBackButton = styled(Button)`
   border: solid 2px ${props => props.theme.brandColours.basePink};
 `
 
-export { StyledButton, StyledBackButton };
+const StyledSummaryButton = styled(Button)`
+  margin: ${(props: ButtonProps) => props.addMargin ? "0 8px 0 0" : "0 auto"};
+`
+
+export { StyledButton, StyledBackButton, StyledSummaryButton };

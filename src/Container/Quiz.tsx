@@ -4,6 +4,7 @@ import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
 import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
+import StyledSummary from '../Components/Summary';
 
 
 interface QuizProps {
@@ -54,10 +55,11 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   return ( 
     <ScrollWrapper>
-      <Quiz rows={formattedQuiz.length} marginValue={returnMarginAmount()}>
+      <Quiz rows={formattedQuiz.length + 1} marginValue={returnMarginAmount()}>
         {
           formattedQuiz.map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>)
         }
+        { questionsAnswered.length === 8 && <StyledSummary></StyledSummary> }
       </Quiz>
     </ScrollWrapper>
    );
