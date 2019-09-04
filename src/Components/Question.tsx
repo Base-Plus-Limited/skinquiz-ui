@@ -165,7 +165,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         {questionOne.isInputVisible ?
           <span>
             <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
-            <StyledButton extraAnswerButton onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+            <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
             <StyledButton onClickHandler={() => customAnswerWrapperHandler(questionOne.id)}>submit</StyledButton>
           </span>
           :
@@ -182,7 +182,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         {questionTwo.isInputVisible ?
           <span>
             <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput> 
-            <StyledButton extraAnswerButton onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+            <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
             <StyledButton onClickHandler={() => customAnswerWrapperHandler(questionTwo.id)}>submit</StyledButton>
           </span>
           :

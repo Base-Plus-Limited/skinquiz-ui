@@ -59,8 +59,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         {
           formattedQuiz.map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>)
         }
-
-        <StyledSummary></StyledSummary>
+        { questionsAnswered.length === 8 && <StyledSummary></StyledSummary> }
       </Quiz>
     </ScrollWrapper>
    );
