@@ -8,7 +8,7 @@ export interface SummaryProps {
  
 const StyledSummary: React.FC<SummaryProps> = () => {
   const { ingredients } = useContext(QuizContext);
-  const sortedIngredients =  ingredients.sort((ingrdientA, ingredientB) => ingrdientA.rank - ingredientB.rank).slice(0, 2);
+  const sortedIngredients = ingredients.sort((ingrdientA, ingredientB) => ingrdientA.rank - ingredientB.rank).slice(0, 2);
 
   const amendIngredients = async () => {
     return fetch('/customisation-tool', {
@@ -24,16 +24,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const sendToWordpress = async () => {
-    return fetch('/customisation-tool', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(sortedIngredients)
-    })
-    .then(response => response.json())
-    .catch(error => console.error(error));
+    window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${sortedIngredients[0].id}`);
+  }
+
+  
+  const navigateTo = (type, product) => {
+    type === 'amend' ?
+      window.location.assign(product.permalink) :
+      window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}`);
   }
 
   return <React.Fragment>
