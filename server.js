@@ -114,10 +114,11 @@ var App = /** @class */ (function () {
                             .then(function (res) { return res.body; })
                             .then(function (ingredients) { return ingredients.map(function (ingredient) {
                             ingredient.rank = 0;
+                            ingredient.price_html = "";
                             ingredient.previouslyRanked = false;
                             return ingredient;
                         }); })
-                            .then(function (ingredients) { return res.send(JSON.stringify(ingredients)); })["catch"](function (error) { return res.json({ error: error }); })];
+                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.json({ error: error }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
