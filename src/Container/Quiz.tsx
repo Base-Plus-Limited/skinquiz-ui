@@ -21,12 +21,14 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     const signal = abortController.signal;
     fetch('/quiz', { signal: signal })
       .then(res => res.json())
-      .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
+      .then(data => console.log(data))
+      // .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch(error => console.error(error));
 
     fetch('/ingredients')
       .then(res => res.json())
-      .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
+      .then(data => console.log(data))
+      // .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
       .catch(error => console.error(error));
 
       return function cleanup() {
