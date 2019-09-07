@@ -20,9 +20,8 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     // const abortController = new AbortController();
     // const signal = abortController.signal;
     fetch('/quiz')
-      .then(res => res.text())
-      .then(data => console.log(data))
-      // .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
+      .then(res => res.json())
+      .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch(error => console.error(error));
 
     fetch('/ingredients')
