@@ -68,6 +68,7 @@ class App {
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           ingredient.rank = 0;
           ingredient.price_html = "";
+          ingredient.description = "";
           ingredient.previouslyRanked = false;
           return ingredient;
         }))
