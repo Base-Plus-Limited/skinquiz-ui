@@ -97,7 +97,7 @@ var App = /** @class */ (function () {
                             .then(function (questions) { return questions.map(function (question) {
                             return _this.returnQuizQuestion(question);
                         }); })
-                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error }); })];
+                            .then(function (quiz) { return res.send(JSON.stringify(quiz)); })["catch"](function (error) { return res.json({ error: error }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
