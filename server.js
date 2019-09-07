@@ -97,7 +97,7 @@ var App = /** @class */ (function () {
                             .then(function (questions) { return questions.map(function (question) {
                             return _this.returnQuizQuestion(question);
                         }); })
-                            .then(function (quiz) { return res.json({ quiz: quiz }); })["catch"](function (error) { return res.json({ error: error }); })];
+                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -117,7 +117,7 @@ var App = /** @class */ (function () {
                             ingredient.previouslyRanked = false;
                             return ingredient;
                         }); })
-                            .then(function (ingredients) { return res.json({ ingredients: ingredients }); })["catch"](function (error) { return res.json({ error: error }); })];
+                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.json({ error: error }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
