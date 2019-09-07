@@ -17,7 +17,9 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch('/quiz')
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+    fetch('/quiz', { signal: signal })
       .then(res => res.json())
       .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch(error => console.error(error));
@@ -26,6 +28,10 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       .then(res => res.json())
       .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
       .catch(error => console.error(error));
+
+      return function cleanup() {
+        abortController.abort();
+      }
   }, []);
 
   const formattedQuiz = (quizQuestions.map((q, i) => {
