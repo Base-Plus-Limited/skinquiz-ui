@@ -21,14 +21,12 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     const signal = abortController.signal;
     fetch('/quiz', { signal: signal })
       .then(res => res.json())
-      .then(data => console.log(data))
-      // .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
+      .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch(error => console.error(error));
 
     fetch('/ingredients')
       .then(res => res.json())
-      .then(data => console.log(data))
-      // .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
+      .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
       .catch(error => console.error(error));
 
       return function cleanup() {
@@ -36,10 +34,12 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       }
   }, []);
 
-  const formattedQuiz = (quizQuestions.map((q, i) => {
-    if (i % 2 === 0)
-      return quizQuestions.slice(i, i + 2)
-  }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]);
+  const formattedQuiz = () => {
+    return quizQuestions.map((q, i) => {
+      if (i % 2 === 0)
+        return quizQuestions.slice(i, i + 2)
+    }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]
+  };
 
   const returnMarginAmount = () => {
     switch (questionsAnswered.length) {
@@ -63,9 +63,10 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   return ( 
     <ScrollWrapper>
-      <Quiz rows={formattedQuiz.length + 1} marginValue={returnMarginAmount()}>
+      <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
         {
-          formattedQuiz.map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>)
+          formattedQuiz().length &&
+            formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>)
         }
         { questionsAnswered.length === 8 && <StyledSummary></StyledSummary> }
       </Quiz>
