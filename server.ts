@@ -54,7 +54,7 @@ class App {
         .then((questions: IWordpressQuestion[]) => questions.map(question => {
           return this.returnQuizQuestion(question);
         }))
-        .then(quiz => res.send(quiz))
+        .then(quiz => res.send(JSON.stringify(quiz)))
         .catch((error: Error) => res.json({ error }))
     });
 
@@ -70,7 +70,7 @@ class App {
           ingredient.previouslyRanked = false;
           return ingredient;
         }))
-        .then((ingredients: IIngredient[]) => res.send(ingredients))
+        .then((ingredients: IIngredient[]) => res.send(JSON.stringify(ingredients)))
         .catch((error: Error) => res.json({ error }))
     });
 
