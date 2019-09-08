@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
-  "proxy": "http://localhost:3001",
+  "proxy": "https://diagnostic-tool.herokuapp.com/",
   "dependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/jest": "24.0.16",
