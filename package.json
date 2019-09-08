@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
-  "proxy": "https://diagnostic-tool.herokuapp.com/",
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "@types/dotenv": "^6.1.1",
     "@types/jest": "24.0.16",
@@ -28,7 +28,7 @@
     "typescript": "3.5.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node index.js",
     "build": "react-scripts build",
     "dev": "concurrently \"npm run compile\" \"npm run server\" \"npm start\"",
     "compile": "tsc --skipLibCheck --esModuleInterop index.ts server.ts",
