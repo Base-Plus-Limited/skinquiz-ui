@@ -7,6 +7,7 @@ import { IIngredient } from './src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
 import { join } from 'path';
+import cors from 'cors';
 dotenv.config();
 
 class App {
@@ -14,18 +15,14 @@ class App {
 
   constructor () {
     this.express = express();
-    this.mountRoutes(); 
     this.config(); 
+    this.mountRoutes(); 
   }
 
   private config () {
     this.express.use(express.static(__dirname + '/build'));
     this.express.use(express.static(__dirname + '/build/static/'));
-    this.express.use((req, res, next) => {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      next();
-    });
+    this.express.use(cors());
 
     if (process.env.NODE_ENV === 'production') {
       this.express.get('/', (req: Request, res: Response) => {
