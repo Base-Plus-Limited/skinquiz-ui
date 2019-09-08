@@ -51,7 +51,6 @@ var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
 var path_1 = require("path");
-var console = require("console");
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
@@ -71,7 +70,7 @@ var App = /** @class */ (function () {
             this.express.get('/', function (req, res) {
                 res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
             });
-            this.express.get('/download', function (req, res) {
+            this.express.get('/api/download', function (req, res) {
                 res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
             });
         }
@@ -79,7 +78,7 @@ var App = /** @class */ (function () {
     App.prototype.mountRoutes = function () {
         var _this = this;
         var router = express_1["default"].Router();
-        this.express.use('/', body_parser_1["default"].json(), router);
+        this.express.use('/api', body_parser_1["default"].json(), router);
         router.get('/healthcheck', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 res.json({ message: "working" });
@@ -93,14 +92,12 @@ var App = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        console.log(req.body);
-                        return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
-                                .then(function (res) { return res.body; })
-                                .then(function (questions) { return questions.map(function (question) {
-                                return _this.returnQuizQuestion(question);
-                            }); })
-                                .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error }); })];
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
+                            .then(function (res) { return res.body; })
+                            .then(function (questions) { return questions.map(function (question) {
+                            return _this.returnQuizQuestion(question);
+                        }); })
+                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

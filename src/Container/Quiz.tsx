@@ -19,12 +19,12 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   useEffect(() => {
     // const abortController = new AbortController();
     // const signal = abortController.signal;
-    fetch('/quiz')
+    fetch('/api/quiz')
       .then(res => res.json())
       .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch(error => console.error(error));
 
-    fetch('/ingredients')
+    fetch('/api/ingredients')
       .then(res => res.json())
       .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
       .catch(error => console.error(error));

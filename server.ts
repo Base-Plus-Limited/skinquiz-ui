@@ -7,7 +7,6 @@ import { IIngredient } from './src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
 import { join } from 'path';
-import console = require('console');
 dotenv.config();
 
 class App {
@@ -32,7 +31,7 @@ class App {
       this.express.get('/', (req: Request, res: Response) => {
         res.sendFile(join(__dirname, '/build', 'index.html'));
       });
-      this.express.get('/download', (req, res) => {
+      this.express.get('/api/download', (req, res) => {
         res.sendFile(join(__dirname, '/build', 'index.html'));
       });
     }
@@ -40,7 +39,7 @@ class App {
 
   private mountRoutes (): void {
     const router = express.Router();
-    this.express.use('/', bodyParser.json(), router);
+    this.express.use('/api', bodyParser.json(), router);
 
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
@@ -50,7 +49,6 @@ class App {
      *  GET ALL QUESTIONS
      *************************/
     router.get('/quiz', async (req, res) => {
-      console.log(req.body);
       await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => {
