@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
-  "proxy": "http://localhost:3001",
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:3001"
+    }
+  },
   "dependencies": {
     "@types/cors": "^2.8.6",
     "@types/dotenv": "^6.1.1",
