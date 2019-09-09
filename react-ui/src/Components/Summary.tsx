@@ -28,11 +28,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   
-  const navigateTo = (type, product) => {
-    type === 'amend' ?
-      window.location.assign(product.permalink) :
-      window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}`);
-  }
+  // const navigateTo = (type: string, product:) => {
+  //   type === 'amend' ?
+  //     window.location.assign(product.permalink) :
+  //     window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}`);
+  // }
 
   return <React.Fragment>
     <SummaryWrap>
