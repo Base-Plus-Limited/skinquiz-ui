@@ -25,12 +25,12 @@ class App {
     this.express.use(cors());
 
     if (process.env.NODE_ENV === 'production') {
-      this.express.get('/', (req: Request, res: Response) => {
-        res.sendFile(join(__dirname, '/build', 'index.html'));
-      });
-      this.express.get('/api/download', (req, res) => {
-        res.sendFile(join(__dirname, '/build', 'index.html'));
-      });
+      // this.express.get('/', (req: Request, res: Response) => {
+      //   res.sendFile(join(__dirname, '/build', 'index.html'));
+      // });
+      // this.express.get('/api/download', (req, res) => {
+      //   res.sendFile(join(__dirname, '/build', 'index.html'));
+      // });
     }
   }
 
