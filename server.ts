@@ -6,7 +6,7 @@ import { IWordpressQuestion } from './src/Interfaces/WordpressQuestion';
 import { IIngredient } from './src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import cors from 'cors';
 dotenv.config();
 
@@ -34,6 +34,10 @@ class App {
   private mountRoutes (): void {
     const router = express.Router();
     this.express.use('/api', bodyParser.json(), router);
+
+    router.get('*', (req, res) => {
+        res.sendFile(resolve(__dirname, '/build', 'index.html'));
+    });
 
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
