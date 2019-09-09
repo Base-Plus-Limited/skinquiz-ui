@@ -22,7 +22,11 @@ class App {
   private config () {
     this.express.use(express.static(__dirname + '/build'));
     this.express.use(express.static(__dirname + '/build/static/'));
-    this.express.use(cors());
+    this.express.use((req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
 
     if (process.env.NODE_ENV === 'production') {
       this.express.get('/', (req: Request, res: Response) => {
@@ -34,10 +38,6 @@ class App {
   private mountRoutes (): void {
     const router = express.Router();
     this.express.use('/api', bodyParser.json(), router);
-
-    router.get('*', (req, res) => {
-        res.sendFile(resolve(__dirname, '/build', 'index.html'));
-    });
 
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
