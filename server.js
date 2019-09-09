@@ -67,8 +67,8 @@ var App = /** @class */ (function () {
             this.express.get('/', function (req, res) {
                 res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
             });
-            this.express.get('/api/download', function (req, res) {
-                res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
+            this.express.get('/api', function (req, res) {
+                res.sendFile(path_1.join(__dirname, '/index.js'));
             });
         }
     };
@@ -85,7 +85,7 @@ var App = /** @class */ (function () {
         /*************************
          *  GET ALL QUESTIONS
          *************************/
-        router.get('/quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.get('/questions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {

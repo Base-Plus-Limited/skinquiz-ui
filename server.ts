@@ -28,9 +28,6 @@ class App {
       this.express.get('/', (req: Request, res: Response) => {
         res.sendFile(join(__dirname, '/build', 'index.html'));
       });
-      this.express.get('/api', (req, res) => {
-        res.sendFile(join(__dirname, '/index.js'));
-      });
     }
   }
 
