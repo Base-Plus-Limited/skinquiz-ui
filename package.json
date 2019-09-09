@@ -2,12 +2,7 @@
   "name": "diagnostic-tool",
   "version": "0.1.0",
   "private": true,
-  "main": "index.js",
-  "proxy": {
-    "/api": {
-      "target": "http://localhost:3001"
-    }
-  },
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "@types/cors": "^2.8.6",
     "@types/dotenv": "^6.1.1",
