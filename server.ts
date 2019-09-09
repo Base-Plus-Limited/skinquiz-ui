@@ -45,7 +45,7 @@ class App {
     /*************************
      *  GET ALL QUESTIONS
      *************************/
-    router.get('/quiz', async (req, res) => {
+    router.get('/questions', async (req, res) => {
       await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => {
