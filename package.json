@@ -29,7 +29,7 @@
     "typescript": "3.5.3"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "concurrently \"npm run compile\" \"npm run server\"",
     "build": "react-scripts build",
     "dev": "concurrently \"npm run compile\" \"npm run server\" \"npm start\"",
     "compile": "tsc --skipLibCheck --esModuleInterop index.ts server.ts",
