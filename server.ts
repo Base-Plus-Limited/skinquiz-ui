@@ -20,13 +20,13 @@ class App {
   }
 
   private config () {
-    // this.express.use(express.static(__dirname + '/build'));
-    // this.express.use(express.static(__dirname + '/build/static/'));
-    // this.express.use((req, res, next) => {
-    //   res.header("Access-Control-Allow-Origin", "*");
-    //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    //   next();
-    // });
+    this.express.use(express.static(__dirname + '/build'));
+    this.express.use(express.static(__dirname + '/build/static/'));
+    this.express.use((req, res, next) => {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
 
     if (process.env.NODE_ENV === 'production') {
       this.express.get('/', (req: Request, res: Response) => {
