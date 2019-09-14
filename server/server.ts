@@ -20,7 +20,7 @@ class App {
 
   private config () {
     this.express.use(express.static(resolve(__dirname, '../react-ui/build')));
-    this.express.use(express.static(__dirname + '../react-ui/build/static/'));
+    // this.express.use(express.static(__dirname + '../react-ui/build/static/'));
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
