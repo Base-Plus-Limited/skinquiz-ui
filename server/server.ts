@@ -6,7 +6,7 @@ import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuesti
 import { IIngredient } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
-import { join } from 'path';
+import { join, resolve } from 'path';
 dotenv.config();
 
 class App {
@@ -19,7 +19,7 @@ class App {
   }
 
   private config () {
-    this.express.use(express.static(__dirname + '../react-ui/build'));
+    this.express.use(express.static(resolve(__dirname, '../react-ui/build')));
     this.express.use(express.static(__dirname + '../react-ui/build/static/'));
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
@@ -27,14 +27,11 @@ class App {
       next();
     });
 
-    if (process.env.NODE_ENV === 'production') {
-      this.express.get('/', (req: Request, res: Response) => {
-        res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
-      });
-      // this.express.get('/api', (req: Request, res: Response) => {
-      //   res.sendFile(join(__dirname, '/server.js'));
-      // });
-    }
+    // if (process.env.NODE_ENV === 'production') {
+    //   this.express.get('/', (req: Request, res: Response) => {
+    //     res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
+    //   });
+    // }
   }
 
   private mountRoutes (): void {
@@ -46,6 +43,10 @@ class App {
     });
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
+    });
+
+    router.get('*', function(req, res) {
+      res.sendFile(resolve(__dirname, '../react-ui/build', 'index.html'));
     });
 
     /*************************
