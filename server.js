@@ -50,8 +50,6 @@ var body_parser_1 = __importDefault(require("body-parser"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
-var path_1 = require("path");
-var cors_1 = __importDefault(require("cors"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
@@ -60,22 +58,32 @@ var App = /** @class */ (function () {
         this.mountRoutes();
     }
     App.prototype.config = function () {
-        this.express.use(express_1["default"].static(__dirname + '/build'));
-        this.express.use(express_1["default"].static(__dirname + '/build/static/'));
-        this.express.use(cors_1["default"]());
-        if (process.env.NODE_ENV === 'production') {
-            this.express.get('/', function (req, res) {
-                res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
-            });
-            this.express.get('/api', function (req, res) {
-                res.sendFile(path_1.join(__dirname, '/index.js'));
-            });
-        }
+        // this.express.use(express.static(__dirname + '/build'));
+        // this.express.use(express.static(__dirname + '/build/static/'));
+        // this.express.use((req, res, next) => {
+        //   res.header("Access-Control-Allow-Origin", "*");
+        //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        //   next();
+        // });
+        // if (process.env.NODE_ENV === 'production') {
+        //   this.express.get('/', (req: Request, res: Response) => {
+        //     res.sendFile(join(__dirname, '/build', 'index.html'));
+        //   });
+        //   this.express.get('/api', (req: Request, res: Response) => {
+        //     res.sendFile(join(__dirname, '/server.js'));
+        //   });
+        // }
     };
     App.prototype.mountRoutes = function () {
         var _this = this;
         var router = express_1["default"].Router();
         this.express.use('/api', body_parser_1["default"].json(), router);
+        router.get('/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                res.json({ message: "stripped server working" });
+                return [2 /*return*/];
+            });
+        }); });
         router.get('/healthcheck', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 res.json({ message: "working" });

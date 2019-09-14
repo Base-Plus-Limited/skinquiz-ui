@@ -52,34 +52,33 @@ class App {
     /*************************
      *  GET ALL QUESTIONS
      *************************/
-    // router.get('/questions', async (req, res) => {
-    //   await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
-    //     .then(res => res.body)
-    //     .then((questions: IWordpressQuestion[]) => questions.map(question => {
-    //       return this.returnQuizQuestion(question);
-    //     }))
-    //     .then(quiz => res.send(quiz))
-    //     .catch((error: Error) => res.json({ error }))
-    // });
+    router.get('/questions', async (req, res) => {
+      await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
+        .then(res => res.body)
+        .then((questions: IWordpressQuestion[]) => questions.map(question => {
+          return this.returnQuizQuestion(question);
+        }))
+        .then(quiz => res.send(quiz))
+        .catch((error: Error) => res.json({ error }))
+    });
 
 
     /*************************
      *  GET ALL INGREDIENTS
      *************************/
-    // router.get('/ingredients', async (req, res) => {
-    //   await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
-    //     .then(res => res.body)
-    //     .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
-    //       ingredient.rank = 0;
-    //       ingredient.price_html = "";
-    //       ingredient.description = "";
-    //       ingredient.previouslyRanked = false;
-    //       return ingredient;
-    //     }))
-    //     .then((ingredients: IIngredient[]) => res.send(ingredients))
-    //     .catch((error: Error) => res.json({ error }))
-    // });
-
+    router.get('/ingredients', async (req, res) => {
+      await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
+        .then(res => res.body)
+        .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
+          ingredient.rank = 0;
+          ingredient.price_html = "";
+          ingredient.description = "";
+          ingredient.previouslyRanked = false;
+          return ingredient;
+        }))
+        .then((ingredients: IIngredient[]) => res.send(ingredients))
+        .catch((error: Error) => res.json({ error }))
+    });
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
