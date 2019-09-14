@@ -6,7 +6,7 @@ import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuesti
 import { IIngredient } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 dotenv.config();
 
 class App {
@@ -45,10 +45,6 @@ class App {
       res.json({ message: "working" })
     });
 
-    router.get('*', function(req, res) {
-      res.sendFile(resolve(__dirname, '../react-ui/build', 'index.html'));
-    });
-
     /*************************
      *  GET ALL QUESTIONS
      *************************/
@@ -79,6 +75,10 @@ class App {
         .then((ingredients: IIngredient[]) => res.send(ingredients))
         .catch((error: Error) => res.json({ error }))
     });
+
+    router.get('*', function(req, res) {
+      res.sendFile(resolve(__dirname, '../react-ui/build', 'index.html'));
+    });
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
@@ -102,6 +102,7 @@ class App {
       })
     }
   }
+  
 
 }
 

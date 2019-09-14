@@ -59,21 +59,18 @@ var App = /** @class */ (function () {
         this.mountRoutes();
     }
     App.prototype.config = function () {
-        this.express.use(express_1["default"].static(__dirname + '../react-ui/build'));
-        this.express.use(express_1["default"].static(__dirname + '../react-ui/build/static/'));
+        this.express.use(express_1["default"].static(path_1.resolve(__dirname, '../react-ui/build')));
+        // this.express.use(express.static(__dirname + '../react-ui/build/static/'));
         this.express.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
         });
-        if (process.env.NODE_ENV === 'production') {
-            this.express.get('/', function (req, res) {
-                res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
-            });
-            // this.express.get('/api', (req: Request, res: Response) => {
-            //   res.sendFile(join(__dirname, '/server.js'));
-            // });
-        }
+        // if (process.env.NODE_ENV === 'production') {
+        //   this.express.get('/', (req: Request, res: Response) => {
+        //     res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
+        //   });
+        // }
     };
     App.prototype.mountRoutes = function () {
         var _this = this;
@@ -132,6 +129,9 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
+        router.get('*', function (req, res) {
+            res.sendFile(path_1.resolve(__dirname, '../react-ui/build', 'index.html'));
+        });
     };
     App.prototype.returnQuizQuestion = function (question) {
         var entities = new html_entities_1.Html5Entities();
