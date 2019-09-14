@@ -28,14 +28,14 @@ class App {
     //   next();
     // });
 
-    // if (process.env.NODE_ENV === 'production') {
-    //   this.express.get('/', (req: Request, res: Response) => {
-    //     res.sendFile(join(__dirname, '/build', 'index.html'));
-    //   });
-    //   this.express.get('/api', (req: Request, res: Response) => {
-    //     res.sendFile(join(__dirname, '/server.js'));
-    //   });
-    // }
+    if (process.env.NODE_ENV === 'production') {
+      this.express.get('/', (req: Request, res: Response) => {
+        res.sendFile(join(__dirname, '/build', 'index.html'));
+      });
+      this.express.get('/api', (req: Request, res: Response) => {
+        res.sendFile(join(__dirname, '/server.js'));
+      });
+    }
   }
 
   private mountRoutes (): void {
@@ -102,6 +102,7 @@ class App {
       })
     }
   }
+
 }
 
 export default App;
