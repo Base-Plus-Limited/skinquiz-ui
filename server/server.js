@@ -59,8 +59,8 @@ var App = /** @class */ (function () {
         this.mountRoutes();
     }
     App.prototype.config = function () {
-        this.express.use(express_1["default"].static(__dirname + '/build'));
-        this.express.use(express_1["default"].static(__dirname + '/build/static/'));
+        this.express.use(express_1["default"].static(__dirname + '../react-ui/build'));
+        this.express.use(express_1["default"].static(__dirname + '../react-ui/build/static/'));
         this.express.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -68,11 +68,11 @@ var App = /** @class */ (function () {
         });
         if (process.env.NODE_ENV === 'production') {
             this.express.get('/', function (req, res) {
-                res.sendFile(path_1.join(__dirname, '/build', 'index.html'));
+                res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
             });
-            this.express.get('/api', function (req, res) {
-                res.sendFile(path_1.join(__dirname, '/server.js'));
-            });
+            // this.express.get('/api', (req: Request, res: Response) => {
+            //   res.sendFile(join(__dirname, '/server.js'));
+            // });
         }
     };
     App.prototype.mountRoutes = function () {

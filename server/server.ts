@@ -2,12 +2,11 @@ import express, { Application, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
-import { IWordpressQuestion } from './src/Interfaces/WordpressQuestion';
-import { IIngredient } from './src/Interfaces/WordpressProduct';
-import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
+import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
+import { IIngredient } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
-import { join, resolve } from 'path';
-import cors from 'cors';
+import { join } from 'path';
 dotenv.config();
 
 class App {
@@ -20,8 +19,8 @@ class App {
   }
 
   private config () {
-    this.express.use(express.static(__dirname + '/build'));
-    this.express.use(express.static(__dirname + '/build/static/'));
+    this.express.use(express.static(__dirname + '../react-ui/build'));
+    this.express.use(express.static(__dirname + '../react-ui/build/static/'));
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -30,11 +29,11 @@ class App {
 
     if (process.env.NODE_ENV === 'production') {
       this.express.get('/', (req: Request, res: Response) => {
-        res.sendFile(join(__dirname, '/build', 'index.html'));
+        res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
       });
-      this.express.get('/api', (req: Request, res: Response) => {
-        res.sendFile(join(__dirname, '/server.js'));
-      });
+      // this.express.get('/api', (req: Request, res: Response) => {
+      //   res.sendFile(join(__dirname, '/server.js'));
+      // });
     }
   }
 
