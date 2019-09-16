@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
@@ -20,30 +20,30 @@ class App {
 
   private config () {
     this.express.use(express.static(resolve(__dirname, '../react-ui/build')));
-    // this.express.use(express.static(__dirname + '../react-ui/build/static/'));
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
     });
-
-    // if (process.env.NODE_ENV === 'production') {
-    //   this.express.get('/', (req: Request, res: Response) => {
-    //     res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
-    //   });
-    // }
   }
 
   private mountRoutes (): void {
     const router = express.Router();
+
+
+    /*************************
+     *  API PREFIX
+     *************************/
     this.express.use('/api', bodyParser.json(), router);
 
-    router.get('/', async (req, res) => {
-      res.json({ message: "stripped server working" })
-    });
+
+    /*************************
+     *  HEALTHCHECK
+     *************************/
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
     });
+
 
     /*************************
      *  GET ALL QUESTIONS
@@ -76,6 +76,10 @@ class App {
         .catch((error: Error) => res.json({ error }))
     });
 
+    
+    /*************************
+     *  WILDCARD
+     *************************/
     router.get('*', function(req, res) {
       res.sendFile(resolve(__dirname, '../react-ui/build', 'index.html'));
     });
