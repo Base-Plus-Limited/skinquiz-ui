@@ -1,12 +1,12 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
-import { IWordpressQuestion } from './src/Interfaces/WordpressQuestion';
-import { IIngredient } from './src/Interfaces/WordpressProduct';
-import { IQuizQuestion } from './src/Interfaces/QuizQuestion';
+import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
+import { IIngredient } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
-import { join } from 'path';
+import { resolve } from 'path';
 dotenv.config();
 
 class App {
@@ -14,46 +14,48 @@ class App {
 
   constructor () {
     this.express = express();
-    this.mountRoutes(); 
     this.config(); 
+    this.mountRoutes(); 
   }
 
   private config () {
-    this.express.use(express.static(__dirname + '/build'));
-    this.express.use(express.static(__dirname + '/build/static/'));
+    this.express.use(express.static(resolve(__dirname, '../react-ui/build')));
     this.express.use((req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
     });
-
-    if (process.env.NODE_ENV === 'production') {
-      this.express.get('/', (req: Request, res: Response) => {
-        res.sendFile(join(__dirname, '/build', 'index.html'));
-      });
-      this.express.get('/download', (req, res) => {
-        res.sendFile(join(__dirname, '/build', 'index.html'));
-      });
-    }
   }
 
   private mountRoutes (): void {
     const router = express.Router();
-    this.express.use('/', bodyParser.json(), router);
+
+
+    /*************************
+     *  API PREFIX
+     *************************/
+    this.express.use('/api', bodyParser.json(), router);
+
+
+    /*************************
+     *  HEALTHCHECK
+     *************************/
+    router.get('/healthcheck', async (req, res) => {
+      res.json({ message: "working" })
+    });
 
 
     /*************************
      *  GET ALL QUESTIONS
      *************************/
-    router.get('/quiz', async (req, res) => {
-      res.setHeader('Content-Type', 'application/json');
+    router.get('/questions', async (req, res) => {
       await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => {
           return this.returnQuizQuestion(question);
         }))
-        .then(quiz => res.json(JSON.stringify(quiz)))
-        .catch((error: Error) => res.json({ error: error.message }))
+        .then(quiz => res.send(quiz))
+        .catch((error: Error) => res.json({ error }))
     });
 
 
@@ -61,18 +63,26 @@ class App {
      *  GET ALL INGREDIENTS
      *************************/
     router.get('/ingredients', async (req, res) => {
-      res.setHeader('Content-Type', 'application/json');
       await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           ingredient.rank = 0;
+          ingredient.price_html = "";
+          ingredient.description = "";
           ingredient.previouslyRanked = false;
           return ingredient;
         }))
-        .then((ingredients: IIngredient[]) => res.json(JSON.stringify(ingredients)))
-        .catch((error: Error) => res.json({ error: error.message }))
+        .then((ingredients: IIngredient[]) => res.send(ingredients))
+        .catch((error: Error) => res.json({ error }))
     });
 
+    
+    /*************************
+     *  WILDCARD
+     *************************/
+    router.get('*', function(req, res) {
+      res.sendFile(resolve(__dirname, '../react-ui/build', 'index.html'));
+    });
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
@@ -96,6 +106,8 @@ class App {
       })
     }
   }
+  
+
 }
 
 export default App;
