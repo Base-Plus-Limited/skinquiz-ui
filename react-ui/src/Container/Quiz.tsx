@@ -67,8 +67,9 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       <ScrollWrapper>
         <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
           {
-            formattedQuiz().length &&
-            formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>)
+            formattedQuiz().length ?
+            formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
+            <p>Loading...</p>
           }
           {questionsAnswered.length === 8 && <StyledSummary></StyledSummary>}
         </Quiz>
