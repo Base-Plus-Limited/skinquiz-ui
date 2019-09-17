@@ -60,28 +60,22 @@ var App = /** @class */ (function () {
     }
     App.prototype.config = function () {
         this.express.use(express_1["default"].static(path_1.resolve(__dirname, '../react-ui/build')));
-        // this.express.use(express.static(__dirname + '../react-ui/build/static/'));
         this.express.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
         });
-        // if (process.env.NODE_ENV === 'production') {
-        //   this.express.get('/', (req: Request, res: Response) => {
-        //     res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
-        //   });
-        // }
     };
     App.prototype.mountRoutes = function () {
         var _this = this;
         var router = express_1["default"].Router();
+        /*************************
+         *  API PREFIX
+         *************************/
         this.express.use('/api', body_parser_1["default"].json(), router);
-        router.get('/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                res.json({ message: "stripped server working" });
-                return [2 /*return*/];
-            });
-        }); });
+        /*************************
+         *  HEALTHCHECK
+         *************************/
         router.get('/healthcheck', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 res.json({ message: "working" });
@@ -129,6 +123,9 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
+        /*************************
+         *  WILDCARD
+         *************************/
         router.get('*', function (req, res) {
             res.sendFile(path_1.resolve(__dirname, '../react-ui/build', 'index.html'));
         });
