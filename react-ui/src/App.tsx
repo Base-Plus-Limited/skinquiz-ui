@@ -22,7 +22,6 @@ const App: React.FC = () => {
                 <Route path="/quiz" component={StyledQuiz} />
               </Switch>
             </BrowserRouter>
-            <StyledFooter></StyledFooter>
           </QuizProvider>
         </AppWrapper>
     </ThemeProvider>
