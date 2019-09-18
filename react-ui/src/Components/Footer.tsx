@@ -35,7 +35,10 @@ const StyledFooter: React.FC<FooterProps> = () => {
     <Footer>
       <InnerFooterWrap progressCount={progressCount}>
       <ProgressCount progressCount={progressCount}>
-        {progressCount}/8
+        <ProgressCountSmall>
+          {progressCount}
+        </ProgressCountSmall>
+        /8
       </ProgressCount>
       {
         progressCount > 1 &&
@@ -48,19 +51,21 @@ const StyledFooter: React.FC<FooterProps> = () => {
 
 const Footer = styled.footer`
   border-top: solid 1px ${props => props.theme.brandColours.baseLightGreen};
-  width: 100%;
   background: #fff;
-  padding: 20px 0;
-`
-
+  padding: 20px;
+  `
+  
 const ProgressCount = styled.span`
   text-align: ${(props: SharedFooterProps) => props.progressCount > 1 ? "" : "center"};
+  font-family: ${props => props.theme.bodyFont};
+  font-size: 12pt;
   display: block;
+`
+const ProgressCountSmall = styled.span`
+  font-size: 10pt;
 `
 
 const InnerFooterWrap = styled.div`
-  width: 90%;
-  max-width: 980px;
   margin: 0 auto;
   display: ${(props: SharedFooterProps) => props.progressCount > 1 ? "flex" : ""}
   justify-content: ${(props: SharedFooterProps) => props.progressCount > 1 ? "space-between" : ""}

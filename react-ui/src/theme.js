@@ -5,8 +5,8 @@ const theme = {
     baseDefaultGreen: "#B1D8D4",
     basePink: "#C06F78"
   },
-  subHeadingFont: "'Montserrat', sans-serif;",
-  bodyFont: "'Baskerville', serif;"
+  subHeadingFont: "'Montserrat', sans-serif",
+  bodyFont: "'Libre Baskerville', serif"
 }
 
 export default theme;

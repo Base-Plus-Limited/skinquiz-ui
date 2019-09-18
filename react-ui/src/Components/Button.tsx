@@ -26,7 +26,7 @@ const Button = styled.button`
 
 const StyledBackButton = styled(Button)`
   color: ${props => props.theme.brandColours.basePink};
-  margin: 0;
+  margin: -3px 0 0 0;
   padding: 3px 10px;
   border: solid 2px ${props => props.theme.brandColours.basePink};
 `
