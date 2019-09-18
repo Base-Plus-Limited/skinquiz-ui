@@ -201,6 +201,8 @@ const Question = styled.p`
   margin: 0;
   padding: 0;
   font-size: 11pt;
+  max-height: 200px;
+  overflow: hidden;
   font-family: ${props => props.theme.subHeadingFont}
 `;
   

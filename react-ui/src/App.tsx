@@ -30,6 +30,7 @@ const App: React.FC = () => {
 const AppWrapper = styled.div`
   display: grid;
   height: 100vh;
+  width: 100vw;
   grid-template-rows: 77px auto 58px;
 `
 
