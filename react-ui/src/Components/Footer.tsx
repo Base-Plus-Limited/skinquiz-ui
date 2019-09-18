@@ -52,7 +52,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
 const Footer = styled.footer`
   border-top: solid 1px ${props => props.theme.brandColours.baseLightGreen};
   background: #fff;
-  padding: 20px;
+  padding: 20px 40px;
   `
   
 const ProgressCount = styled.span`

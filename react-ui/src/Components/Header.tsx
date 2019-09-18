@@ -22,7 +22,7 @@ const StyledHeader: React.FC<HeaderProps> = () => {
 
 const Header = styled.header`
   border-bottom: solid 2px ${props => props.theme.brandColours.baseLightGreen};
-  padding: 20px;
+  padding: 20px 40px;
   display: flex;
   justify-content: space-between;
 `;
