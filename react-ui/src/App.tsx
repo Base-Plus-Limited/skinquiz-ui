@@ -5,7 +5,6 @@ import StyledQuiz from './Container/Quiz';
 import StyledWelcome from './Container/Welcome';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import StyledHeader from './Components/Header';
-import StyledFooter from './Components/Footer';
 import { QuizProvider } from './QuizContext';
 
 const App: React.FC = () => {

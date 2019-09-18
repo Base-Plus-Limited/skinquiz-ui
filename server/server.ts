@@ -44,6 +44,13 @@ class App {
       res.json({ message: "working" })
     });
 
+    /*************************
+     *  QUIZ ACCESSIBLE VIA URL
+     *************************/
+    router.get('/quiz', async (req, res) => {
+      res.sendFile(resolve(__dirname, '../react-ui/build'))
+    });
+
 
     /*************************
      *  GET ALL QUESTIONS
