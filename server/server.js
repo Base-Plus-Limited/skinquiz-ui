@@ -70,8 +70,17 @@ var App = /** @class */ (function () {
         var _this = this;
         var router = express_1["default"].Router();
         /*************************
-         *  API PREFIX
+         *  REDIRECT URL
          *************************/
+        // if (process.env.NODE_ENV === 'production') {
+        //   this.express.get('/', (req, res) => {
+        //     res.sendFile(resolve(__dirname, '../react-ui/build')); 
+        //   });
+        // }
+        /*************************
+         *  SERVE API
+         *************************/
+        this.express.use('/', express_1["default"].static(path_1.resolve(__dirname, '../react-ui/build')));
         this.express.use('/api', body_parser_1["default"].json(), router);
         /*************************
          *  HEALTHCHECK

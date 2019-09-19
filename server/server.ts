@@ -32,7 +32,17 @@ class App {
 
 
     /*************************
-     *  API PREFIX
+     *  REDIRECT URL
+     *************************/
+    if (process.env.NODE_ENV === 'production') {
+      this.express.get('/', (req, res) => {
+        res.sendFile(resolve(__dirname, '../react-ui/build')); 
+      });
+    }
+
+
+    /*************************
+     *  SERVE API
      *************************/
     this.express.use('/api', bodyParser.json(), router);
 
@@ -43,14 +53,6 @@ class App {
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
     });
-
-    /*************************
-     *  QUIZ ACCESSIBLE VIA URL
-     *************************/
-    router.get('/quiz', async (req, res) => {
-      res.sendFile(resolve(__dirname, '../react-ui/build'))
-    });
-
 
     /*************************
      *  GET ALL QUESTIONS
