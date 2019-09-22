@@ -102,6 +102,8 @@ class App {
       id: question.id,
       answered: false,
       prompt: question.prompt,
+      isSkintoneQuestion: question.id === 716 ? true : false, // skintone question
+      isSkinConditionQuestion: question.id === 1443 ? true : false, // skintone condition question
       customAnswer: "",
       isInputVisible: false,
       question: entities.decode(question.title.rendered),

@@ -72,15 +72,14 @@ var App = /** @class */ (function () {
         /*************************
          *  REDIRECT URL
          *************************/
-        // if (process.env.NODE_ENV === 'production') {
-        //   this.express.get('/', (req, res) => {
-        //     res.sendFile(resolve(__dirname, '../react-ui/build')); 
-        //   });
-        // }
+        if (process.env.NODE_ENV === 'production') {
+            this.express.get('/', function (req, res) {
+                res.sendFile(path_1.resolve(__dirname, '../react-ui/build'));
+            });
+        }
         /*************************
          *  SERVE API
          *************************/
-        this.express.use('/', express_1["default"].static(path_1.resolve(__dirname, '../react-ui/build')));
         this.express.use('/api', body_parser_1["default"].json(), router);
         /*************************
          *  HEALTHCHECK
@@ -147,6 +146,8 @@ var App = /** @class */ (function () {
             id: question.id,
             answered: false,
             prompt: question.prompt,
+            isSkintoneQuestion: question.id === 716 ? true : false,
+            isSkinConditionQuestion: question.id === 1443 ? true : false,
             customAnswer: "",
             isInputVisible: false,
             question: entities.decode(question.title.rendered),
