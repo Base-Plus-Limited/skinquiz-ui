@@ -19,7 +19,7 @@ const Answer = styled.span`
   padding: 10px 15px;
   background: #fff;
   display: none;
-  border: solid 2px ${props => props.theme.brandColours.baseDarkGreen};
+  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   margin: 4px;
   cursor: pointer;
   display: inline-block;
