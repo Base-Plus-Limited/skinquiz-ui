@@ -32,7 +32,17 @@ class App {
 
 
     /*************************
-     *  API PREFIX
+     *  REDIRECT URL
+     *************************/
+    if (process.env.NODE_ENV === 'production') {
+      this.express.get('/', (req, res) => {
+        res.sendFile(resolve(__dirname, '../react-ui/build')); 
+      });
+    }
+
+
+    /*************************
+     *  SERVE API
      *************************/
     this.express.use('/api', bodyParser.json(), router);
 
@@ -43,7 +53,6 @@ class App {
     router.get('/healthcheck', async (req, res) => {
       res.json({ message: "working" })
     });
-
 
     /*************************
      *  GET ALL QUESTIONS
@@ -93,6 +102,8 @@ class App {
       id: question.id,
       answered: false,
       prompt: question.prompt,
+      isSkintoneQuestion: question.id === 716 ? true : false, // skintone question
+      isSkinConditionQuestion: question.id === 1443 ? true : false, // skintone condition question
       customAnswer: "",
       isInputVisible: false,
       question: entities.decode(question.title.rendered),

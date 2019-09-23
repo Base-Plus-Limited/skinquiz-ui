@@ -5,7 +5,6 @@ import StyledQuiz from './Container/Quiz';
 import StyledWelcome from './Container/Welcome';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import StyledHeader from './Components/Header';
-import StyledFooter from './Components/Footer';
 import { QuizProvider } from './QuizContext';
 
 const App: React.FC = () => {
@@ -22,7 +21,6 @@ const App: React.FC = () => {
                 <Route path="/quiz" component={StyledQuiz} />
               </Switch>
             </BrowserRouter>
-            <StyledFooter></StyledFooter>
           </QuizProvider>
         </AppWrapper>
     </ThemeProvider>
@@ -32,6 +30,7 @@ const App: React.FC = () => {
 const AppWrapper = styled.div`
   display: grid;
   height: 100vh;
+  width: 100vw;
   grid-template-rows: 77px auto 58px;
 `
 

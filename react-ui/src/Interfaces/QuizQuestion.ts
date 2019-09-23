@@ -5,6 +5,8 @@ export interface IQuizQuestion {
   customAnswer: string;
   prompt: string;
   isInputVisible: boolean;
+  isSkintoneQuestion: boolean;
+  isSkinConditionQuestion: boolean;
   answers: IAnswer[];
 }
 

@@ -13,18 +13,14 @@ const StyledHeader: React.FC<HeaderProps> = () => {
     <StyledLink href={"/"}>
       <StyledImage src={logo} width={90} alt={"base plus"}></StyledImage>
     </StyledLink>
-    <StyledLink href={"/"}>
-      home icon
-    </StyledLink>
   </Header>
 
 }
 
 const Header = styled.header`
   border-bottom: solid 2px ${props => props.theme.brandColours.baseLightGreen};
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
+  padding: 20px 40px;
+  text-align: center;
 `;
 
 export default StyledHeader;
