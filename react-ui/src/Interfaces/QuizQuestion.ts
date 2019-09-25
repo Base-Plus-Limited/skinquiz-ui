@@ -3,7 +3,7 @@ export interface IQuizQuestion {
   answered: boolean;
   question: string;
   customAnswer: string;
-  prompt: string;
+  prompt: string | string[];
   isInputVisible: boolean;
   isSkintoneQuestion: boolean;
   isSkinConditionQuestion: boolean;

@@ -101,7 +101,7 @@ class App {
     return {
       id: question.id,
       answered: false,
-      prompt: question.prompt,
+      prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
       isSkintoneQuestion: question.id === 716 ? true : false, // skintone question
       isSkinConditionQuestion: question.id === 1443 ? true : false, // skintone condition question
       customAnswer: "",

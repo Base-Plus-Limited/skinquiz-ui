@@ -6,15 +6,15 @@ import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
 import StyledInput from './Shared/Input';
+import StyledPrompt from './Prompt';
 import { StyledButton } from './Button';
+import faceImg from './../Assets/face_img.jpg';
 
 export interface QuestionProps {
   questions: IQuizQuestion[];
 }
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const [questionOne, questionTwo] = questions;
-
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
@@ -26,7 +26,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
             if(answeredQuestion.answers[answerIndex].meta[answerIndex] === "custom") {
               question.answered = false;
               showInput(answeredQuestion.id);
-            } else {
+          } else {
               question.answered = true;
               question.customAnswer = "";
               answer.selected = true;
@@ -159,59 +159,66 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
   return (
     <QuestionWrapper>
-      <Question>
-        {questionOne.question} <br/>
-        {questionOne.prompt && <Prompt> {questionOne.prompt} </Prompt>}  <br/>
-        {questionOne.isInputVisible ?
-          <span>
-            <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
-            <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
-            <StyledButton onClickHandler={() => customAnswerWrapperHandler(questionOne.id)}>submit</StyledButton>
-          </span>
+      {
+        questions.map(question =>
+          question.isSkinConditionQuestion ?
+          <FullScreenQuestion>
+              <div>
+                {question.question}<br /><br />
+                {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
+                {question.answers.slice(0,3).map((answer: IAnswer, index: number) => {
+                  return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
+                  </StyledAnswer>
+                  })}
+                <br/>
+                {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
+                {question.answers.slice(3).map((answer: IAnswer, index: number) => {
+                  return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
+                  </StyledAnswer>
+                })}
+              </div>
+              <div>
+                <img src={faceImg} alt="" />
+              </div>
+          </FullScreenQuestion>
           :
-          <React.Fragment>
-            {questionOne.answers.map((answer: IAnswer, index: number) => {
-              return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionOne, index)} key={index}>{answer.value}</StyledAnswer>
-            })}
-          </React.Fragment>
-        }
-      </Question>
-      <Question>
-        {questionTwo.question} <br/>
-        {questionTwo.prompt && <Prompt> {questionTwo.prompt} </Prompt>} <br/>
-        {questionTwo.isInputVisible ?
-          <span>
-            <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput> 
-            <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
-            <StyledButton onClickHandler={() => customAnswerWrapperHandler(questionTwo.id)}>submit</StyledButton>
-          </span>
-          :
-          <React.Fragment>
-            {questionTwo.answers.map((answer: IAnswer, index: number) => {
-              return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(questionTwo, index)} key={index}>{answer.value}</StyledAnswer>
-            })}
-          </React.Fragment>
-        }
-      </Question>
+          <HalfScreenQuestion key={question.id}>
+            {question.question}<br />
+            {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
+            {
+              question.isInputVisible ?
+                <span>
+                  <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
+                  <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+                  <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>submit</StyledButton>
+                </span>
+                :
+                <React.Fragment>
+                  {question.answers.map((answer: IAnswer, index: number) => {
+                    return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}</StyledAnswer>
+                  })}
+                </React.Fragment>
+            }
+          </HalfScreenQuestion>
+        )
+      }
     </QuestionWrapper>
   )
 }
 
-const Question = styled.p`
+const HalfScreenQuestion = styled.div`
   margin: 0;
   padding: 0;
   font-size: 11pt;
-  max-height: 200px;
   overflow: hidden;
-  font-family: ${props => props.theme.subHeadingFont}
+  font-family: ${props => props.theme.subHeadingFont};
 `;
-  
-  const Prompt = styled.span`
-  margin: 4px 0 22px;
-  font-size: 9.4pt;
-  display: inline-block;
-  font-family: ${props => props.theme.bodyFont}
-  color: ${props => props.theme.brandColours.baseDarkGreen}
+
+const FullScreenQuestion = styled.div`
+  font-family: ${props => props.theme.subHeadingFont};
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
 `;
 
 const QuestionWrapper = styled.div`
