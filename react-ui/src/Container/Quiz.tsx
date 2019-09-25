@@ -43,7 +43,6 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         return y.slice(i, i + 2);
     }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]
     x.splice(2, 0, skinConditionQuestion);
-    console.log(x);
     return x;
   };
 

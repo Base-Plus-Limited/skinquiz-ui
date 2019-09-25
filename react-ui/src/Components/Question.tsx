@@ -18,6 +18,10 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
+    if(answeredQuestion.isSkinConditionQuestion) {
+      skinConditionAnswerSelection(answeredQuestion, answerIndex);
+      return;
+    }
     const updatedQuestions = quizQuestions.map(question => {
       if (answeredQuestion.id === question.id) {
         question.answers.forEach(answer => {
@@ -41,6 +45,29 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     if (answeredQuestion.answered)
       doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
+  }
+
+  const skinConditionAnswerSelection = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
+    quizQuestions.map(question => {
+      if(question.id === answeredQuestion.id) {
+        if (answerIndex > 2) {
+          question.answers.slice(3).map(answer => answer.selected = false)
+          resetSelectedAnswers(question.answers, answerIndex)
+          answeredQuestion.answers[answerIndex].selected = true;
+        } else {
+          resetSelectedAnswers(question.answers, answerIndex)
+          question.answers.slice(0,3).map(answer => answer.selected = false)
+          answeredQuestion.answers[answerIndex].selected = true;
+        }
+      }
+    })
+    updateQuizQuestions([...quizQuestions])
+  }
+  
+  const resetSelectedAnswers = (answers: IAnswer[], answerIndex: number) => {
+    if(answerIndex > 2)
+      return answers.slice(3).map(answer => answer.selected = false)
+    answers.slice(0,3).map(answer => answer.selected = false)
   }
 
   const showInput = (questionId: number) => {
