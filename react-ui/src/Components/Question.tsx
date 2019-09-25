@@ -51,17 +51,23 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     quizQuestions.map(question => {
       if(question.id === answeredQuestion.id) {
         if (answerIndex > 2) {
-          question.answers.slice(3).map(answer => answer.selected = false)
           resetSelectedAnswers(question.answers, answerIndex)
           answeredQuestion.answers[answerIndex].selected = true;
-        } else {
-          resetSelectedAnswers(question.answers, answerIndex)
-          question.answers.slice(0,3).map(answer => answer.selected = false)
-          answeredQuestion.answers[answerIndex].selected = true;
-        }
+          logSkinConditionAnswers(question.answers);
+          return;
+        } 
+        resetSelectedAnswers(question.answers, answerIndex)
+        answeredQuestion.answers[answerIndex].selected = true;
+        logSkinConditionAnswers(question.answers);
       }
     })
     updateQuizQuestions([...quizQuestions])
+  }
+
+  const logSkinConditionAnswers = (answers: IAnswer[]) => {
+    const selectedAnswers = answers.filter(answer => answer.selected);
+    if(selectedAnswers.length === 2)
+      console.log(selectedAnswers[0].value, selectedAnswers[1].value)
   }
   
   const resetSelectedAnswers = (answers: IAnswer[], answerIndex: number) => {
@@ -198,6 +204,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   </StyledAnswer>
                   })}
                 <br/>
+                <hr/>
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
                 {question.answers.slice(3).map((answer: IAnswer, index: number) => {
                   return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
