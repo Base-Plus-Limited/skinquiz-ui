@@ -9,13 +9,14 @@ import StyledInput from './Shared/Input';
 import StyledPrompt from './Prompt';
 import { StyledButton } from './Button';
 import faceImg from './../Assets/face_img.jpg';
+import { ISkinCondition } from '../Interfaces/SkinCondition';
 
 export interface QuestionProps {
   questions: IQuizQuestion[];
 }
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     if(answeredQuestion.isSkinConditionQuestion) {
@@ -62,12 +63,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       }
     })
     updateQuizQuestions([...quizQuestions])
-  }
-
-  const logSkinConditionAnswers = (answers: IAnswer[]) => {
-    const selectedAnswers = answers.filter(answer => answer.selected);
-    if(selectedAnswers.length === 2)
-      console.log(selectedAnswers[0].value, selectedAnswers[1].value)
   }
   
   const resetSelectedAnswers = (answers: IAnswer[], answerIndex: number) => {
@@ -190,6 +185,32 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateIngredients(ingredients);
   }
 
+  const logSkinConditionAnswers = (answers: IAnswer[]) => {
+    const selectedAnswers = [] as ISkinCondition[];
+    answers.map((answer, index) => {
+      if (answer.selected)
+        selectedAnswers.push({ answer, index })
+    });
+    if(selectedAnswers.length === 2)
+      updateSelectedSkinConditions(selectedAnswers)
+  }
+
+  const returnSkinCondition = () => {
+    const skinConditions: { [key: string]: string } = {
+      "03": "Very Dry to Dry",
+      "04": "Dry Combination",
+      "05": "Dry Combination",
+      "15": "Combination Oily",
+      "14": "Combination Oily",
+      "13": "Dry Combination",
+      "25": "Oily",
+      "24": "Combination Oily",
+      "23": "Combination Oily",
+    }
+    const condition = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
+    return `Your skin type is ${skinConditions[condition]}`;
+  }
+
   return (
     <QuestionWrapper>
       {
@@ -210,6 +231,8 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
                   </StyledAnswer>
                 })}
+
+                <p>{selectedSkinConditions.length ? returnSkinCondition() : ""}</p>
               </div>
               <div>
                 <img src={faceImg} alt="" />

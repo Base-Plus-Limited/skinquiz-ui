@@ -2,6 +2,7 @@ import React, { createContext, SetStateAction, useState } from 'react';
 import { IQuizQuestion } from './Interfaces/QuizQuestion';
 import IQuiz from './Interfaces/QuizState';
 import { IIngredient } from './Interfaces/WordpressProduct';
+import { ISkinCondition } from './Interfaces/SkinCondition';
 
 const state: IQuiz = {
   progressCount: 0,
@@ -13,7 +14,9 @@ const state: IQuiz = {
   questionsAnswered: [],
   updateQuestionsAnswered: (previousQuestionsAnswered: SetStateAction<IQuizQuestion[]>) => previousQuestionsAnswered,
   questionInputAnswer: "",
-  updateQuestionInputAnswer: (previousQuestionsAnswered: SetStateAction<string>) => previousQuestionsAnswered
+  updateQuestionInputAnswer: (previousQuestionsAnswered: SetStateAction<string>) => previousQuestionsAnswered,
+  selectedSkinConditions: [],
+  updateSelectedSkinConditions: (previousselectedSkinConditions: SetStateAction<ISkinCondition[]>) => previousselectedSkinConditions
 }
 
 export const QuizContext = createContext(state);
@@ -28,6 +31,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
   const [questionsAnswered, updateQuestionsAnswered] = useState<IQuizQuestion[]>([]);
   const [questionInputAnswer, updateQuestionInputAnswer] = useState<string>("");
+  const [selectedSkinConditions, updateSelectedSkinConditions] = useState<ISkinCondition[]>([]);
 
   return (
     <QuizContext.Provider value={{
@@ -40,7 +44,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       questionsAnswered,
       updateQuestionsAnswered,
       questionInputAnswer,
-      updateQuestionInputAnswer
+      updateQuestionInputAnswer,
+      selectedSkinConditions,
+      updateSelectedSkinConditions
     }}>
       {children}
     </QuizContext.Provider>

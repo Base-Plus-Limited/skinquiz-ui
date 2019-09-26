@@ -1,6 +1,7 @@
 import { IQuizQuestion } from "./QuizQuestion";
 import { Dispatch, SetStateAction } from 'react';
 import { IIngredient } from "./WordpressProduct";
+import { ISkinCondition } from "./SkinCondition";
 
 interface IQuiz {
   progressCount: number;
@@ -13,6 +14,8 @@ interface IQuiz {
   updateQuestionsAnswered: Dispatch<SetStateAction<IQuizQuestion[]>>;
   questionInputAnswer: string;
   updateQuestionInputAnswer: Dispatch<SetStateAction<string>>;
+  selectedSkinConditions: ISkinCondition[];
+  updateSelectedSkinConditions: Dispatch<SetStateAction<ISkinCondition[]>>;
 }
 
 export default IQuiz;
