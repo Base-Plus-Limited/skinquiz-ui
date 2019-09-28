@@ -10,6 +10,7 @@ import StyledPrompt from './Prompt';
 import { StyledButton } from './Button';
 import faceImg from './../Assets/face_img.jpg';
 import { ISkinCondition } from '../Interfaces/SkinCondition';
+import SkinConditionEnums from './../SkinConditons';
 
 export interface QuestionProps {
   questions: IQuizQuestion[];
@@ -196,19 +197,15 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   }
 
   const returnSkinCondition = () => {
-    const skinConditions: { [key: string]: string } = {
-      "03": "Very Dry to Dry",
-      "04": "Dry Combination",
-      "05": "Dry Combination",
-      "15": "Combination Oily",
-      "14": "Combination Oily",
-      "13": "Dry Combination",
-      "25": "Oily",
-      "24": "Combination Oily",
-      "23": "Combination Oily",
-    }
-    const condition = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
-    return `Your skin type is ${skinConditions[condition]}`;
+    const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
+    return `Your skin type is ${SkinConditionEnums[conditionId]}`;
+  }
+  const saveSkinConditionAnswer = () => {
+    const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
+    const skinConditionQuestion = quizQuestions.filter(question => question.id === 1443);
+    skinConditionQuestion[0].customAnswer = SkinConditionEnums[conditionId];
+    skinConditionQuestion[0].answered = true;
+    updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
   }
 
   return (
@@ -231,8 +228,12 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
                   </StyledAnswer>
                 })}
-
                 <p>{selectedSkinConditions.length ? returnSkinCondition() : ""}</p>
+                {
+                  selectedSkinConditions.length === 2 ? 
+                  <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>
+                  : ""
+                }
               </div>
               <div>
                 <img src={faceImg} alt="" />
