@@ -36,10 +36,14 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   }, []);
 
   const formattedQuiz = () => {
-    return quizQuestions.map((q, i) => {
+    const skinConditionQuestion = quizQuestions.filter(question => question.id === 1443);
+    const y = quizQuestions.filter(question => question.id !== 1443);
+    const x = y.map((q, i) => {
       if (i % 2 === 0)
-        return quizQuestions.slice(i, i + 2)
+        return y.slice(i, i + 2);
     }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]
+    x.splice(2, 0, skinConditionQuestion);
+    return x;
   };
 
   const returnMarginAmount = () => {
@@ -48,11 +52,11 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       case 3:
         return 1;
       case 4:
-      case 5:
         return 2;
+      case 5:
       case 6:
-      case 7:
         return 3;
+      case 7:
       case 8:
         return 4;
       default:
