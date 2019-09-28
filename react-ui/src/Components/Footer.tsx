@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledBackButton } from './Button';
+import SkinConditionEnums from './../SkinConditons';
 
 export interface FooterProps {
 }
@@ -12,14 +13,20 @@ export interface SharedFooterProps {
 
 const StyledFooter: React.FC<FooterProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions } = useContext(QuizContext);
 
   
   const removeLastQuestionAnswered = () => {
+    if(questionsAnswered[questionsAnswered.length - 1].id === 1443)
+      resetSkinCondition();
     questionsAnswered[questionsAnswered.length - 1].answers.forEach(answer => answer.selected = false);
     questionsAnswered.pop();
     updateQuestionsAnswered([...questionsAnswered]);
     removeRanks();
+  }
+
+  const resetSkinCondition = () => {
+    selectedSkinConditions.length = 0;
   }
   
   const removeRanks = () => {

@@ -202,7 +202,9 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
     cheekZoneMargin();
     returnTZoneMargin();
-    return `Your skin type is ${SkinConditionEnums[conditionId]}`;
+    if(selectedSkinConditions.length)
+      return `Your skin type is ${SkinConditionEnums[conditionId]}`;
+    return "";
   }
   const saveSkinConditionAnswer = () => {
     const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
