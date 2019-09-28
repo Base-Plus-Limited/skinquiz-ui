@@ -9,6 +9,8 @@ import StyledInput from './Shared/Input';
 import StyledPrompt from './Prompt';
 import { StyledButton } from './Button';
 import faceImg from './../Assets/face_img.jpg';
+import CheekArea from './../Assets/cheek_areas.png';
+import TZoneArea from './../Assets/tzone_areas.png';
 import { ISkinCondition } from '../Interfaces/SkinCondition';
 import SkinConditionEnums from './../SkinConditons';
 
@@ -198,6 +200,8 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
   const returnSkinCondition = () => {
     const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
+    cheekZoneMargin();
+    returnTZoneMargin();
     return `Your skin type is ${SkinConditionEnums[conditionId]}`;
   }
   const saveSkinConditionAnswer = () => {
@@ -206,6 +210,40 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     skinConditionQuestion[0].customAnswer = SkinConditionEnums[conditionId];
     skinConditionQuestion[0].answered = true;
     updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
+  }
+
+  const cheekZoneMargin = () => {
+    let indexSpecificMargin;
+    if(selectedSkinConditions.length)
+      switch (selectedSkinConditions[1].index) {
+        case 4:
+            indexSpecificMargin = { margin: `0 0 0 -298px`, display: "block" }
+          break;
+        case 5:
+            indexSpecificMargin = { margin: `0 0 0 -596px`, display: "block" }
+          break;
+        default:
+            indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
+          break;
+      }
+    return indexSpecificMargin;
+  }
+
+  const returnTZoneMargin = () => {
+    let indexSpecificMargin;
+    if(selectedSkinConditions.length)
+      switch (selectedSkinConditions[0].index) {
+        case 1:
+            indexSpecificMargin = { margin: `0 0 0 -250px`, display: "block" }
+          break;
+        case 2:
+            indexSpecificMargin = { margin: `0 0 0 -506px`, display: "block" }
+          break;
+        default:
+            indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
+          break;
+      }
+    return indexSpecificMargin;
   }
 
   return (
@@ -235,9 +273,11 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   : ""
                 }
               </div>
-              <div>
+              <FaceImageWrapper>
+                <CheekImageArea style={cheekZoneMargin()} src={CheekArea}></CheekImageArea>
+                <TZoneImageArea style={returnTZoneMargin()} src={TZoneArea}></TZoneImageArea>
                 <img src={faceImg} alt="" />
-              </div>
+              </FaceImageWrapper>
           </FullScreenQuestion>
           :
           <HalfScreenQuestion key={question.id}>
@@ -264,6 +304,27 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   )
 }
 
+const FaceImageWrapper = styled.div`
+  position: relative;
+  overflow: hidden;
+`
+
+const TZoneImageArea = styled.img`
+  position: absolute;
+  top: 110px;
+  left: 81px;
+  z-index: 5;
+  display: none;
+`
+
+const CheekImageArea = styled.img`
+  position: absolute;
+  top: 251px;
+  left: 63px;
+  z-index: 5;
+  display: none;
+`
+
 const HalfScreenQuestion = styled.div`
   margin: 0;
   padding: 0;
@@ -275,8 +336,9 @@ const HalfScreenQuestion = styled.div`
 const FullScreenQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 380px 340px;
   align-items: center;
+  margin: 0 auto;
 `;
 
 const QuestionWrapper = styled.div`
