@@ -214,7 +214,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
   }
 
-  const cheekZoneMargin = () => {
+  const cheekZoneMargin = () => { // to refactor
     let indexSpecificMargin;
     if(selectedSkinConditions.length)
       switch (selectedSkinConditions[1].index) {
@@ -231,7 +231,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     return indexSpecificMargin;
   }
 
-  const returnTZoneMargin = () => {
+  const returnTZoneMargin = () => { // to refactor
     let indexSpecificMargin;
     if(selectedSkinConditions.length)
       switch (selectedSkinConditions[0].index) {
@@ -311,14 +311,15 @@ const FaceImageWrapper = styled.div`
   overflow: hidden;
 `
 
-const TZoneImageArea = styled.img`
+// to refactor
+const TZoneImageArea = styled.img` 
   position: absolute;
   top: 110px;
   left: 81px;
   z-index: 5;
   display: none;
 `
-
+// to refactor
 const CheekImageArea = styled.img`
   position: absolute;
   top: 251px;
