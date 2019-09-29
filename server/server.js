@@ -54,6 +54,7 @@ var path_1 = require("path");
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
+        this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.express = express_1["default"]();
         this.config();
         this.mountRoutes();
@@ -139,6 +140,7 @@ var App = /** @class */ (function () {
         });
     };
     App.prototype.returnQuizQuestion = function (question) {
+        var _this = this;
         var entities = new html_entities_1.Html5Entities();
         var answerArr = question.content.rendered.replace(/<(?:.|\n)*?>/gm, '').split(',');
         var separatedMeta = question.excerpt.rendered.replace(/<(?:.|\n)*?>/gm, '').split('|');
@@ -151,11 +153,12 @@ var App = /** @class */ (function () {
             customAnswer: "",
             isInputVisible: false,
             question: entities.decode(question.title.rendered),
-            answers: answerArr.map(function (answer) {
+            answers: answerArr.map(function (answer, index) {
                 return {
-                    value: entities.decode(answer.trim()),
+                    value: entities.decode(answer.trim()).includes("|") ? entities.decode(answer.trim()).split("|") : entities.decode(answer.trim()),
                     selected: false,
                     id: answer.trim(),
+                    skinColour: _this.skinTypeCodes[index],
                     meta: separatedMeta.map(function (meta) { return meta.trim(); })
                 };
             })
