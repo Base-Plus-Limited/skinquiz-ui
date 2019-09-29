@@ -3,15 +3,15 @@ import Tick from './Tick';
 import styled from 'styled-components';
 
 export interface AnswerProps {
-  children: string;
+  value: string | string[];
   selected: boolean;
   selectAnswer: () => void
 }
  
-const StyledAnswer: React.FC<AnswerProps> = ({ children, selectAnswer, selected }: AnswerProps) => {
+const StyledAnswer: React.FC<AnswerProps> = ({ selectAnswer, selected, value }: AnswerProps) => {
   return <Answer onClick={selectAnswer}>
     {selected && <Tick></Tick>}
-    {children}
+    {value}
   </Answer>
 }
 

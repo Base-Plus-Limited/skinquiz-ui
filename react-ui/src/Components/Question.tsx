@@ -2,6 +2,7 @@ import React, { useContext, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
 import StyledAnswer from './Answer';
+import StyledSkintoneAnswer from './SkintoneAnswer';
 import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
@@ -123,22 +124,22 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   }
 
   const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
-    if (progressCount === 4) {
-      const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
-        const { question, answers, id } = answeredQ;
-        return {
-          id,
-          question,
-          answer: answers.filter(answer => answer.selected)[0].value
-        }
-      })
-      try {
-        sendCompletedQuizQuestionsToApi(completedQuizAnswers)
-      }
-      catch (error) {
-        console.log(error)
-      }
-    }
+    // if (progressCount === 4) {
+    //   const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
+    //     const { question, answers, id } = answeredQ;
+    //     return {
+    //       id,
+    //       question,
+    //       answer: answers.filter(answer => answer.selected)[0].value
+    //     }
+    //   })
+    //   try {
+    //     sendCompletedQuizQuestionsToApi(completedQuizAnswers)
+    //   }
+    //   catch (error) {
+    //     console.log(error)
+    //   }
+    // }
   }
 
   const sendCompletedQuizQuestionsToApi = (completedQuiz: ICompletedQuiz[]) => { 
@@ -285,14 +286,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 {question.question}<br /><br />
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
                 {question.answers.slice(0,3).map((answer: IAnswer, index: number) => {
-                  return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
+                  return <StyledAnswer value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
                   </StyledAnswer>
                   })}
                 <br/>
                 <hr/>
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
                 {question.answers.slice(3).map((answer: IAnswer, index: number) => {
-                  return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
+                  return <StyledAnswer value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
                   </StyledAnswer>
                 })}
                 <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
@@ -321,9 +322,16 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 </span>
                 :
                 <React.Fragment>
-                  {question.answers.map((answer: IAnswer, index: number) => {
-                    return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}</StyledAnswer>
-                  })}
+                    {
+                      question.isSkintoneQuestion ?
+                        question.answers.map((answer: IAnswer, index: number) => {
+                          return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
+                        })
+                        :
+                        question.answers.map((answer: IAnswer, index: number) => {
+                          return <StyledAnswer selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                        })
+                    }
                 </React.Fragment>
             }
           </HalfScreenQuestion>
