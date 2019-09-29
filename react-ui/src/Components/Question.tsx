@@ -194,18 +194,16 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       if (answer.selected)
         selectedAnswers.push({ answer, index })
     });
-    if(selectedAnswers.length === 2)
-      updateSelectedSkinConditions(selectedAnswers)
+    updateSelectedSkinConditions(selectedAnswers)
   }
 
   const returnSkinCondition = () => {
     const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
-    cheekZoneMargin();
-    returnTZoneMargin();
-    if(selectedSkinConditions.length)
+    if(selectedSkinConditions.length === 1)
       return `Your skin type is ${SkinConditionEnums[conditionId]}`;
     return "";
   }
+
   const saveSkinConditionAnswer = () => {
     const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
     const skinConditionQuestion = quizQuestions.filter(question => question.id === 1443);
@@ -216,36 +214,65 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
   const cheekZoneMargin = () => { // to refactor
     let indexSpecificMargin;
-    if(selectedSkinConditions.length)
-      switch (selectedSkinConditions[1].index) {
+
+    if ((selectedSkinConditions.length === 1) && (selectedSkinConditions[0].index > 2))
+      switch (selectedSkinConditions[0].index) {
         case 4:
-            indexSpecificMargin = { margin: `0 0 0 -298px`, display: "block" }
+          indexSpecificMargin = { margin: `0 0 0 -298px`, display: "block" }
           break;
         case 5:
-            indexSpecificMargin = { margin: `0 0 0 -596px`, display: "block" }
+          indexSpecificMargin = { margin: `0 0 0 -596px`, display: "block" }
           break;
         default:
-            indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
+          indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
+    
+      if (selectedSkinConditions.length === 2)
+        switch (selectedSkinConditions[1].index) {
+          case 4:
+            indexSpecificMargin = { margin: `0 0 0 -298px`, display: "block" }
+            break;
+          case 5:
+            indexSpecificMargin = { margin: `0 0 0 -596px`, display: "block" }
+            break;
+          default:
+            indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
+            break;
+        }
+
     return indexSpecificMargin;
   }
 
   const returnTZoneMargin = () => { // to refactor
     let indexSpecificMargin;
-    if(selectedSkinConditions.length)
+
+    if ((selectedSkinConditions.length === 1) && (selectedSkinConditions[0].index < 3))
       switch (selectedSkinConditions[0].index) {
         case 1:
-            indexSpecificMargin = { margin: `0 0 0 -250px`, display: "block" }
+          indexSpecificMargin = { margin: `0 0 0 -250px`, display: "block" }
           break;
         case 2:
-            indexSpecificMargin = { margin: `0 0 0 -506px`, display: "block" }
+          indexSpecificMargin = { margin: `0 0 0 -506px`, display: "block" }
           break;
         default:
-            indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
+          indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
-    return indexSpecificMargin;
+    
+    if(selectedSkinConditions.length === 2)
+      switch (selectedSkinConditions[0].index) {
+        case 1:
+          indexSpecificMargin = { margin: `0 0 0 -250px`, display: "block" }
+          break;
+        case 2:
+          indexSpecificMargin = { margin: `0 0 0 -506px`, display: "block" }
+          break;
+        default:
+          indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
+          break;
+      }
+      return indexSpecificMargin;
   }
 
   return (
@@ -268,7 +295,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   return <StyledAnswer selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
                   </StyledAnswer>
                 })}
-                <p>{selectedSkinConditions.length ? returnSkinCondition() : ""}</p>
+                <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
                 {
                   selectedSkinConditions.length === 2 ? 
                   <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>

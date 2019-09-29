@@ -26,7 +26,7 @@ const Input = styled.input`
   margin: 0 auto 20px auto;
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
-  border-bottom: solid 2px ${props => props.theme.brandColours.baseDarkGreen};
+  border-bottom: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
 `;
 
 export default StyledInput;
