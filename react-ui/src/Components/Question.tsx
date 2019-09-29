@@ -199,7 +199,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
   const returnSkinCondition = () => {
     const conditionId = `${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`;
-    if(selectedSkinConditions.length === 1)
+    if(selectedSkinConditions.length === 2)
       return `Your skin type is ${SkinConditionEnums[conditionId]}`;
     return "";
   }
