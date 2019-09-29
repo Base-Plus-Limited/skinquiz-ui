@@ -18,6 +18,8 @@ class App {
     this.mountRoutes(); 
   }
 
+  private skinTypeCodes: string[] = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+
   private config () {
     this.express.use(express.static(resolve(__dirname, '../react-ui/build')));
     this.express.use((req, res, next) => {
@@ -39,7 +41,6 @@ class App {
         res.sendFile(resolve(__dirname, '../react-ui/build')); 
       });
     }
-
 
     /*************************
      *  SERVE API
@@ -107,11 +108,12 @@ class App {
       customAnswer: "",
       isInputVisible: false,
       question: entities.decode(question.title.rendered),
-      answers: answerArr.map(answer => {
+      answers: answerArr.map((answer, index) => {
         return {
-          value: entities.decode(answer.trim()),
+          value: entities.decode(answer.trim()).includes("|") ? entities.decode(answer.trim()).split("|") : entities.decode(answer.trim()),
           selected: false,
           id: answer.trim(),
+          skinColour: this.skinTypeCodes[index],
           meta: separatedMeta.map(meta => meta.trim())
         }
       })

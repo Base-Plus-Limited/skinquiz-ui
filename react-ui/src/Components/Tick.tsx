@@ -3,12 +3,12 @@ import styled from 'styled-components';
 import tick from './../Assets/tick.png';
 
 export interface TickProps {
-  
+  tickPadding?: string;
 }
  
-const StyledTick: React.SFC<TickProps> = () => {
+const StyledTick: React.SFC<TickProps> = ({ tickPadding }) => {
   return ( 
-    <Tick> <Image src={tick} alt="Selected"></Image> </Tick>
+    <Tick style={{ padding: String(tickPadding) }}> <Image src={tick} alt="Selected"></Image> </Tick>
    );
 }
 

@@ -11,8 +11,9 @@ export interface IQuizQuestion {
 }
 
 export interface IAnswer {
-  value: string;
+  value: string | string[];
   selected: boolean;
   id: string;
   meta: string[];
+  skinColour: string;
 }
