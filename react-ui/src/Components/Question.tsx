@@ -290,7 +290,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   </StyledAnswer>
                   })}
                 <br/>
-                <hr/>
+                <StyledHR></StyledHR>
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
                 {question.answers.slice(3).map((answer: IAnswer, index: number) => {
                   return <StyledAnswer value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
@@ -371,10 +371,17 @@ const HalfScreenQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
 `;
 
+const StyledHR = styled.hr`
+  margin: 30px auto;
+  max-width: 200px;
+  border: none;
+  border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
+`;
+
 const FullScreenQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
   display: grid;
-  grid-template-columns: 380px 340px;
+  grid-template-columns: 523px 340px;
   align-items: center;
   margin: 0 auto;
 `;
