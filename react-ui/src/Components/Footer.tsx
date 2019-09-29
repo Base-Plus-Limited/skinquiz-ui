@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledBackButton } from './Button';
-import SkinConditionEnums from './../SkinConditons';
 
 export interface FooterProps {
 }

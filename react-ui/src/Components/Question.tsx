@@ -123,7 +123,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     question.answers[question.answers.length - 1].selected = true;
   }
 
-  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
+  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS 
     // if (progressCount === 4) {
     //   const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
     //     const { question, answers, id } = answeredQ;
@@ -281,7 +281,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       {
         questions.map(question =>
           question.isSkinConditionQuestion ?
-          <FullScreenQuestion>
+          <SkinConditionQuestion>
               <div>
                 {question.question}<br /><br />
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
@@ -308,7 +308,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 <TZoneImageArea style={returnTZoneMargin()} src={TZoneArea}></TZoneImageArea>
                 <img src={faceImg} alt="" />
               </FaceImageWrapper>
-          </FullScreenQuestion>
+          </SkinConditionQuestion>
           :
           <HalfScreenQuestion key={question.id}>
             {question.question}<br />
@@ -378,7 +378,7 @@ const StyledHR = styled.hr`
   border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
 `;
 
-const FullScreenQuestion = styled.div`
+const SkinConditionQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
   display: grid;
   grid-template-columns: 523px 340px;
