@@ -65,7 +65,7 @@ class App {
           return this.returnQuizQuestion(question);
         }))
         .then(quiz => res.send(quiz))
-        .catch((error: Error) => res.json({ error }))
+        .catch((error: Error) => res.json({ error: error.message }))
     });
 
 
@@ -113,7 +113,7 @@ class App {
           value: entities.decode(answer.trim()).includes("|") ? entities.decode(answer.trim()).split("|") : entities.decode(answer.trim()),
           selected: false,
           id: answer.trim(),
-          skinColour: this.skinTypeCodes[index],
+          skinColour: question.id === 716 ? this.skinTypeCodes[index] : "",
           meta: separatedMeta.map(meta => meta.trim())
         }
       })
