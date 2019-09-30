@@ -103,7 +103,7 @@ var App = /** @class */ (function () {
                             .then(function (questions) { return questions.map(function (question) {
                             return _this.returnQuizQuestion(question);
                         }); })
-                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error }); })];
+                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error.message }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -158,7 +158,7 @@ var App = /** @class */ (function () {
                     value: entities.decode(answer.trim()).includes("|") ? entities.decode(answer.trim()).split("|") : entities.decode(answer.trim()),
                     selected: false,
                     id: answer.trim(),
-                    skinColour: _this.skinTypeCodes[index],
+                    skinColour: question.id === 716 ? _this.skinTypeCodes[index] : "",
                     meta: separatedMeta.map(function (meta) { return meta.trim(); })
                 };
             })
