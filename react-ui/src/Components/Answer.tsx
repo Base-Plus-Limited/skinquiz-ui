@@ -5,11 +5,12 @@ import styled from 'styled-components';
 export interface AnswerProps {
   value: string | string[];
   selected: boolean;
+  isDisabled: boolean;
   selectAnswer: () => void
 }
  
-const StyledAnswer: React.FC<AnswerProps> = ({ selectAnswer, selected, value }: AnswerProps) => {
-  return <Answer onClick={selectAnswer}>
+const StyledAnswer: React.FC<AnswerProps> = ({ selectAnswer, selected, value, isDisabled }: AnswerProps) => {
+  return <Answer style={isDisabled ? { opacity: 0.2, pointerEvents: "none", } : { cursor: "pointer" }} onClick={selectAnswer}>
     {selected && <Tick></Tick>}
     {value}
   </Answer>
@@ -21,7 +22,6 @@ const Answer = styled.span`
   display: none;
   border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   margin: 4px;
-  cursor: pointer;
   display: inline-block;
   font-size: 9.5pt;
   text-transform: uppercase;
