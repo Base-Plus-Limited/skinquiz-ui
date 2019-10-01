@@ -23,10 +23,10 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
-    if(answeredQuestion.isSkinConditionQuestion) {
-      skinConditionAnswerSelection(answeredQuestion, answerIndex);
-      return;
-    }
+    if(answeredQuestion.isSkinConditionQuestion) 
+      return skinConditionAnswerSelection(answeredQuestion, answerIndex);
+    if(answeredQuestion.id === 706)
+      return newFunction(answeredQuestion, answerIndex);
     const updatedQuestions = quizQuestions.map(question => {
       if (answeredQuestion.id === question.id) {
         question.answers.forEach(answer => {
@@ -47,9 +47,48 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       return question;
     });
     updateQuizQuestions(updatedQuestions);
-    if (answeredQuestion.answered)
+    if (answeredQuestion.answered) 
       doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
+  }
+
+  const isSkinConcernQuestionValid = (answeredQuestion: IQuizQuestion) => {
+    const skinConcernQuestion = quizQuestions.filter(question => question.id === 706)[0];
+    if(skinConcernQuestion.answered)
+      doQuestionIdsMatch(answeredQuestion);
+  }
+
+  const newFunction = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
+    const updatedQuizQuestions = quizQuestions.map(question => {
+      if(question.id === answeredQuestion.id) {
+        answeredQuestion.answers[answerIndex].selected = !answeredQuestion.answers[answerIndex].selected;
+        isTwoSkinConditionAnswersSelected(question);
+        console.log(question)
+      }
+      return question;
+    });
+    updateQuizQuestions([...updatedQuizQuestions]);
+  }
+
+  const isTwoSkinConditionAnswersSelected = (question: IQuizQuestion) => {
+    question.totalAnswersSelected = question.answers.filter(answer => answer.selected).length;
+    if(question.totalAnswersSelected === 2) {
+      question.answered = true;
+      question.answers.forEach(answer => {
+        if(!answer.selected) {
+          answer.disable = !answer.disable;
+        }
+      });
+    } else {
+      question.answered = false;
+      question.answers.forEach(answer => {
+        if(answer.disable) {
+          answer.disable = !answer.disable;
+        }
+      });
+    }
+    if(question.answered)
+      doQuestionIdsMatch(question);
   }
 
   const skinConditionAnswerSelection = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
@@ -286,14 +325,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 {question.question}<br /><br />
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
                 {question.answers.slice(0,3).map((answer: IAnswer, index: number) => {
-                  return <StyledAnswer value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
+                  return <StyledAnswer isDisabled={false} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
                   </StyledAnswer>
                   })}
                 <br/>
                 <StyledHR></StyledHR>
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
                 {question.answers.slice(3).map((answer: IAnswer, index: number) => {
-                  return <StyledAnswer value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
+                  return <StyledAnswer value={answer.value} isDisabled={false} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
                   </StyledAnswer>
                 })}
                 <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
@@ -329,7 +368,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                         })
                         :
                         question.answers.map((answer: IAnswer, index: number) => {
-                          return <StyledAnswer selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                          return <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                         })
                     }
                 </React.Fragment>

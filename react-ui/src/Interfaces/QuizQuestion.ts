@@ -3,6 +3,7 @@ export interface IQuizQuestion {
   answered: boolean;
   question: string;
   customAnswer: string;
+  totalAnswersSelected: number;
   prompt: string | string[];
   isInputVisible: boolean;
   isSkintoneQuestion: boolean;
@@ -14,6 +15,7 @@ export interface IAnswer {
   value: string | string[];
   selected: boolean;
   id: string;
+  disable: boolean;
   meta: string[];
   skinColour: string;
 }

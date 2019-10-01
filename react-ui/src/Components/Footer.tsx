@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledBackButton } from './Button';
+import { IAnswer } from '../Interfaces/QuizQuestion';
 
 export interface FooterProps {
 }
@@ -16,12 +17,18 @@ const StyledFooter: React.FC<FooterProps> = () => {
 
   
   const removeLastQuestionAnswered = () => {
-    if(questionsAnswered[questionsAnswered.length - 1].id === 1443)
+    if(questionsAnswered[questionsAnswered.length - 1].id === 1443) // skin condition question
       resetSkinCondition();
+    if(questionsAnswered[questionsAnswered.length - 1].id === 706) // skin concern question
+      resetSkinConcernAnswers(questionsAnswered[questionsAnswered.length - 1].answers);
     questionsAnswered[questionsAnswered.length - 1].answers.forEach(answer => answer.selected = false);
     questionsAnswered.pop();
     updateQuestionsAnswered([...questionsAnswered]);
     removeRanks();
+  }
+
+  const resetSkinConcernAnswers = (answers: IAnswer[]) => {
+    answers.forEach(answer => answer.disable = false)
   }
 
   const resetSkinCondition = () => {
