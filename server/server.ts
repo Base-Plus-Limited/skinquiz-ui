@@ -107,11 +107,13 @@ class App {
       isSkinConditionQuestion: question.id === 1443 ? true : false, // skintone condition question
       customAnswer: "",
       isInputVisible: false,
+      totalAnswersSelected: 0,
       question: entities.decode(question.title.rendered),
       answers: answerArr.map((answer, index) => {
         return {
           value: entities.decode(answer.trim()).includes("|") ? entities.decode(answer.trim()).split("|") : entities.decode(answer.trim()),
           selected: false,
+          disable: false,
           id: answer.trim(),
           skinColour: question.id === 716 ? this.skinTypeCodes[index] : "",
           meta: separatedMeta.map(meta => meta.trim())
