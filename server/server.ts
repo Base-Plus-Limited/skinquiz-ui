@@ -37,7 +37,7 @@ class App {
      *  REDIRECT URL
      *************************/
     if (process.env.NODE_ENV === 'production') {
-      this.express.get('/*', (req, res) => {
+      this.express.get('/', (req, res) => {
         res.sendFile(resolve(__dirname, '../react-ui/build')); 
       });
     }
@@ -46,6 +46,10 @@ class App {
      *  SERVE API
      *************************/
     this.express.use('/api', bodyParser.json(), router);
+    this.express.use('/quiz', bodyParser.json(), (req, res) => {
+      res.sendFile(resolve(__dirname, '../react-ui/build')); 
+    });
+
 
     /*************************
      *  HEALTHCHECK
