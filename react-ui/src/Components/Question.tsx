@@ -31,17 +31,17 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       if (answeredQuestion.id === question.id) {
         question.answers.forEach(answer => {
           answer.selected = false;
-          if (answer.id === answeredQuestion.answers[answerIndex].id){
-            if(answeredQuestion.answers[answerIndex].meta[answerIndex] === "custom") {
+          if (answer.id === answeredQuestion.answers[answerIndex].id) {
+            if (answeredQuestion.answers[answerIndex].meta[answerIndex] === "custom") {
               question.answered = false;
               showInput(answeredQuestion.id);
-          } else {
-              question.answered = true;
-              question.customAnswer = "";
-              answer.selected = true;
-              doValuesMatch(answeredQuestion.answers[answerIndex], answerIndex);
+              return
             }
-          }
+            question.customAnswer = "";
+            answer.selected = true;
+            question.answered = true;
+            doValuesMatch(answeredQuestion.answers[answerIndex], answerIndex); // refactor this to return a boolean
+          } 
         })
       }
       return question;
@@ -52,18 +52,24 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     // getCompletedQuizQuestions();
   }
 
-  const isSkinConcernQuestionValid = (answeredQuestion: IQuizQuestion) => {
-    const skinConcernQuestion = quizQuestions.filter(question => question.id === 706)[0];
-    if(skinConcernQuestion.answered)
-      doQuestionIdsMatch(answeredQuestion);
+  const isSkinConcernQuestionAnswered = () => {
+    const skinConcernQuestion = (quizQuestions.find(question => question.id === 706) as IQuizQuestion);
+    return skinConcernQuestion.answered;
   }
 
   const newFunction = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     const updatedQuizQuestions = quizQuestions.map(question => {
       if(question.id === answeredQuestion.id) {
         answeredQuestion.answers[answerIndex].selected = !answeredQuestion.answers[answerIndex].selected;
-        isTwoSkinConditionAnswersSelected(question);
-        console.log(question)
+        if(isTwoSkinConditionAnswersSelected(question)){
+          question.answered = true;
+            doQuestionIdsMatch(question);
+        } else {
+          question.answered = false;
+          if (questionsAnswered[questionsAnswered.length - 1].id === 706) {
+            questionsAnswered.pop();
+          }
+        }
       }
       return question;
     });
@@ -73,22 +79,23 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   const isTwoSkinConditionAnswersSelected = (question: IQuizQuestion) => {
     question.totalAnswersSelected = question.answers.filter(answer => answer.selected).length;
     if(question.totalAnswersSelected === 2) {
-      question.answered = true;
-      question.answers.forEach(answer => {
-        if(!answer.selected) {
-          answer.disable = !answer.disable;
-        }
-      });
+      toggleAnswersDisabilityIfNotSelected(question);
     } else {
-      question.answered = false;
-      question.answers.forEach(answer => {
-        if(answer.disable) {
-          answer.disable = !answer.disable;
-        }
-      });
+      resetAnswersDisability(question);
     }
-    if(question.answered)
-      doQuestionIdsMatch(question);
+    return question.totalAnswersSelected === 2;    
+  }
+
+  const resetAnswersDisability = (question: IQuizQuestion) => {
+    question.answers.forEach(answer => answer.disable = false);
+  }
+
+  const toggleAnswersDisabilityIfNotSelected = (question: IQuizQuestion) => {
+    question.answers.forEach(answer => {
+      if(!answer.selected) {
+        answer.disable = !answer.disable;
+      }
+    });
   }
 
   const skinConditionAnswerSelection = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
@@ -320,7 +327,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       {
         questions.map(question =>
           question.isSkinConditionQuestion ?
-          <SkinConditionQuestion>
+          <SkinConditionQuestion key={question.id}>
               <div>
                 {question.question}<br /><br />
                 {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
