@@ -46,10 +46,6 @@ class App {
      *  SERVE API
      *************************/
     this.express.use('/api', bodyParser.json(), router);
-    this.express.use('/quiz', bodyParser.json(), (req, res) => {
-      res.sendFile(resolve(__dirname, '../react-ui/build')); 
-    });
-
 
     /*************************
      *  HEALTHCHECK
@@ -93,7 +89,7 @@ class App {
     /*************************
      *  WILDCARD
      *************************/
-    router.get('/*', function (req, res) {
+    router.get('*', function (req, res) {
       res.sendFile(resolve(__dirname, '../react-ui/build'));
     });
   }
