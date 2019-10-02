@@ -6,7 +6,7 @@ import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuesti
 import { IIngredient } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 dotenv.config();
 
 class App {
@@ -47,7 +47,7 @@ class App {
      *************************/
     this.express.use('/api', bodyParser.json(), router);
     this.express.use('/quiz', bodyParser.json(), (req, res) => {
-      res.sendFile(resolve(__dirname, '../react-ui/build')); 
+      res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
 
 
@@ -94,7 +94,7 @@ class App {
      *  WILDCARD
      *************************/
     router.get('*', function (req, res) {
-      res.sendFile(resolve(__dirname, '../react-ui/build'));
+      res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
   }
 
