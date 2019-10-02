@@ -40,9 +40,6 @@ class App {
       this.express.get('/', (req, res) => {
         res.sendFile(resolve(__dirname, '../react-ui/build')); 
       });
-      this.express.get('/quiz', (req, res) => {
-        res.sendFile(resolve(__dirname, '../react-ui/build')); 
-      });
     }
 
     /*************************
@@ -94,7 +91,7 @@ class App {
      *  WILDCARD
      *************************/
     router.get('*', function(req, res) {
-      res.sendFile(resolve(__dirname, '../react-ui/build', 'index.html'));
+      res.sendFile(resolve(__dirname, '../react-ui/build'));
     });
   }
 
