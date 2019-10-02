@@ -40,6 +40,9 @@ class App {
       this.express.get('/', (req, res) => {
         res.sendFile(resolve(__dirname, '../react-ui/build')); 
       });
+      this.express.get('/quiz', (req, res) => {
+        res.sendFile(resolve(__dirname, '../react-ui/build')); 
+      });
     }
 
     /*************************
