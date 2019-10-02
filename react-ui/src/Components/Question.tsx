@@ -139,6 +139,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     if (questionId) {
       if (questionInputAnswer.length) {
         submitAnswer(questionId);
+        hideInput();
       }
       return;
     }
@@ -162,7 +163,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       }
     });
     updateQuizQuestions([...quizQuestions]);
-    console.log(quizQuestions);
   }
 
   const setCustomAnswerAsSelected = (question: IQuizQuestion) => {
