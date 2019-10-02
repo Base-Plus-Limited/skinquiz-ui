@@ -82,6 +82,9 @@ var App = /** @class */ (function () {
          *  SERVE API
          *************************/
         this.express.use('/api', body_parser_1["default"].json(), router);
+        this.express.use('/quiz', body_parser_1["default"].json(), function (req, res) {
+            res.sendFile(path_1.resolve(__dirname, '../react-ui/build'));
+        });
         /*************************
          *  HEALTHCHECK
          *************************/
@@ -135,7 +138,7 @@ var App = /** @class */ (function () {
         /*************************
          *  WILDCARD
          *************************/
-        router.get('*', function (req, res) {
+        router.get('/*', function (req, res) {
             res.sendFile(path_1.resolve(__dirname, '../react-ui/build'));
         });
     };
