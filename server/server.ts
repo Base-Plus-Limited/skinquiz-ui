@@ -41,7 +41,8 @@ class App {
         res.sendFile(resolve(__dirname, '../react-ui/build')); 
       });
       this.express.get('/quiz', (req, res) => {
-        res.sendFile(resolve(__dirname, '../react-ui/build')); 
+        // res.sendFile(resolve(__dirname, '../react-ui/build')); 
+        res.send("hit")
       });
     }
 
