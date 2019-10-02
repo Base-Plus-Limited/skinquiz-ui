@@ -138,7 +138,7 @@ var App = /** @class */ (function () {
         /*************************
          *  WILDCARD
          *************************/
-        router.get('*', function (req, res) {
+        router.get('/*', function (req, res) {
             res.sendFile(path_1.resolve(__dirname, '../react-ui/build'));
         });
     };

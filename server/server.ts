@@ -93,7 +93,7 @@ class App {
     /*************************
      *  WILDCARD
      *************************/
-    router.get('*', function(req, res) {
+    router.get('/*', function (req, res) {
       res.sendFile(resolve(__dirname, '../react-ui/build'));
     });
   }
