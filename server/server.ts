@@ -41,11 +41,14 @@ class App {
         res.sendFile(resolve(__dirname, '../react-ui/build')); 
       });
     }
-
+    
     /*************************
      *  SERVE API
      *************************/
     this.express.use('/api', bodyParser.json(), router);
+    this.express.use('/quiz', bodyParser.json(), (req, res) => {
+      res.sendFile(resolve(__dirname, '../react-ui/build')); 
+    });
 
 
     /*************************
