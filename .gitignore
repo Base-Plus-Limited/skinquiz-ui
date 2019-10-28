@@ -2,9 +2,19 @@
 node_modules
 npm-debug.log
 
-# Local development
-*.env
-*.dev
+# dependencies
+/node_modules
+/react-ui/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
 .DS_Store
 
 # Docker
