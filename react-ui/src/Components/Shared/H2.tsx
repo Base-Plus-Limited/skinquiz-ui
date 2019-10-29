@@ -13,7 +13,7 @@ const H2 = styled.h2`
   font-family: ${props => props.theme.subHeadingFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
   margin: 7px 0 27px;
-  font-size: 19pt;
+  font-size: 15pt;
   line-height: 0.9;
 `
 
