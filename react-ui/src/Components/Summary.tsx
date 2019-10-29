@@ -46,24 +46,26 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         {
           <SummaryIngredient>
             <StyledImage src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>
-            <StyledText margin="0 0 0 0" text={sortedIngredients[0].name}></StyledText>
+            <StyledText margin="0 0 0 0" fontSize="10pt" text={sortedIngredients[0].name}></StyledText>
           </SummaryIngredient>
         }
         <StyledHR width="40%"></StyledHR>
-        {
-          sortedIngredients.map((ingredient, index) => (
-            <React.Fragment>
-              <SummaryIngredient>
-                <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
-                <StyledText margin="0 0 0 0" text={ingredient.name}></StyledText>
-              </SummaryIngredient>
-              {
-                index === 0 &&
-                <StyledImage width={20} src={plusIcon} alt="Plus icon"></StyledImage>
-              }
-            </React.Fragment>
-          ))
-        }
+        <SummaryIngredientWrap>
+          {
+            sortedIngredients.map((ingredient, index) => (
+              <React.Fragment>
+                <SummaryIngredient>
+                  <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
+                  <StyledText margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledText>
+                </SummaryIngredient>
+                {
+                  index === 0 &&
+                  <StyledImage isSummaryScreen={true} width={15} src={plusIcon} alt="Plus icon"></StyledImage>
+                }
+              </React.Fragment>
+            ))
+          }
+        </SummaryIngredientWrap>
         <StyledHR width="40%"></StyledHR>
         <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
         <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
@@ -71,6 +73,10 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     </SummaryWrap>
   </React.Fragment>
 }
+
+const SummaryIngredientWrap = styled.div`
+  position: relative;
+`
 
 const SummaryIngredient = styled.div`
   width: 110px;
