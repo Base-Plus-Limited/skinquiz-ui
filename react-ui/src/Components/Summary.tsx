@@ -12,7 +12,7 @@ export interface SummaryProps {
 }
  
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients } = useContext(QuizContext);
+  const { ingredients, userName } = useContext(QuizContext);
   const sortedIngredients = ingredients.sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank).slice(0, 2);
 
   const amendIngredients = async () => {
@@ -42,7 +42,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   return <React.Fragment>
     <SummaryWrap>
       <SummaryGrid>
-        {<StyledH2 text=""></StyledH2>}
+        {<StyledH2 text={`Here's your product ${userName}`}></StyledH2>}
         {
           <SummaryIngredient>
             <StyledImage src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>

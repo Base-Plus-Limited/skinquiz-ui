@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useContext } from 'react';
 import styled from "styled-components";
 import { StyledButton } from '../Components/Button';
 import StyledInput from '../Components/Shared/Input';
@@ -7,6 +7,7 @@ import StyledText from '../Components/Shared/Text';
 import StyledImage from '../Components/Shared/Image';
 import { Link } from 'react-router-dom';
 import welcomeImg from './../Assets/wlecomeScreenImg.jpg';
+import { QuizContext } from '../QuizContext';
 
 export interface WelcomeProps {
   
@@ -17,20 +18,20 @@ export interface WelcomeWrapperProps {
 }
  
 const StyledWelcome: React.SFC<WelcomeProps> = () => {
+  const { userName, updateUserName } = useContext(QuizContext);
 
-  const [name, updateName] = useState("")
 
   const logName = (event: ChangeEvent<HTMLInputElement>) => {
-    updateName(event.target.value);
+    updateUserName(event.target.value);
   };
 
   return ( 
     <Welcome>
       <WelcomeWrapper maxWidth>
-        <StyledH1 text={`Skincare made for ${name ? name : 'you'}`}></StyledH1>
+        <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
         <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
         <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
-        <Link to={{ pathname: '/quiz', state: { name } }}> 
+        <Link to={{ pathname: '/quiz' }}> 
           <StyledButton>Start Quiz</StyledButton>
         </Link>
       </WelcomeWrapper>

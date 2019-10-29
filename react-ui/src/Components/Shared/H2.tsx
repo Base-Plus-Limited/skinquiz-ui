@@ -11,9 +11,9 @@ const StyledH2: React.SFC<H2Props> = ({text}) => (
 
 const H2 = styled.h2`
   font-family: ${props => props.theme.subHeadingFont};
-  color: ${props => props.theme.brandColours.baseLightGreen};
-  margin-bottom: 10px;
-  font-size: 25pt;
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  margin: 7px 0 27px;
+  font-size: 19pt;
   line-height: 0.9;
 `
 

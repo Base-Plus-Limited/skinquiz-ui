@@ -16,6 +16,8 @@ interface IQuiz {
   updateQuestionInputAnswer: Dispatch<SetStateAction<string>>;
   selectedSkinConditions: ISkinCondition[];
   updateSelectedSkinConditions: Dispatch<SetStateAction<ISkinCondition[]>>;
+  userName: string;
+  updateUserName: Dispatch<SetStateAction<string>>;
 }
 
 export default IQuiz;

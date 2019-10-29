@@ -16,7 +16,9 @@ const state: IQuiz = {
   questionInputAnswer: "",
   updateQuestionInputAnswer: (previousQuestionsAnswered: SetStateAction<string>) => previousQuestionsAnswered,
   selectedSkinConditions: [],
-  updateSelectedSkinConditions: (previousselectedSkinConditions: SetStateAction<ISkinCondition[]>) => previousselectedSkinConditions
+  updateSelectedSkinConditions: (previousselectedSkinConditions: SetStateAction<ISkinCondition[]>) => previousselectedSkinConditions,
+  userName: "",
+  updateUserName: (previousUserName: SetStateAction<string>) => previousUserName
 }
 
 export const QuizContext = createContext(state);
@@ -32,6 +34,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [questionsAnswered, updateQuestionsAnswered] = useState<IQuizQuestion[]>([]);
   const [questionInputAnswer, updateQuestionInputAnswer] = useState<string>("");
   const [selectedSkinConditions, updateSelectedSkinConditions] = useState<ISkinCondition[]>([]);
+  const [userName, updateUserName] = useState<string>("");
 
   return (
     <QuizContext.Provider value={{
@@ -46,7 +49,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       questionInputAnswer,
       updateQuestionInputAnswer,
       selectedSkinConditions,
-      updateSelectedSkinConditions
+      updateSelectedSkinConditions,
+      userName,
+      updateUserName
     }}>
       {children}
     </QuizContext.Provider>
