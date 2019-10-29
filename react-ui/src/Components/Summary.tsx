@@ -8,7 +8,7 @@ export interface SummaryProps {
  
 const StyledSummary: React.FC<SummaryProps> = () => {
   const { ingredients } = useContext(QuizContext);
-  const sortedIngredients = ingredients.sort((ingrdientA, ingredientB) => ingrdientA.rank - ingredientB.rank).slice(0, 2);
+  const sortedIngredients = ingredients.sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank).slice(0, 2);
 
   const amendIngredients = async () => {
     return fetch('/customisation-tool', {
@@ -37,16 +37,30 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   return <React.Fragment>
     <SummaryWrap>
       <SummaryGrid>
-        <p> base+ ingredient </p>
+        {/* <p> base+ ingredient </p>
         <span>{sortedIngredients[0].name}</span>
-        <span>{sortedIngredients[1].name}</span>
-        <hr/>
+        <span>{sortedIngredients[1].name}</span> */}
+        {
+          sortedIngredients.map(ingredient => (
+            <SummaryIngredient>
+              <img width="100%" src={ingredient.images[0].src} alt={ingredient.name} />
+              <p>{ingredient.name}</p>
+              <p>{ingredient.short_description}</p>
+            </SummaryIngredient>
+          ))
+        }
         <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
         <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
       </SummaryGrid>
     </SummaryWrap>
   </React.Fragment>
 }
+
+const SummaryIngredient = styled.div`
+  width: 140px;
+  display: inline-block;
+  margin: 20px 0;
+`
 
 const SummaryWrap = styled.div`
   display: grid;
