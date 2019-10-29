@@ -2,6 +2,11 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledSummaryButton } from './Button';
+import StyledText from './Shared/Text';
+import StyledH2 from './Shared/H2';
+import StyledHR from './Shared/HR';
+import StyledImage from './Shared/Image';
+import plusIcon from './../Assets/plus.jpg';
 
 export interface SummaryProps {
 }
@@ -37,18 +42,29 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   return <React.Fragment>
     <SummaryWrap>
       <SummaryGrid>
-        {/* <p> base+ ingredient </p>
-        <span>{sortedIngredients[0].name}</span>
-        <span>{sortedIngredients[1].name}</span> */}
+        {<StyledH2 text=""></StyledH2>}
         {
-          sortedIngredients.map(ingredient => (
-            <SummaryIngredient>
-              <img width="100%" src={ingredient.images[0].src} alt={ingredient.name} />
-              <p>{ingredient.name}</p>
-              <p>{ingredient.short_description}</p>
-            </SummaryIngredient>
+          <SummaryIngredient>
+            <StyledImage src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>
+            <StyledText margin="0 0 0 0" text={sortedIngredients[0].name}></StyledText>
+          </SummaryIngredient>
+        }
+        <StyledHR width="40%"></StyledHR>
+        {
+          sortedIngredients.map((ingredient, index) => (
+            <React.Fragment>
+              <SummaryIngredient>
+                <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
+                <StyledText margin="0 0 0 0" text={ingredient.name}></StyledText>
+              </SummaryIngredient>
+              {
+                index === 0 &&
+                <StyledImage width={20} src={plusIcon} alt="Plus icon"></StyledImage>
+              }
+            </React.Fragment>
           ))
         }
+        <StyledHR width="40%"></StyledHR>
         <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
         <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
       </SummaryGrid>
@@ -57,9 +73,9 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 }
 
 const SummaryIngredient = styled.div`
-  width: 140px;
+  width: 110px;
   display: inline-block;
-  margin: 20px 0;
+  margin: 0 30px;
 `
 
 const SummaryWrap = styled.div`
@@ -68,7 +84,7 @@ const SummaryWrap = styled.div`
   align-items: center;
   text-align: center;
   grid-template-columns: 120px 1fr 120px;
-  grid-template-rows: 120px 1fr 120px;
+  grid-template-rows: 0 1fr 0;
 `
 
 const SummaryGrid = styled.div`

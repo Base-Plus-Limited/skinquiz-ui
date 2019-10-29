@@ -3,10 +3,11 @@ import styled from 'styled-components';
 
 export interface TextProps {
   text: string;
+  margin?: string;
 }
  
-const StyledText: React.SFC<TextProps> = ({text}) => (
-  <Text>{text}</Text>
+const StyledText: React.SFC<TextProps> = ({text, margin}) => (
+  <Text style={{margin: margin}}>{text}</Text>
 )
 
 const Text = styled.p`
