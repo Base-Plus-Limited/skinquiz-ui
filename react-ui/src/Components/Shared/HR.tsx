@@ -2,15 +2,15 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 export interface HRProps {
-  width: string;
 }
  
-const StyledHR: React.SFC<HRProps> = ({ width }) => (
-  <HR width={width}></HR>
+const StyledHR: React.SFC<HRProps> = () => (
+  <HR></HR>
 )
 
 const HR = styled.hr`
-  width: ${(props: HRProps) => props.width};
+  width: 100%;
+  max-width: 260px;
   margin: 20px auto;
   display: block;
   padding: 0;
