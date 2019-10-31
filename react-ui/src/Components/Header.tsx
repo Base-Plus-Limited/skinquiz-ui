@@ -11,7 +11,7 @@ const StyledHeader: React.FC<HeaderProps> = () => {
 
   return <Header>
     <StyledLink href={"/"}>
-      <StyledImage src={logo} width={90} alt={"base plus"}></StyledImage>
+      <StyledImage src={logo} alt={"base plus"}></StyledImage>
     </StyledLink>
   </Header>
 
@@ -21,6 +21,9 @@ const Header = styled.header`
   border-bottom: solid 2px ${props => props.theme.brandColours.baseLightGreen};
   padding: 20px 40px;
   text-align: center;
+  img{
+    width: 90px;
+  }
 `;
 
 export default StyledHeader;

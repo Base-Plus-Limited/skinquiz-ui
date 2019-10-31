@@ -5,6 +5,7 @@ import { StyledSummaryButton } from './Button';
 import StyledText from './Shared/Text';
 import StyledH2 from './Shared/H2';
 import StyledHR from './Shared/HR';
+import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
 
@@ -43,11 +44,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       <SummaryGrid>
         {<StyledH2 text={`Here's your product ${userName}`}></StyledH2>}
         {
-          <SummaryIngredient>
-            <StyledImage width={90} src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>
-            <StyledText margin="0 0 0 0" fontSize="10pt" text={sortedIngredients[0].name}></StyledText>
+          <SummaryBaseIngredient>
+            <StyledImage src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>
+            <div>
+
+            <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={sortedIngredients[0].name}></StyledSubHeading>
             <StyledText margin="4px 0 0 0" fontSize="9pt" text="Maiores consequatur sint quo nihil doloremque cum. Rerum unde"></StyledText>
-          </SummaryIngredient>
+            </div>
+          </SummaryBaseIngredient>
         }
         <StyledHR></StyledHR>
         <SummaryIngredientWrap>
@@ -55,8 +59,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
             sortedIngredients.map((ingredient, index) => (
               <React.Fragment>
                 <SummaryIngredient>
-                  <StyledImage width={90} src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
-                  <StyledText margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledText>
+                  <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
+                  <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
                   <StyledText margin="4px 0 0 0" fontSize="9pt" text="Maiores consequatur sint quo nihil doloremque cum. Rerum unde"></StyledText>
                 </SummaryIngredient>
                 {
@@ -78,10 +82,25 @@ const SummaryIngredientWrap = styled.div`
   position: relative;
 `
 
+const SummaryBaseIngredient = styled.div`
+  width: 380px;
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  margin: 0 auto;
+  align-items: center;
+  text-align: left;
+  img{
+    grid-area: 1
+  }
+`
+
 const SummaryIngredient = styled.div`
   width: 230px;
   display: inline-block;
   margin: 0 30px;
+  img{
+    width: 90px;
+  }
 `
 
 const SummaryWrap = styled.div`

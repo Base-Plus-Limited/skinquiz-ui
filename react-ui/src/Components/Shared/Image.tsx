@@ -4,7 +4,6 @@ import styled from 'styled-components';
 export interface ImageProps {
   src: string;
   alt: string;
-  position?: string;
   width?: number;
   isWelcomeScreen?: boolean;
   isSummaryScreen?: boolean;
@@ -16,11 +15,13 @@ const StyledImage: React.SFC<ImageProps> = ({alt, src, width, isSummaryScreen}) 
  
 const Image = styled.img`
   max-width: ${(props: ImageProps) => props.isWelcomeScreen ? '95%' : '100%'};
-  position: ${(props: ImageProps) => props.isSummaryScreen ? 'absolute' : ''};
-  top: ${(props: ImageProps) => props.isSummaryScreen ? '50%' : ''};
-  left: ${(props: ImageProps) => props.isSummaryScreen ? '50%' : ''};
-  margin-top: ${(props: ImageProps) => props.isSummaryScreen ? '-7.5px' : ''};
-  margin-left: ${(props: ImageProps) => props.isSummaryScreen ? '-7.5px' : ''};
+  ${props => props.isSummaryScreen && `
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -7.5px;
+    margin-left: -7.5px;
+  `}
 `;
 
 export default StyledImage;
