@@ -15,7 +15,7 @@ interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount } = useContext(QuizContext);
+  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, saveBaseIngredient } = useContext(QuizContext);
 
   useEffect(() => {
     // const abortController = new AbortController();
@@ -27,7 +27,12 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
     fetch('/api/ingredients')
       .then(res => res.json())
-      .then((ingredients: IIngredient[]) => updateIngredients(ingredients))
+      .then((ingredients: IIngredient[]) => {
+        const filteredIngredients = ingredients.filter(ingredient => ingredient.id !== 1474);
+        const baseIngredient = (ingredients.find(ingredient => ingredient.id === 1474) as IIngredient);
+        saveBaseIngredient(baseIngredient);
+        updateIngredients(filteredIngredients);
+      })
       .catch(error => console.error(error));
 
       // return function cleanup() {

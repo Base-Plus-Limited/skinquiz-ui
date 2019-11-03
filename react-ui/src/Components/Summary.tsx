@@ -13,7 +13,7 @@ export interface SummaryProps {
 }
  
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient } = useContext(QuizContext);
   const sortedIngredients =
   ingredients
     .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
@@ -49,11 +49,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         {<StyledH2 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
         {
           <SummaryBaseIngredient>
-            <StyledImage src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>
+            <StyledImage src={baseIngredient.images[0].src} alt={baseIngredient.name}></StyledImage>
             <div>
 
-            <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={sortedIngredients[0].name}></StyledSubHeading>
-            <StyledText margin="4px 0 0 0" fontSize="9pt" text="Maiores consequatur sint quo nihil doloremque cum. Rerum unde"></StyledText>
+            <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={baseIngredient.name}></StyledSubHeading>
+            <StyledText margin="4px 0 0 0" fontSize="9pt" text={baseIngredient.short_description}></StyledText>
             </div>
           </SummaryBaseIngredient>
         }
@@ -65,7 +65,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                 <SummaryIngredient key={ingredient.id}>
                   <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
                   <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
-                  <StyledText margin="4px 0 0 0" fontSize="9pt" text="Maiores consequatur sint quo nihil doloremque cum. Rerum unde"></StyledText>
+                  <StyledText margin="4px 0 0 0" fontSize="9pt" text={ingredient.short_description}></StyledText>
                 </SummaryIngredient>
                 {
                   index === 0 &&

@@ -81,7 +81,8 @@ class App {
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           ingredient.rank = 0;
           ingredient.price_html = "";
-          ingredient.description = "";
+          ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
+          ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
           ingredient.previouslyRanked = false;
           return ingredient;
         }))
@@ -99,9 +100,9 @@ class App {
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
-    const entities = new Html5Entities();
     const answerArr = question.content.rendered.replace(/<(?:.|\n)*?>/gm, '').split(',');
     const separatedMeta = question.excerpt.rendered.replace(/<(?:.|\n)*?>/gm, '').split('|');
+    const entities = new Html5Entities();
     return {
       id: question.id,
       answered: false,
