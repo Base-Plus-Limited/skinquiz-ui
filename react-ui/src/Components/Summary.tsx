@@ -42,7 +42,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   return <SummaryWrap>
       <SummaryGrid>
-        {<StyledH2 text={`Here's your product ${userName}`}></StyledH2>}
+        {<StyledH2 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
         {
           <SummaryBaseIngredient>
             <StyledImage src={sortedIngredients[0].images[0].src} alt={sortedIngredients[0].name}></StyledImage>
