@@ -57,8 +57,9 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       case 6:
         return 3;
       case 7:
-      case 8:
         return 4;
+      case 8:
+        return 5;
       default:
         return 0;
     }
@@ -75,7 +76,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
             formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
             <p>Loading...</p>
           }
-          {questionsAnswered.length === 8 && <StyledSummary></StyledSummary>}
+          {questionsAnswered.length > 3 && <StyledSummary></StyledSummary>}
         </Quiz>
       </ScrollWrapper>
       <StyledFooter></StyledFooter>

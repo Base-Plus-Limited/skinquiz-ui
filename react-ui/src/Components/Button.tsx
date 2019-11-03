@@ -32,7 +32,7 @@ const StyledBackButton = styled(Button)`
 `
 
 const StyledSummaryButton = styled(Button)`
-  margin: ${(props: ButtonProps) => props.addMargin ? "0 8px 0 0" : "0 auto"};
+  margin: ${(props: ButtonProps) => props.addMargin ? "0 15px 0" : "0 auto"};
 `
 
 export { StyledButton, StyledBackButton, StyledSummaryButton };
