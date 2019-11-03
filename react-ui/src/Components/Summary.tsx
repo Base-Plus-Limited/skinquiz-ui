@@ -14,7 +14,11 @@ export interface SummaryProps {
  
 const StyledSummary: React.FC<SummaryProps> = () => {
   const { ingredients, userName } = useContext(QuizContext);
-  const sortedIngredients = ingredients.sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank).slice(0, 2);
+  const sortedIngredients =
+  ingredients
+    .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
+    .reverse()
+    .slice(0, 2);
 
   const amendIngredients = async () => {
     return fetch('/customisation-tool', {
