@@ -18,6 +18,8 @@ interface IQuiz {
   updateSelectedSkinConditions: Dispatch<SetStateAction<ISkinCondition[]>>;
   userName: string;
   updateUserName: Dispatch<SetStateAction<string>>;
+  baseIngredient: IIngredient;
+  saveBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
 }
 
 export default IQuiz;
