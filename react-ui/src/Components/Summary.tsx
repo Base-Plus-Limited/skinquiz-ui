@@ -58,7 +58,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           {
             sortedIngredients.map((ingredient, index) => (
               <React.Fragment>
-                <SummaryIngredient>
+                <SummaryIngredient key={ingredient.id}>
                   <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
                   <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
                   <StyledText margin="4px 0 0 0" fontSize="9pt" text="Maiores consequatur sint quo nihil doloremque cum. Rerum unde"></StyledText>
