@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
-import { IIngredient } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import * as request from 'superagent';
 import { resolve, join } from 'path';
@@ -69,6 +69,18 @@ class App {
         }))
         .then(quiz => res.send(quiz))
         .catch((error: Error) => res.json({ error: error.message }))
+    });
+
+
+    /*************************
+     *  CREATE NEW PRODUCT
+     *************************/
+    router.post('/new-product', bodyParser.json(), async (req, res) => {
+      await request.post(`https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
+        .send(req.body)
+        .then(productResponse => productResponse.body)
+        .then((product: WordpressProduct) => res.json(product))
+        .catch(error => console.log(error))
     });
 
 
