@@ -5,15 +5,22 @@ import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
+import { ICompletedQuiz, IQuizData } from './../react-ui/src/Interfaces/CompletedQuiz';
 import * as request from 'superagent';
 import { resolve, join } from 'path';
+import fs from 'fs';
+import os from 'os';
+import mongoose, {Document, Schema, model} from 'mongoose';
+import { MongoError } from 'mongodb';
 dotenv.config();
 
 class App {
   public express: Application;
+  private completedQuizModel = this.createCompletedQuizModel();
 
   constructor () {
     this.express = express();
+    this.connectToDb();
     this.config(); 
     this.mountRoutes(); 
   }
@@ -32,7 +39,6 @@ class App {
   private mountRoutes (): void {
     const router = express.Router();
 
-
     /*************************
      *  REDIRECT URL
      *************************/
@@ -50,7 +56,6 @@ class App {
       res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
 
-
     /*************************
      *  HEALTHCHECK
      *************************/
@@ -62,7 +67,7 @@ class App {
      *  GET ALL QUESTIONS
      *************************/
     router.get('/questions', async (req, res) => {
-      await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
+      await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => {
           return this.returnQuizQuestion(question);
@@ -71,24 +76,80 @@ class App {
         .catch((error: Error) => res.json({ error: error.message }))
     });
 
-
     /*************************
      *  CREATE NEW PRODUCT
      *************************/
     router.post('/new-product', bodyParser.json(), async (req, res) => {
-      await request.post(`https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}`)
+      await request.post(`https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
         .send(req.body)
         .then(productResponse => productResponse.body)
         .then((product: WordpressProduct) => res.json(product))
         .catch(error => console.log(error))
-    });
+      });
+      
+      
+    /*************************
+     *  SAVE QUIZ ANSWERS TO DB
+     *************************/
+    router.post('/completed-quiz', bodyParser.json(), async (req, res) => {
+      const completedQuiz = new this.completedQuizModel({
+        completedQuiz: {
+          quizData: [...req.body.quizData]
+        }
+      });
+      completedQuiz.save()
+        .then(dbResponse => res.json(dbResponse))
+        .catch(error => res.send(error))
+      // const quizAnswers: ICompletedQuiz[] = req.body;
+      // const filename = join(__dirname, '../react-ui/src/Assets/', 'answeredQuestions.csv');
+      // const output = [];
+      // const trimmedDataHeadings = Object.keys(quizAnswers);
+      // output.push(trimmedDataHeadings.join());
+      // quizAnswers.forEach((field) => {
+      //   const row = [];
+      //   row.push(field.question);
+      //   row.push(field.id);
+      //   row.push(field.answer);
 
+      //   output.push(row.join());
+      // });
+      // fs.writeFileSync(filename, output.join(os.EOL));
+      // await request.get(`https://baseplus.co.uk/wp-json/wc/v3/products?WP_CONSUMER_KEY=${process.env.WP_CONSUMER_KEY}&WP_CONSUMER_SECRET=${process.env.WP_CONSUMER_SECRET}&category=21&type=composite&per_page=30`)
+      //   .then(res => res.body)
+      //   .then(products => {
+      //     const trimmedData = products.map(response => {
+      //       const { date_created, id, price } = response;
+      //       return {
+      //         date_created: new Date(date_created),
+      //         id,
+      //         price
+      //       }
+      //     });
+      //     const filename = path.join(__dirname, '/src/assets/', 'productData.csv');
+      //     const output = [];
+
+      //     const trimmedDataHeadings = Object.keys(trimmedData[0]);
+      //     output.push(trimmedDataHeadings.join()); // set headings
+
+      //     trimmedData.forEach((field, index) => {
+      //       const row = []; 
+      //       row.push(field.date_created);
+      //       row.push(field.id);
+      //       row.push(field.price);
+
+      //       output.push(row.join());
+      //     });
+      //     fs.writeFileSync(filename, output.join(os.EOL));
+      //   })
+      //   .then(fileUrl => res.end())
+      //   .catch(error => res.status(400).send(error))
+    });
 
     /*************************
      *  GET ALL INGREDIENTS
      *************************/
     router.get('/ingredients', async (req, res) => {
-      await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.CONSUMER_KEY}&consumer_secret=${process.env.CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
+      await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           ingredient.rank = 0;
@@ -99,10 +160,9 @@ class App {
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
-        .catch((error: Error) => res.json({ error }))
+        .catch((error: Error) => res.send(error))
     });
 
-    
     /*************************
      *  WILDCARD
      *************************/
@@ -137,8 +197,47 @@ class App {
       })
     }
   }
-  
 
+  private connectToDb() {
+    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true }, (err: MongoError) => {
+      if(err)
+        return console.log(`${err.code}, ${err.message}`);
+      console.log("DB connection successful");
+    });
+  }
+
+  private createCompletedQuizModel() {
+    const CompletedQuizSchema = new Schema({
+      completedQuiz: {
+        id: {
+          type: String,
+          required: false,
+          default: mongoose.Types.ObjectId
+        },
+        date: {
+          type: Date,
+          required: false,
+          default: Date.now
+        },
+        quizData: [{
+          questionId: {
+            type: Number,
+            required: true
+          },
+          answer: {
+            type: String,
+            required: true
+          },
+          question: {
+            type: String,
+            required: true
+          }
+        }]
+      }
+    })
+    return model<ICompletedQuiz & Document>('CompletedQuiz', CompletedQuizSchema);
+  }
+  
 }
 
 export default App;

@@ -51,11 +51,14 @@ var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
 var path_1 = require("path");
+var mongoose_1 = __importStar(require("mongoose"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
+        this.completedQuizModel = this.createCompletedQuizModel();
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.express = express_1["default"]();
+        this.connectToDb();
         this.config();
         this.mountRoutes();
     }
@@ -101,7 +104,7 @@ var App = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .then(function (res) { return res.body; })
                             .then(function (questions) { return questions.map(function (question) {
                             return _this.returnQuizQuestion(question);
@@ -119,7 +122,7 @@ var App = /** @class */ (function () {
         router.post('/new-product', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
+                    case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
                             .then(function (product) { return res.json(product); })["catch"](function (error) { return console.log(error); })];
@@ -130,12 +133,28 @@ var App = /** @class */ (function () {
             });
         }); });
         /*************************
+         *  SAVE QUIZ ANSWERS TO DB
+         *************************/
+        router.post('/completed-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var completedQuiz;
+            return __generator(this, function (_a) {
+                completedQuiz = new this.completedQuizModel({
+                    completedQuiz: {
+                        quizData: req.body.quizData.slice()
+                    }
+                });
+                completedQuiz.save()
+                    .then(function (dbResponse) { return res.json(dbResponse); })["catch"](function (error) { return res.send(error); });
+                return [2 /*return*/];
+            });
+        }); });
+        /*************************
          *  GET ALL INGREDIENTS
          *************************/
         router.get('/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET + "&category=35&type=simple&per_page=30")
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET + "&category=35&type=simple&per_page=30")
                             .then(function (res) { return res.body; })
                             .then(function (ingredients) { return ingredients.map(function (ingredient) {
                             ingredient.rank = 0;
@@ -145,7 +164,7 @@ var App = /** @class */ (function () {
                             ingredient.previouslyRanked = false;
                             return ingredient;
                         }); })
-                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.json({ error: error }); })];
+                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.send(error); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -185,6 +204,44 @@ var App = /** @class */ (function () {
                 };
             })
         };
+    };
+    App.prototype.connectToDb = function () {
+        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true }, function (err) {
+            if (err)
+                return console.log(err.code + ", " + err.message);
+            console.log("DB connection successful");
+        });
+    };
+    App.prototype.createCompletedQuizModel = function () {
+        var CompletedQuizSchema = new mongoose_1.Schema({
+            completedQuiz: {
+                id: {
+                    type: String,
+                    required: false,
+                    "default": mongoose_1["default"].Types.ObjectId
+                },
+                date: {
+                    type: Date,
+                    required: false,
+                    "default": Date.now
+                },
+                quizData: [{
+                        questionId: {
+                            type: Number,
+                            required: true
+                        },
+                        answer: {
+                            type: String,
+                            required: true
+                        },
+                        question: {
+                            type: String,
+                            required: true
+                        }
+                    }]
+            }
+        });
+        return mongoose_1.model('CompletedQuiz', CompletedQuizSchema);
     };
     return App;
 }());
