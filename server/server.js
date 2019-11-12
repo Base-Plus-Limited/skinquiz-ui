@@ -83,7 +83,7 @@ var App = /** @class */ (function () {
          *************************/
         this.express.use('/api', body_parser_1["default"].json(), router);
         this.express.use('/quiz', body_parser_1["default"].json(), function (req, res) {
-            res.sendFile(path_1.resolve(__dirname, '../react-ui/build'));
+            res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
         });
         /*************************
          *  HEALTHCHECK
@@ -114,6 +114,22 @@ var App = /** @class */ (function () {
             });
         }); });
         /*************************
+         *  CREATE NEW PRODUCT
+         *************************/
+        router.post('/new-product', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.CONSUMER_KEY + "&consumer_secret=" + process.env.CONSUMER_SECRET)
+                            .send(req.body)
+                            .then(function (productResponse) { return productResponse.body; })
+                            .then(function (product) { return res.json(product); })["catch"](function (error) { return console.log(error); })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        /*************************
          *  GET ALL INGREDIENTS
          *************************/
         router.get('/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
@@ -124,7 +140,8 @@ var App = /** @class */ (function () {
                             .then(function (ingredients) { return ingredients.map(function (ingredient) {
                             ingredient.rank = 0;
                             ingredient.price_html = "";
-                            ingredient.description = "";
+                            ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
+                            ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
                             ingredient.previouslyRanked = false;
                             return ingredient;
                         }); })
@@ -139,14 +156,14 @@ var App = /** @class */ (function () {
          *  WILDCARD
          *************************/
         router.get('*', function (req, res) {
-            res.sendFile(path_1.resolve(__dirname, '../react-ui/build'));
+            res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
         });
     };
     App.prototype.returnQuizQuestion = function (question) {
         var _this = this;
-        var entities = new html_entities_1.Html5Entities();
         var answerArr = question.content.rendered.replace(/<(?:.|\n)*?>/gm, '').split(',');
         var separatedMeta = question.excerpt.rendered.replace(/<(?:.|\n)*?>/gm, '').split('|');
+        var entities = new html_entities_1.Html5Entities();
         return {
             id: question.id,
             answered: false,

@@ -8,6 +8,7 @@ import StyledHR from './Shared/HR';
 import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
+import { WordpressProduct } from '../Interfaces/WordpressProduct';
 
 export interface SummaryProps {
 }
@@ -19,6 +20,35 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
     .reverse()
     .slice(0, 2);
+
+  function getProductName(): string {
+    if(userName)
+      return `${userName}'s Bespoke Product`;
+    return `Your Bespoke Product`;
+  }
+
+  function getTotalPrice() {
+    const total = Number(sortedIngredients[0].price) + Number(sortedIngredients[1].price) + Number(baseIngredient.price);
+    return total.toFixed(2);
+  }
+
+  const newProduct = {
+    name: getProductName(),
+    type: 'simple',
+    regular_price: getTotalPrice(),
+    description: '',
+    short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
+    categories: [
+      {
+        id: 21
+      }
+    ],
+    images: [
+      {
+        src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
+      }
+    ]
+  }
 
   const amendIngredients = async () => {
     return fetch('/customisation-tool', {
@@ -34,15 +64,20 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const sendToWordpress = async () => {
-    window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${sortedIngredients[0].id}`);
+    return fetch('/api/new-product', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache',
+      body: JSON.stringify(newProduct)
+    })
+    .then(response => response.json())
+    .then((product: WordpressProduct) => {
+      window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+    })
+    .catch(error => console.error(error));
   }
-
-  
-  // const navigateTo = (type: string, product:) => {
-  //   type === 'amend' ?
-  //     window.location.assign(product.permalink) :
-  //     window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}`);
-  // }
 
   return <SummaryWrap>
       <SummaryGrid>
@@ -61,7 +96,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         <SummaryIngredientWrap>
           {
             sortedIngredients.map((ingredient, index) => (
-              <React.Fragment>
+              <React.Fragment key={index}>
                 <SummaryIngredient key={ingredient.id}>
                   <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
                   <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
