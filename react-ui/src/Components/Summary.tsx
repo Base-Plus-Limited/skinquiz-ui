@@ -9,12 +9,14 @@ import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
 import { WordpressProduct } from '../Interfaces/WordpressProduct';
+import { IAnswer } from '../Interfaces/QuizQuestion';
+import { IQuizData } from '../Interfaces/CompletedQuiz';
 
 export interface SummaryProps {
 }
  
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient, quizQuestions } = useContext(QuizContext);
   const sortedIngredients =
   ingredients
     .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
@@ -74,8 +76,40 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     })
     .then(response => response.json())
     .then((product: WordpressProduct) => {
+      sendCompletedQuizQuestionsToApi();
       window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
     })
+    .catch(error => console.error(error));
+  }
+
+  function returnCompletedQuizData(): IQuizData[] {
+    const quizData: IQuizData[] = quizQuestions.map(question => (
+      {
+        questionId: question.id,
+        question: question.question,
+        answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
+      }
+    ));
+    return quizData;
+  }
+
+  function returnAnswers(answers: IAnswer[]) {
+    const selectedAnswers = answers.filter(answer => answer.selected).map(answer => answer.value)[0];
+    if (Array.isArray(selectedAnswers))
+      return selectedAnswers.join(" & ");
+    return selectedAnswers;
+  }
+
+  const sendCompletedQuizQuestionsToApi = () => { 
+    return fetch('/api/completed-quiz', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache',
+      body: JSON.stringify(returnCompletedQuizData())
+    })
+    .then(response => response.json())
     .catch(error => console.error(error));
   }
 

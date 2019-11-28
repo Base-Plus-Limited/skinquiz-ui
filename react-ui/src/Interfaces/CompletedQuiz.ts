@@ -1,5 +1,9 @@
 export interface ICompletedQuiz {
-  id: number;
+  quizData: IQuizData[];
+}
+
+export interface IQuizData {
+  questionId: number;
   answer: string;
   question: string;
 }

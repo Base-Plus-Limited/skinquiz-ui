@@ -5,7 +5,6 @@ import StyledAnswer from './Answer';
 import StyledSkintoneAnswer from './SkintoneAnswer';
 import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
-import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
 import StyledInput from './Shared/Input';
 import StyledPrompt from './Prompt';
 import { StyledButton } from './Button';
@@ -188,18 +187,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     // }
   }
 
-  const sendCompletedQuizQuestionsToApi = (completedQuiz: ICompletedQuiz[]) => { 
-    return fetch('/quiz-answers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(completedQuiz)
-    })
-    .then(response => response.json())
-    .catch(error => console.error(error));
-  }
+  
 
   const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
     if(questionsAnswered.length) {
