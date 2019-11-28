@@ -10,7 +10,7 @@ import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
 import { WordpressProduct } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
-import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
+import { IQuizData } from '../Interfaces/CompletedQuiz';
 
 export interface SummaryProps {
 }
@@ -77,19 +77,20 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     .then(response => response.json())
     .then((product: WordpressProduct) => {
       sendCompletedQuizQuestionsToApi();
-      // window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+      window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
     })
     .catch(error => console.error(error));
   }
 
-  function returnCompletedQuizData(): any {
-    return quizQuestions.map(question => (
+  function returnCompletedQuizData(): IQuizData[] {
+    const quizData: IQuizData[] = quizQuestions.map(question => (
       {
-        id: question.id,
+        questionId: question.id,
         question: question.question,
         answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
       }
     ));
+    return quizData;
   }
 
   function returnAnswers(answers: IAnswer[]) {
@@ -100,18 +101,16 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const sendCompletedQuizQuestionsToApi = () => { 
-    console.log(returnCompletedQuizData())
-    // return fetch('/api/completed-quiz', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   cache: 'no-cache',
-    //   body: JSON.stringify(returnCompletedQuizData())
-    // })
-    // .then(response => response.json())
-    // .then(response => console.log(response))
-    // .catch(error => console.error(error));
+    return fetch('/api/completed-quiz', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache',
+      body: JSON.stringify(returnCompletedQuizData())
+    })
+    .then(response => response.json())
+    .catch(error => console.error(error));
   }
 
   return <SummaryWrap>

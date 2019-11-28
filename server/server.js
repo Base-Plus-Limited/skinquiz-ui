@@ -136,11 +136,12 @@ var App = /** @class */ (function () {
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/completed-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var completedQuiz;
+            var quizData, completedQuiz;
             return __generator(this, function (_a) {
+                quizData = req.body;
                 completedQuiz = new this.completedQuizModel({
                     completedQuiz: {
-                        quizData: req.body.quizData.slice()
+                        quizData: quizData
                     }
                 });
                 completedQuiz.save()

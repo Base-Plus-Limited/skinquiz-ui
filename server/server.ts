@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import bodyParser from 'body-parser';
+import bodyParser, { json } from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
@@ -85,16 +85,16 @@ class App {
         .then(productResponse => productResponse.body)
         .then((product: WordpressProduct) => res.json(product))
         .catch(error => console.log(error))
-      });
-      
+    });
       
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
     router.post('/completed-quiz', bodyParser.json(), async (req, res) => {
+      const quizData: IQuizData[] = req.body;
       const completedQuiz = new this.completedQuizModel({
         completedQuiz: {
-          quizData: [...req.body.quizData]
+          quizData
         }
       });
       completedQuiz.save()
