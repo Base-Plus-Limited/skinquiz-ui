@@ -9,11 +9,12 @@ export interface FooterProps {
 
 export interface SharedFooterProps {
   progressCount: number;
+  isQuizCompleted: boolean;
 }
 
 const StyledFooter: React.FC<FooterProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, isQuizCompleted } = useContext(QuizContext);
 
   
   const removeLastQuestionAnswered = () => {
@@ -46,16 +47,17 @@ const StyledFooter: React.FC<FooterProps> = () => {
 
   return (
     <Footer>
-      <InnerFooterWrap progressCount={progressCount}>
-      <ProgressCount progressCount={progressCount}>
+      <InnerFooterWrap progressCount={progressCount} isQuizCompleted={isQuizCompleted}>
+      <ProgressCount progressCount={progressCount} isQuizCompleted={isQuizCompleted}>
         <ProgressCountSmall>
           {progressCount}
         </ProgressCountSmall>
         /8
       </ProgressCount>
       {
-        progressCount > 1 &&
+        progressCount > 1 && !isQuizCompleted ?
         <StyledBackButton onClick={removeLastQuestionAnswered}>back</StyledBackButton>
+        : ''
       }
       </InnerFooterWrap>
     </Footer>
@@ -69,7 +71,7 @@ const Footer = styled.footer`
   `
   
 const ProgressCount = styled.span`
-  text-align: ${(props: SharedFooterProps) => props.progressCount > 1 ? "" : "center"};
+  text-align: ${(props: SharedFooterProps) => props.progressCount > 1 && !props.isQuizCompleted ? "" : "center"};
   font-family: ${props => props.theme.bodyFont};
   font-size: 12pt;
   display: block;
@@ -80,8 +82,8 @@ const ProgressCountSmall = styled.span`
 
 const InnerFooterWrap = styled.div`
   margin: 0 auto;
-  display: ${(props: SharedFooterProps) => props.progressCount > 1 ? "flex" : ""}
-  justify-content: ${(props: SharedFooterProps) => props.progressCount > 1 ? "space-between" : ""}
+  display: ${(props: SharedFooterProps) => props.progressCount > 1 && !props.isQuizCompleted ? "flex" : ""}
+  justify-content: ${(props: SharedFooterProps) => props.progressCount > 1 && !props.isQuizCompleted ? "space-between" : ""}
 `
 
 export default StyledFooter;
