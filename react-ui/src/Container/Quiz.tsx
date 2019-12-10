@@ -6,6 +6,7 @@ import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import StyledSummary from '../Components/Summary';
 import StyledFooter from '../Components/Footer';
+import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 
 
 interface QuizProps {
@@ -77,9 +78,9 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       <ScrollWrapper>
         <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
           {
-            formattedQuiz().length ?
+            formattedQuiz()[0].length ?
             formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
-            <p>Loading...</p>
+            <LoadingAnimation/>
           }
           {questionsAnswered.length > 6 && <StyledSummary></StyledSummary>}
         </Quiz>

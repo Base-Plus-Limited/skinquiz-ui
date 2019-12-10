@@ -20,7 +20,9 @@ const state: IQuiz = {
   userName: "",
   updateUserName: (previousUserName: SetStateAction<string>) => previousUserName,
   baseIngredient: {} as IIngredient,
-  saveBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient
+  saveBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
+  isQuizCompleted: false,
+  setQuizToCompleted: (previousCompletedQuizState: SetStateAction<boolean>) => previousCompletedQuizState
 }
 
 export const QuizContext = createContext(state);
@@ -38,6 +40,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [selectedSkinConditions, updateSelectedSkinConditions] = useState<ISkinCondition[]>([]);
   const [userName, updateUserName] = useState<string>("");
   const [baseIngredient, saveBaseIngredient] = useState<IIngredient>({} as IIngredient);
+  const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
 
   return (
     <QuizContext.Provider value={{
@@ -56,7 +59,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       userName,
       updateUserName,
       baseIngredient,
-      saveBaseIngredient
+      saveBaseIngredient,
+      isQuizCompleted,
+      setQuizToCompleted
     }}>
       {children}
     </QuizContext.Provider>
