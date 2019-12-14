@@ -182,6 +182,7 @@ class App {
       isSkintoneQuestion: question.id === 716 ? true : false, // skintone question
       isSkinConditionQuestion: question.id === 1443 ? true : false, // skintone condition question
       customAnswer: "",
+      displayAnswersAsADropdownOnMobile: answerArr.length > 3 && true,
       isInputVisible: false,
       totalAnswersSelected: 0,
       question: entities.decode(question.title.rendered),

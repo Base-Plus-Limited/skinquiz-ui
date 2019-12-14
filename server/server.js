@@ -191,6 +191,7 @@ var App = /** @class */ (function () {
             isSkintoneQuestion: question.id === 716 ? true : false,
             isSkinConditionQuestion: question.id === 1443 ? true : false,
             customAnswer: "",
+            displayAnswersAsADropdownOnMobile: answerArr.length > 3 && true,
             isInputVisible: false,
             totalAnswersSelected: 0,
             question: entities.decode(question.title.rendered),
