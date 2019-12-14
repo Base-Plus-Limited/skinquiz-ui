@@ -22,7 +22,9 @@ const state: IQuiz = {
   baseIngredient: {} as IIngredient,
   saveBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
   isQuizCompleted: false,
-  setQuizToCompleted: (previousCompletedQuizState: SetStateAction<boolean>) => previousCompletedQuizState
+  setQuizToCompleted: (previousCompletedQuizState: SetStateAction<boolean>) => previousCompletedQuizState,
+  isAnswersPanelVisible: false,
+  setAnswersPanelVisibility: (previousAnswersPanelVisibility: SetStateAction<boolean>) => previousAnswersPanelVisibility
 }
 
 export const QuizContext = createContext(state);
@@ -41,6 +43,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [userName, updateUserName] = useState<string>("");
   const [baseIngredient, saveBaseIngredient] = useState<IIngredient>({} as IIngredient);
   const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
+  const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
 
   return (
     <QuizContext.Provider value={{
@@ -61,7 +64,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       baseIngredient,
       saveBaseIngredient,
       isQuizCompleted,
-      setQuizToCompleted
+      setQuizToCompleted,
+      isAnswersPanelVisible,
+      setAnswersPanelVisibility
     }}>
       {children}
     </QuizContext.Provider>
