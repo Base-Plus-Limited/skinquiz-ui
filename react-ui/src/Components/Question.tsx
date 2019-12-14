@@ -399,7 +399,7 @@ const CheekImageArea = styled.img`
 
 const HalfScreenQuestion = styled.div`
   margin: 0;
-  padding: 0;
+  padding: 0 10px;
   font-size: 11pt;
   overflow: hidden;
   font-family: ${props => props.theme.subHeadingFont};
@@ -425,6 +425,11 @@ const QuestionWrapper = styled.div`
   width: 100vw;
   align-items: center;
   text-align: center;
+  margin: auto;
+  grid-template-rows: repeat(2, 260px);
+  @media screen and (min-width: 768px) {
+    grid-template-rows: auto;
+  }
 `;
 
 export default StyledQuestion;

@@ -41,9 +41,11 @@ const Welcome = styled.div`
   display: grid;
   background: url(${tubeImg}) no-repeat 430px -391px;
   grid-template-rows: 1fr;
-  height: 88.5vh;
   align-items: center;
   padding: 0 20px;
+  @media only screen and (min-width: 768px) {
+    height: 88.5vh;
+  }
   @media only screen and (min-width: 980px) {
     padding: 0;
   }
