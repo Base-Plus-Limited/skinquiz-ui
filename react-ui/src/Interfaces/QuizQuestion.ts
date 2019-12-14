@@ -7,6 +7,7 @@ export interface IQuizQuestion {
   prompt: string | string[];
   isInputVisible: boolean;
   displayAnswersAsADropdownOnMobile: boolean;
+  isMobilePanelOpen: boolean;
   isSkintoneQuestion: boolean;
   isSkinConditionQuestion: boolean;
   answers: IAnswer[];

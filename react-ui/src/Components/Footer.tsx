@@ -23,6 +23,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
     if(questionsAnswered[questionsAnswered.length - 1].id === 706) // skin concern question
       resetSkinConcernAnswers(questionsAnswered[questionsAnswered.length - 1].answers);
     questionsAnswered[questionsAnswered.length - 1].answers.forEach(answer => answer.selected = false);
+    questionsAnswered[questionsAnswered.length - 1].answered = false;
     questionsAnswered.pop();
     updateQuestionsAnswered([...questionsAnswered]);
     removeRanks();

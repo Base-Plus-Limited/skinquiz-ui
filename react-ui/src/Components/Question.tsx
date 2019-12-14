@@ -7,7 +7,6 @@ import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import StyledInput from './Shared/Input';
 import StyledPrompt from './Prompt';
-import StyledMobileAnswersPanel from './AnswersPanel';
 import { StyledButton } from './Button';
 import faceImg from './../Assets/face_img.jpg';
 import CheekArea from './../Assets/cheek_areas.png';
@@ -19,10 +18,16 @@ export interface QuestionProps {
   questions: IQuizQuestion[];
 }
 
+interface PanelProps {
+  isVisible: boolean;
+}
+
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, isAnswersPanelVisible, setAnswersPanelVisibility } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
+    if(answeredQuestion.isMobilePanelOpen)
+      resetAnswersPanel(answeredQuestion);
     if(answeredQuestion.isSkinConditionQuestion)
       return skinConditionAnswerSelection(answeredQuestion, answerIndex);
     if(answeredQuestion.id === 706)
@@ -311,6 +316,30 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       return indexSpecificMargin;
   }
 
+  const toggleAnswersPanel = (question: IQuizQuestion) => {
+    const updatedQuizQuestions = quizQuestions.map(quizQuestion => {
+      if(question.id === quizQuestion.id)
+        quizQuestion.isMobilePanelOpen = !quizQuestion.isMobilePanelOpen;
+      return quizQuestion;
+    })
+    updateQuizQuestions([...updatedQuizQuestions]);
+  }
+
+  const resetAnswersPanel = (answeredQuestion: IQuizQuestion) => {
+    const updatedQuizQuestions = quizQuestions.map(quizQuestion => {
+      if(answeredQuestion.id === quizQuestion.id)
+        quizQuestion.isMobilePanelOpen = false;
+      return quizQuestion;
+    })
+    updateQuizQuestions([...updatedQuizQuestions]);
+  }
+
+  const returnSelectedAnswerValue = (selectedAnswer: IAnswer[]) => {
+    if(selectedAnswer.length)
+      return `Selected: ${selectedAnswer[0].value}`;
+    return "Select to choose an answer";
+  }
+
   return (
     <QuestionWrapper>
       {
@@ -364,8 +393,17 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                         })
                         :
                         question.displayAnswersAsADropdownOnMobile ?
-                          <StyledMobileAnswersPanel answers={question.answers}></StyledMobileAnswersPanel>
-                        :
+                          <React.Fragment>
+                            <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
+                            <Panel isVisible={question.isMobilePanelOpen}>
+                              {
+                                question.answers.map((answer, index) => (
+                                  <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                                ))
+                              }
+                            </Panel>
+                          </React.Fragment>
+                          :
                           question.answers.map((answer: IAnswer, index: number) => (
                             <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                           ))
@@ -378,6 +416,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     </QuestionWrapper>
   )
 }
+
+const Panel = styled.div`
+  display: ${(props: PanelProps) => props.isVisible ? "block" : "none"};
+  padding: 10px 15px;
+  background: red;
+  position: absolute;
+  top: -15px;
+`
 
 const FaceImageWrapper = styled.div`
   position: relative;
@@ -430,6 +476,7 @@ const QuestionWrapper = styled.div`
   align-items: center;
   text-align: center;
   margin: auto;
+  position: relative;
   grid-template-rows: repeat(2, 260px);
   @media screen and (min-width: 768px) {
     grid-template-rows: auto;
