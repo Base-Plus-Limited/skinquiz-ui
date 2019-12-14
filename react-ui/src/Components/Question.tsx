@@ -418,11 +418,16 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 }
 
 const Panel = styled.div`
-  display: ${(props: PanelProps) => props.isVisible ? "block" : "none"};
-  padding: 10px 15px;
-  background: red;
+  display: ${(props: PanelProps) => props.isVisible ? "flex" : "none"};
+  padding: 15px;
+  background: #fff;
   position: absolute;
-  top: -15px;
+  top: -25px;
+  z-index: 2;
+  flex-direction: column;
+  height: 100%;
+  width: 87%;
+  justify-content: space-evenly;
 `
 
 const FaceImageWrapper = styled.div`
