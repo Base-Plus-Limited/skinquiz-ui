@@ -7,6 +7,7 @@ import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import StyledInput from './Shared/Input';
 import StyledPrompt from './Prompt';
+import StyledMobileAnswersPanel from './AnswersPanel';
 import { StyledButton } from './Button';
 import faceImg from './../Assets/face_img.jpg';
 import CheekArea from './../Assets/cheek_areas.png';
@@ -19,10 +20,10 @@ export interface QuestionProps {
 }
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
-    if(answeredQuestion.isSkinConditionQuestion) 
+    if(answeredQuestion.isSkinConditionQuestion)
       return skinConditionAnswerSelection(answeredQuestion, answerIndex);
     if(answeredQuestion.id === 706)
       return newFunction(answeredQuestion, answerIndex);
@@ -40,13 +41,13 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
             answer.selected = true;
             question.answered = true;
             doValuesMatch(answeredQuestion.answers[answerIndex], answerIndex); // refactor this to return a boolean
-          } 
+          }
         })
       }
       return question;
     });
     updateQuizQuestions(updatedQuestions);
-    if (answeredQuestion.answered) 
+    if (answeredQuestion.answered)
       doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
   }
@@ -82,7 +83,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     } else {
       resetAnswersDisability(question);
     }
-    return question.totalAnswersSelected === 2;    
+    return question.totalAnswersSelected === 2;
   }
 
   const resetAnswersDisability = (question: IQuizQuestion) => {
@@ -105,7 +106,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           answeredQuestion.answers[answerIndex].selected = true;
           logSkinConditionAnswers(question.answers);
           return;
-        } 
+        }
         resetSelectedAnswers(question.answers, answerIndex)
         answeredQuestion.answers[answerIndex].selected = true;
         logSkinConditionAnswers(question.answers);
@@ -113,7 +114,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     })
     updateQuizQuestions([...quizQuestions])
   }
-  
+
   const resetSelectedAnswers = (answers: IAnswer[], answerIndex: number) => {
     if(answerIndex > 2)
       return answers.slice(3).map(answer => answer.selected = false)
@@ -168,7 +169,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     question.answers[question.answers.length - 1].selected = true;
   }
 
-  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS 
+  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
     // if (progressCount === 4) {
     //   const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
     //     const { question, answers, id } = answeredQ;
@@ -187,7 +188,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     // }
   }
 
-  
+
 
   const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
     if(questionsAnswered.length) {
@@ -262,7 +263,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
-    
+
       if (selectedSkinConditions.length === 2)
         switch (selectedSkinConditions[1].index) {
           case 4:
@@ -294,7 +295,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
-    
+
     if(selectedSkinConditions.length === 2)
       switch (selectedSkinConditions[0].index) {
         case 1:
@@ -332,7 +333,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 })}
                 <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
                 {
-                  selectedSkinConditions.length === 2 ? 
+                  selectedSkinConditions.length === 2 ?
                   <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>
                   : ""
                 }
@@ -362,9 +363,12 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                           return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
                         })
                         :
-                        question.answers.map((answer: IAnswer, index: number) => {
-                          return <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
-                        })
+                        question.displayAnswersAsADropdownOnMobile ?
+                          <StyledMobileAnswersPanel answers={question.answers}></StyledMobileAnswersPanel>
+                        :
+                          question.answers.map((answer: IAnswer, index: number) => (
+                            <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                          ))
                     }
                 </React.Fragment>
             }
@@ -381,7 +385,7 @@ const FaceImageWrapper = styled.div`
 `
 
 // to refactor
-const TZoneImageArea = styled.img` 
+const TZoneImageArea = styled.img`
   position: absolute;
   top: 110px;
   left: 81px;
