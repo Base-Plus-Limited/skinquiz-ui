@@ -20,10 +20,11 @@ export interface QuestionProps {
 
 interface PanelProps {
   isVisible: boolean;
+  isSkinToneAnswers: boolean;
 }
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, isAnswersPanelVisible, setAnswersPanelVisibility } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     if(answeredQuestion.isMobilePanelOpen)
@@ -388,21 +389,28 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 <React.Fragment>
                     {
                       question.isSkintoneQuestion ?
-                        question.answers.map((answer: IAnswer, index: number) => {
-                          return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
-                        })
+                        <MobileAnswersWrapper>
+                          <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
+                          <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                            {
+                              question.answers.map((answer: IAnswer, index: number) => {
+                                return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
+                              })
+                            }
+                          </Panel>
+                        </MobileAnswersWrapper>
                         :
                         question.displayAnswersAsADropdownOnMobile ?
-                          <React.Fragment>
+                          <MobileAnswersWrapper>
                             <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
-                            <Panel isVisible={question.isMobilePanelOpen}>
+                            <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                               {
                                 question.answers.map((answer, index) => (
                                   <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                                 ))
                               }
                             </Panel>
-                          </React.Fragment>
+                          </MobileAnswersWrapper>
                           :
                           question.answers.map((answer: IAnswer, index: number) => (
                             <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
@@ -417,17 +425,34 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   )
 }
 
+
+const MobileAnswersWrapper = styled.div`
+  @media screen and (min-width: 768px) {
+    button {
+      display: none;
+    }
+    .mobileAnswersPanel {
+      position: static;
+      width: 100%;
+      padding: 0;
+      background: none;
+      display: block;
+    }
+  }
+`
+
 const Panel = styled.div`
-  display: ${(props: PanelProps) => props.isVisible ? "flex" : "none"};
+  display: ${(props: PanelProps) => props.isVisible ? "grid" : "none"};
+  grid-template-columns: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(2, 1fr)" : "1fr"};
+  grid-template-rows: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(3, 150px)" : "1fr"};
   padding: 15px;
   background: #fff;
   position: absolute;
-  top: -25px;
+  top: ${(props: PanelProps) => props.isSkinToneAnswers ? "0px" : "-25px"};
   z-index: 2;
-  flex-direction: column;
   height: 100%;
   width: 87%;
-  justify-content: space-evenly;
+  justify-content: space-evenly;1§§§
 `
 
 const FaceImageWrapper = styled.div`
@@ -473,6 +498,9 @@ const SkinConditionQuestion = styled.div`
   grid-template-columns: 523px 340px;
   align-items: center;
   margin: 0 auto;
+  @media screen and (min-width: 768px) {
+    grid-row: 1/3;
+  }
 `;
 
 const QuestionWrapper = styled.div`
@@ -483,9 +511,6 @@ const QuestionWrapper = styled.div`
   margin: auto;
   position: relative;
   grid-template-rows: repeat(2, 260px);
-  @media screen and (min-width: 768px) {
-    grid-template-rows: auto;
-  }
 `;
 
 export default StyledQuestion;
