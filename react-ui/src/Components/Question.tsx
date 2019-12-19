@@ -336,7 +336,9 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   }
 
   const returnSelectedAnswerValue = (selectedAnswer: IAnswer[]) => {
-    if(selectedAnswer.length)
+    if(selectedAnswer.length === 2)
+      return `Selected: ${selectedAnswer[0].value} & ${selectedAnswer[1].value}`;
+    if(selectedAnswer.length === 1)
       return `Selected: ${selectedAnswer[0].value}`;
     return "Select to choose an answer";
   }
@@ -391,7 +393,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                       question.isSkintoneQuestion ?
                         <MobileAnswersWrapper>
                           <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
-                          <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                          <Panel onClick={() => resetAnswersPanel(question)} className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                             {
                               question.answers.map((answer: IAnswer, index: number) => {
                                 return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
@@ -403,7 +405,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                         question.displayAnswersAsADropdownOnMobile ?
                           <MobileAnswersWrapper>
                             <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
-                            <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                            <Panel onClick={() => resetAnswersPanel(question)} className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                               {
                                 question.answers.map((answer, index) => (
                                   <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
@@ -444,15 +446,16 @@ const MobileAnswersWrapper = styled.div`
 const Panel = styled.div`
   display: ${(props: PanelProps) => props.isVisible ? "grid" : "none"};
   grid-template-columns: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(2, 1fr)" : "1fr"};
-  grid-template-rows: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(3, 150px)" : "1fr"};
+  grid-template-rows: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(3, 150px)" : "auto"};
   padding: 15px;
   background: #fff;
+  overflow-y: scroll;
   position: absolute;
   top: ${(props: PanelProps) => props.isSkinToneAnswers ? "0px" : "-25px"};
-  z-index: 2;
+  z-index: 12;
   height: 100%;
   width: 87%;
-  justify-content: space-evenly;1§§§
+  justify-content: space-evenly;
 `
 
 const FaceImageWrapper = styled.div`
@@ -467,9 +470,9 @@ const TZoneImageArea = styled.img`
   left: 81px;
   z-index: 5;
   display: none;
-`
-// to refactor
-const CheekImageArea = styled.img`
+  `
+  // to refactor
+  const CheekImageArea = styled.img`
   position: absolute;
   top: 251px;
   left: 63px;

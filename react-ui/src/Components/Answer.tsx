@@ -17,7 +17,7 @@ const StyledAnswer: React.FC<AnswerProps> = ({ selectAnswer, selected, value, is
 }
 
 const Answer = styled.span`
-  padding: 10px 15px;
+  padding: 15px;
   background: #fff;
   display: none;
   border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
@@ -29,6 +29,10 @@ const Answer = styled.span`
   font-family: ${props => props.theme.subHeadingFont};
   font-weight: 600;
   position: relative;
+  align-self: center;
+  @media screen and (min-width: 768px) {
+    padding: 10px 15px;
+  }
 `
  
 export default StyledAnswer;
