@@ -30,7 +30,7 @@ const Answer = styled.span`
   font-weight: 600;
   position: relative;
   align-self: center;
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: 620px) {
     padding: 10px 15px;
   }
 `

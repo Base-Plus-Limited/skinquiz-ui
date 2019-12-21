@@ -26,7 +26,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
     questionsAnswered[questionsAnswered.length - 1].answered = false;
     questionsAnswered.pop();
     updateQuestionsAnswered([...questionsAnswered]);
-    removeRanks();
+    resetRanks();
   }
 
   const resetSkinConcernAnswers = (answers: IAnswer[]) => {
@@ -37,7 +37,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
     selectedSkinConditions.length = 0;
   }
   
-  const removeRanks = () => {
+  const resetRanks = () => {
     const derankedIngredients = ingredients.map(ingredient => {
       if(ingredient.previouslyRanked)
         ingredient.rank = ingredient.rank - 1

@@ -1,4 +1,4 @@
-import React, { useContext, ChangeEvent } from 'react';
+import React, { useContext, ChangeEvent, SyntheticEvent } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
 import StyledAnswer from './Answer';
@@ -31,12 +31,12 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
-    if(answeredQuestion.isMobilePanelOpen)
-      resetAnswersPanel(answeredQuestion);
+    if(answeredQuestion.isMobilePanelOpen && answeredQuestion.id !== 706)
+      toggleAnswersPanel(answeredQuestion);
     if(answeredQuestion.isSkinConditionQuestion)
       return skinConditionAnswerSelection(answeredQuestion, answerIndex);
     if(answeredQuestion.id === 706)
-      return newFunction(answeredQuestion, answerIndex);
+      return answerSkinConcernQuestion(answeredQuestion, answerIndex);
     const updatedQuestions = quizQuestions.map(question => {
       if (answeredQuestion.id === question.id) {
         question.answers.forEach(answer => {
@@ -67,13 +67,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     return skinConcernQuestion.answered;
   }
 
-  const newFunction = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
+  const answerSkinConcernQuestion = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     const updatedQuizQuestions = quizQuestions.map(question => {
       if(question.id === answeredQuestion.id) {
         answeredQuestion.answers[answerIndex].selected = !answeredQuestion.answers[answerIndex].selected;
-        if(isTwoSkinConditionAnswersSelected(question)){
+        if(areTwoSkinConcernAnswersSelected(question)){
           question.answered = true;
-            doQuestionIdsMatch(question);
+          toggleAnswersPanel(answeredQuestion);
+          doQuestionIdsMatch(question);
         } else {
           question.answered = false;
           if (questionsAnswered[questionsAnswered.length - 1].id === 706) {
@@ -86,7 +87,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateQuizQuestions([...updatedQuizQuestions]);
   }
 
-  const isTwoSkinConditionAnswersSelected = (question: IQuizQuestion) => {
+  const areTwoSkinConcernAnswersSelected = (question: IQuizQuestion) => {
     question.totalAnswersSelected = question.answers.filter(answer => answer.selected).length;
     if(question.totalAnswersSelected === 2) {
       toggleAnswersDisabilityIfNotSelected(question);
@@ -326,20 +327,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       if(question.id === quizQuestion.id)
         quizQuestion.isMobilePanelOpen = !quizQuestion.isMobilePanelOpen;
       return quizQuestion;
-    })
+    });
     updateQuizQuestions([...updatedQuizQuestions]);
   }
 
-  const resetAnswersPanel = (answeredQuestion: IQuizQuestion) => {
-    const updatedQuizQuestions = quizQuestions.map(quizQuestion => {
-      if(answeredQuestion.id === quizQuestion.id)
-        quizQuestion.isMobilePanelOpen = false;
-      return quizQuestion;
-    })
-    updateQuizQuestions([...updatedQuizQuestions]);
-  }
-
-  const returnSelectedAnswerValue = (selectedAnswer: IAnswer[]) => {
+  const returnSelectedAnswerValue = (question: IQuizQuestion) => {
+    if(question.customAnswer)
+      return `${question.customAnswer}`;
+    const selectedAnswer = question.answers.filter(answer => answer.selected);  
     if(selectedAnswer.length === 2)
       return `Selected: ${selectedAnswer[0].value} & ${selectedAnswer[1].value}`;
     if(selectedAnswer.length === 1)
@@ -389,32 +384,35 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 <span>
                   <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
                   <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
-                  <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>submit</StyledButton>
+                  <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>save</StyledButton>
                 </span>
                 :
                 <React.Fragment>
                     {
                       question.isSkintoneQuestion ?
                         <MobileAnswersWrapper>
-                          <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
-                          <Panel onClick={() => resetAnswersPanel(question)} className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                          <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                          <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                             {
                               question.answers.map((answer: IAnswer, index: number) => {
-                                return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
+                                return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}>
+                                </StyledSkintoneAnswer>
                               })
                             }
+                            <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                           </Panel>
                         </MobileAnswersWrapper>
                         :
                         question.displayAnswersAsADropdownOnMobile ?
                           <MobileAnswersWrapper>
-                            <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{returnSelectedAnswerValue(question.answers.filter(selectedAnswer => selectedAnswer.selected))}</StyledButton>
-                            <Panel onClick={() => resetAnswersPanel(question)} className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                            <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                            <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                               {
                                 question.answers.map((answer, index) => (
                                   <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                                 ))
                               }
+                              <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                             </Panel>
                           </MobileAnswersWrapper>
                           :
@@ -460,6 +458,15 @@ const Panel = styled.div`
   height: 100%;
   width: 87%;
   justify-content: space-evenly;
+  .panelBackground {
+    width:100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: -1;
+  }
   @media screen and (min-width: 768px) {
     overflow-y: visible;
   }
