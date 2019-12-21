@@ -23,6 +23,10 @@ interface PanelProps {
   isSkinToneAnswers: boolean;
 }
 
+interface HalfScreenQuestionProps {
+  questionId: number;
+}
+
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
@@ -377,7 +381,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
               </FaceImageWrapper>
           </SkinConditionQuestion>
           :
-          <HalfScreenQuestion key={question.id}>
+          <HalfScreenQuestion questionId={question.id} key={question.id}>
             {question.question}<br />
             {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
             {
@@ -456,12 +460,19 @@ const Panel = styled.div`
   height: 100%;
   width: 87%;
   justify-content: space-evenly;
-`
+  @media screen and (min-width: 768px) {
+    overflow-y: visible;
+  }
+`;
 
 const FaceImageWrapper = styled.div`
   position: relative;
   overflow: hidden;
-`
+  display: none;
+  @media screen and (min-width: 768px) {
+    display: block;
+  }
+`;
 
 // to refactor
 const TZoneImageArea = styled.img`
@@ -485,23 +496,28 @@ const HalfScreenQuestion = styled.div`
   padding: 0 10px;
   font-size: 11pt;
   overflow: hidden;
+  grid-row: ${(props: HalfScreenQuestionProps) => props.questionId === 712 ? "1/ span 2" : "" };
   font-family: ${props => props.theme.subHeadingFont};
 `;
 
 const StyledHR = styled.hr`
-  margin: 30px auto;
-  max-width: 200px;
-  border: none;
-  border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
+margin: 15px auto;
+max-width: 200px;
+border: none;
+border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
+  @media screen and (min-width: 768px) {
+    margin: 30px auto;
+  }
 `;
 
 const SkinConditionQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
-  display: grid;
-  grid-template-columns: 523px 340px;
-  align-items: center;
-  margin: 0 auto;
+  grid-row: 1/ span 2;
   @media screen and (min-width: 768px) {
+    display: grid;
+    align-items: center;
+    margin: 0 auto;
+    grid-template-columns: 523px 340px;
     grid-row: 1/3;
   }
 `;

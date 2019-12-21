@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useContext } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 import styled from "styled-components";
 import { StyledButton } from '../Components/Button';
 import StyledInput from '../Components/Shared/Input';
