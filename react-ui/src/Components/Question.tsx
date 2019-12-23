@@ -27,6 +27,10 @@ interface HalfScreenQuestionProps {
   questionId: number;
 }
 
+interface HalfScreenQuestionProps {
+  questionId: number;
+}
+
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
@@ -453,10 +457,12 @@ const Panel = styled.div`
   background: #fff;
   overflow-y: scroll;
   position: absolute;
-  top: ${(props: PanelProps) => props.isSkinToneAnswers ? "0px" : "-25px"};
+  top: ${(props: PanelProps) => props.isSkinToneAnswers ? "0px" : "-10px"};
   z-index: 12;
-  height: 100%;
-  width: 87%;
+  left: 0;
+  top: -25px;
+  bottom: 0;
+  right: 0;
   justify-content: space-evenly;
   .panelBackground {
     width:100%;
