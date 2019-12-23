@@ -130,7 +130,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           </div>
           :
           <React.Fragment>
-            {<StyledH2 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
+            {<StyledH2 margin="7px 0 7px" text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
             {
               <SummaryBaseIngredient>
                 <StyledImage src={baseIngredient.images[0].src} alt={baseIngredient.name}></StyledImage>
@@ -173,23 +173,35 @@ const SummaryIngredientWrap = styled.div`
 `
 
 const SummaryBaseIngredient = styled.div`
-  width: 380px;
   display: grid;
-  grid-template-columns: 170px 1fr;
   margin: 0 auto;
   align-items: center;
-  text-align: left;
+  width: 190px;
   img{
-    grid-area: 1
+    margin: 0 auto;
+  }
+  p{
+    height: 30px;
+    overflow: hidden;
+  }
+  @media screen and (min-width: 768px) {
+    img{
+      grid-area: 1
+    }
+    text-align: left;
+    grid-template-columns: 170px 1fr;
+    width: 380px;
   }
 `
 
 const SummaryIngredient = styled.div`
-  width: 230px;
   display: inline-block;
   margin: 0 30px;
   img{
     width: 90px;
+  }
+  @media screen and (min-width: 768px) {
+    width: 230px;
   }
 `
 

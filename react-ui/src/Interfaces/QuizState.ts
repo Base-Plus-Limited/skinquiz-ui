@@ -20,8 +20,10 @@ interface IQuiz {
   updateUserName: Dispatch<SetStateAction<string>>;
   baseIngredient: IIngredient;
   saveBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
-  isQuizCompleted: boolean;
   setQuizToCompleted: Dispatch<SetStateAction<boolean>>;
+  isQuizCompleted: boolean;
+  isAnswersPanelVisible: boolean;
+  setAnswersPanelVisibility: Dispatch<SetStateAction<boolean>>;
 }
 
 export default IQuiz;

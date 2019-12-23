@@ -5,10 +5,11 @@ export interface ButtonProps {
   children: string[] | string;
   onClickHandler?: (() => void) | undefined;
   addMargin?: boolean;
+  AnswerSelectedOnMobile?: boolean;
 }
 
-const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, addMargin }: ButtonProps) => {
-  return <Button addMargin={addMargin} onClick={onClickHandler}>{children}</Button>
+const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, addMargin, AnswerSelectedOnMobile }: ButtonProps) => {
+  return <Button style={{ border: AnswerSelectedOnMobile ? "solid 1px #C06F78" : "solid 1px #003E38" }} addMargin={addMargin} onClick={onClickHandler}>{children}</Button>
 }
 
 const Button = styled.button`

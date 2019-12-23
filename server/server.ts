@@ -179,9 +179,11 @@ class App {
       id: question.id,
       answered: false,
       prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
-      isSkintoneQuestion: question.id === 716 ? true : false, // skintone question
-      isSkinConditionQuestion: question.id === 1443 ? true : false, // skintone condition question
+      isSkintoneQuestion: question.id === 716 && true, // skintone question
+      isSkinConditionQuestion: question.id === 1443 && true, // skintone condition question
       customAnswer: "",
+      displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
+      isMobilePanelOpen: false,
       isInputVisible: false,
       totalAnswersSelected: 0,
       question: entities.decode(question.title.rendered),

@@ -23,9 +23,10 @@ const StyledFooter: React.FC<FooterProps> = () => {
     if(questionsAnswered[questionsAnswered.length - 1].id === 706) // skin concern question
       resetSkinConcernAnswers(questionsAnswered[questionsAnswered.length - 1].answers);
     questionsAnswered[questionsAnswered.length - 1].answers.forEach(answer => answer.selected = false);
+    questionsAnswered[questionsAnswered.length - 1].answered = false;
     questionsAnswered.pop();
     updateQuestionsAnswered([...questionsAnswered]);
-    removeRanks();
+    resetRanks();
   }
 
   const resetSkinConcernAnswers = (answers: IAnswer[]) => {
@@ -36,7 +37,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
     selectedSkinConditions.length = 0;
   }
   
-  const removeRanks = () => {
+  const resetRanks = () => {
     const derankedIngredients = ingredients.map(ingredient => {
       if(ingredient.previouslyRanked)
         ingredient.rank = ingredient.rank - 1

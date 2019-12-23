@@ -49,7 +49,7 @@ const SkintoneSquare = styled.div`
 
 const SkintoneAnswer = styled.div`
   display: none;
-  margin: 4px;
+  margin: auto;
   cursor: pointer;
   display: inline-block;
   width: 180px;
@@ -57,6 +57,9 @@ const SkintoneAnswer = styled.div`
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-family: ${props => props.theme.subHeadingFont};
   font-weight: 600;
+  @media screen and (min-width: 768px) {
+    margin: 4px;
+  }
 `
  
 export default StyledSkintoneAnswer;

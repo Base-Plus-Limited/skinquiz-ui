@@ -1,4 +1,4 @@
-import React, { useContext, ChangeEvent } from 'react';
+import React, { useContext, ChangeEvent, SyntheticEvent } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
 import StyledAnswer from './Answer';
@@ -18,14 +18,29 @@ export interface QuestionProps {
   questions: IQuizQuestion[];
 }
 
+interface PanelProps {
+  isVisible: boolean;
+  isSkinToneAnswers: boolean;
+}
+
+interface HalfScreenQuestionProps {
+  questionId: number;
+}
+
+interface HalfScreenQuestionProps {
+  questionId: number;
+}
+
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, progressCount, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
-    if(answeredQuestion.isSkinConditionQuestion) 
+    if(answeredQuestion.isMobilePanelOpen && answeredQuestion.id !== 706)
+      toggleAnswersPanel(answeredQuestion);
+    if(answeredQuestion.isSkinConditionQuestion)
       return skinConditionAnswerSelection(answeredQuestion, answerIndex);
     if(answeredQuestion.id === 706)
-      return newFunction(answeredQuestion, answerIndex);
+      return answerSkinConcernQuestion(answeredQuestion, answerIndex);
     const updatedQuestions = quizQuestions.map(question => {
       if (answeredQuestion.id === question.id) {
         question.answers.forEach(answer => {
@@ -40,13 +55,13 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
             answer.selected = true;
             question.answered = true;
             doValuesMatch(answeredQuestion.answers[answerIndex], answerIndex); // refactor this to return a boolean
-          } 
+          }
         })
       }
       return question;
     });
     updateQuizQuestions(updatedQuestions);
-    if (answeredQuestion.answered) 
+    if (answeredQuestion.answered)
       doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
   }
@@ -56,13 +71,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     return skinConcernQuestion.answered;
   }
 
-  const newFunction = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
+  const answerSkinConcernQuestion = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     const updatedQuizQuestions = quizQuestions.map(question => {
       if(question.id === answeredQuestion.id) {
         answeredQuestion.answers[answerIndex].selected = !answeredQuestion.answers[answerIndex].selected;
-        if(isTwoSkinConditionAnswersSelected(question)){
+        if(areTwoSkinConcernAnswersSelected(question)){
           question.answered = true;
-            doQuestionIdsMatch(question);
+          toggleAnswersPanel(answeredQuestion);
+          doQuestionIdsMatch(question);
         } else {
           question.answered = false;
           if (questionsAnswered[questionsAnswered.length - 1].id === 706) {
@@ -75,14 +91,14 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateQuizQuestions([...updatedQuizQuestions]);
   }
 
-  const isTwoSkinConditionAnswersSelected = (question: IQuizQuestion) => {
+  const areTwoSkinConcernAnswersSelected = (question: IQuizQuestion) => {
     question.totalAnswersSelected = question.answers.filter(answer => answer.selected).length;
     if(question.totalAnswersSelected === 2) {
       toggleAnswersDisabilityIfNotSelected(question);
     } else {
       resetAnswersDisability(question);
     }
-    return question.totalAnswersSelected === 2;    
+    return question.totalAnswersSelected === 2;
   }
 
   const resetAnswersDisability = (question: IQuizQuestion) => {
@@ -105,7 +121,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           answeredQuestion.answers[answerIndex].selected = true;
           logSkinConditionAnswers(question.answers);
           return;
-        } 
+        }
         resetSelectedAnswers(question.answers, answerIndex)
         answeredQuestion.answers[answerIndex].selected = true;
         logSkinConditionAnswers(question.answers);
@@ -113,7 +129,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     })
     updateQuizQuestions([...quizQuestions])
   }
-  
+
   const resetSelectedAnswers = (answers: IAnswer[], answerIndex: number) => {
     if(answerIndex > 2)
       return answers.slice(3).map(answer => answer.selected = false)
@@ -168,7 +184,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     question.answers[question.answers.length - 1].selected = true;
   }
 
-  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS 
+  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
     // if (progressCount === 4) {
     //   const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
     //     const { question, answers, id } = answeredQ;
@@ -187,7 +203,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     // }
   }
 
-  
+
 
   const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
     if(questionsAnswered.length) {
@@ -262,7 +278,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
-    
+
       if (selectedSkinConditions.length === 2)
         switch (selectedSkinConditions[1].index) {
           case 4:
@@ -294,7 +310,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
-    
+
     if(selectedSkinConditions.length === 2)
       switch (selectedSkinConditions[0].index) {
         case 1:
@@ -308,6 +324,26 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           break;
       }
       return indexSpecificMargin;
+  }
+
+  const toggleAnswersPanel = (question: IQuizQuestion) => {
+    const updatedQuizQuestions = quizQuestions.map(quizQuestion => {
+      if(question.id === quizQuestion.id)
+        quizQuestion.isMobilePanelOpen = !quizQuestion.isMobilePanelOpen;
+      return quizQuestion;
+    });
+    updateQuizQuestions([...updatedQuizQuestions]);
+  }
+
+  const returnSelectedAnswerValue = (question: IQuizQuestion) => {
+    if(question.customAnswer)
+      return `${question.customAnswer}`;
+    const selectedAnswer = question.answers.filter(answer => answer.selected);  
+    if(selectedAnswer.length === 2)
+      return `Selected: ${selectedAnswer[0].value} & ${selectedAnswer[1].value}`;
+    if(selectedAnswer.length === 1)
+      return `Selected: ${selectedAnswer[0].value}`;
+    return "Select to choose an answer";
   }
 
   return (
@@ -332,7 +368,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 })}
                 <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
                 {
-                  selectedSkinConditions.length === 2 ? 
+                  selectedSkinConditions.length === 2 ?
                   <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>
                   : ""
                 }
@@ -344,7 +380,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
               </FaceImageWrapper>
           </SkinConditionQuestion>
           :
-          <HalfScreenQuestion key={question.id}>
+          <HalfScreenQuestion questionId={question.id} key={question.id}>
             {question.question}<br />
             {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
             {
@@ -352,19 +388,41 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                 <span>
                   <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
                   <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
-                  <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>submit</StyledButton>
+                  <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>save</StyledButton>
                 </span>
                 :
                 <React.Fragment>
                     {
                       question.isSkintoneQuestion ?
-                        question.answers.map((answer: IAnswer, index: number) => {
-                          return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledSkintoneAnswer>
-                        })
+                        <MobileAnswersWrapper>
+                          <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                          <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                            {
+                              question.answers.map((answer: IAnswer, index: number) => {
+                                return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}>
+                                </StyledSkintoneAnswer>
+                              })
+                            }
+                            <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
+                          </Panel>
+                        </MobileAnswersWrapper>
                         :
-                        question.answers.map((answer: IAnswer, index: number) => {
-                          return <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
-                        })
+                        question.displayAnswersAsADropdownOnMobile ?
+                          <MobileAnswersWrapper>
+                            <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                            <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                              {
+                                question.answers.map((answer, index) => (
+                                  <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                                ))
+                              }
+                              <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
+                            </Panel>
+                          </MobileAnswersWrapper>
+                          :
+                          question.answers.map((answer: IAnswer, index: number) => (
+                            <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                          ))
                     }
                 </React.Fragment>
             }
@@ -375,21 +433,70 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   )
 }
 
+
+const MobileAnswersWrapper = styled.div`
+  @media screen and (min-width: 768px) {
+    button {
+      display: none;
+    }
+    .mobileAnswersPanel {
+      position: static;
+      width: 100%;
+      padding: 0;
+      background: none;
+      display: block;
+    }
+  }
+`
+
+const Panel = styled.div`
+  display: ${(props: PanelProps) => props.isVisible ? "grid" : "none"};
+  grid-template-columns: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(2, 1fr)" : "1fr"};
+  grid-template-rows: ${(props: PanelProps) => props.isSkinToneAnswers ? "repeat(3, 150px)" : "auto"};
+  padding: 15px;
+  background: #fff;
+  overflow-y: scroll;
+  position: absolute;
+  top: ${(props: PanelProps) => props.isSkinToneAnswers ? "0px" : "-10px"};
+  z-index: 12;
+  left: 0;
+  top: -25px;
+  bottom: 0;
+  right: 0;
+  justify-content: space-evenly;
+  .panelBackground {
+    width:100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: -1;
+  }
+  @media screen and (min-width: 768px) {
+    overflow-y: visible;
+  }
+`;
+
 const FaceImageWrapper = styled.div`
   position: relative;
   overflow: hidden;
-`
+  display: none;
+  @media screen and (min-width: 768px) {
+    display: block;
+  }
+`;
 
 // to refactor
-const TZoneImageArea = styled.img` 
+const TZoneImageArea = styled.img`
   position: absolute;
   top: 110px;
   left: 81px;
   z-index: 5;
   display: none;
-`
-// to refactor
-const CheekImageArea = styled.img`
+  `
+  // to refactor
+  const CheekImageArea = styled.img`
   position: absolute;
   top: 251px;
   left: 63px;
@@ -399,25 +506,33 @@ const CheekImageArea = styled.img`
 
 const HalfScreenQuestion = styled.div`
   margin: 0;
-  padding: 0;
+  padding: 0 10px;
   font-size: 11pt;
   overflow: hidden;
+  grid-row: ${(props: HalfScreenQuestionProps) => props.questionId === 712 ? "1/ span 2" : "" };
   font-family: ${props => props.theme.subHeadingFont};
 `;
 
 const StyledHR = styled.hr`
-  margin: 30px auto;
-  max-width: 200px;
-  border: none;
-  border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
+margin: 15px auto;
+max-width: 200px;
+border: none;
+border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
+  @media screen and (min-width: 768px) {
+    margin: 30px auto;
+  }
 `;
 
 const SkinConditionQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
-  display: grid;
-  grid-template-columns: 523px 340px;
-  align-items: center;
-  margin: 0 auto;
+  grid-row: 1/ span 2;
+  @media screen and (min-width: 768px) {
+    display: grid;
+    align-items: center;
+    margin: 0 auto;
+    grid-template-columns: 523px 340px;
+    grid-row: 1/3;
+  }
 `;
 
 const QuestionWrapper = styled.div`
@@ -425,6 +540,9 @@ const QuestionWrapper = styled.div`
   width: 100vw;
   align-items: center;
   text-align: center;
+  margin: auto;
+  position: relative;
+  grid-template-rows: repeat(2, 260px);
 `;
 
 export default StyledQuestion;
