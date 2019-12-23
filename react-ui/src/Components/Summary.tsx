@@ -196,11 +196,11 @@ const SummaryBaseIngredient = styled.div`
 
 const SummaryIngredient = styled.div`
   display: inline-block;
-  margin: 0 30px;
   img{
     width: 90px;
   }
   @media screen and (min-width: 768px) {
+    margin: 0 30px;
     width: 230px;
   }
 `
