@@ -52,7 +52,7 @@ const SkintoneAnswer = styled.div`
   margin: auto;
   cursor: pointer;
   display: inline-block;
-  width: 180px;
+  width: 170px;
   text-transform: uppercase;
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-family: ${props => props.theme.subHeadingFont};
