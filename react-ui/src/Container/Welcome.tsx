@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useContext } from 'react';
+import React, { ChangeEvent, useContext, useEffect } from 'react';
 import styled from "styled-components";
 import { StyledButton } from '../Components/Button';
 import StyledInput from '../Components/Shared/Input';
@@ -17,14 +17,38 @@ export interface WelcomeWrapperProps {
 }
  
 const StyledWelcome: React.SFC<WelcomeProps> = () => {
-  const { userName, updateUserName } = useContext(QuizContext);
+  const { userName, updateUserName, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
+
+  useEffect(() => {
+    fetch('/api/questions')
+      .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
+      .catch((error) => {
+        setApplicationError({
+          error: true,
+          code: error.status,
+          message: error.message
+        })
+      });
+
+    fetch('/api/ingredients')
+      .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
+      .catch((error) => {
+        setApplicationError({
+          error: true,
+          code: error.status,
+          message: error.message
+        })
+      });
+  }, []);
 
   const logName = (event: ChangeEvent<HTMLInputElement>) => {
     updateUserName(event.target.value);
   };
 
   return ( 
-    <Welcome>
+    hasApplicationErrored ? 
+      <h1>mah</h1>
+    : <Welcome>
       <WelcomeWrapper maxWidth>
         <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
         <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
