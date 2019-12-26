@@ -5,7 +5,7 @@ import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
-import { ICompletedQuiz, IQuizData } from './../react-ui/src/Interfaces/CompletedQuiz';
+import { ICompletedQuizDBModel, IQuizData } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
 import * as request from 'superagent';
 import { resolve, join } from 'path';
 import fs from 'fs';
@@ -89,7 +89,10 @@ class App {
      *  GET COMPLETED QUIZ ANSWERS
      *************************/
     router.get('/completed-quiz', async (req, res) => {
-      //
+      const completedQuizData = this.completedQuizModel;
+      completedQuizData.find({})
+        .then(dbResponse => res.send(dbResponse))
+        .catch(error => res.send(error))
     });
       
     /*************************
@@ -206,7 +209,7 @@ class App {
   }
 
   private connectToDb() {
-    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true }, (err: MongoError) => {
+    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true, useUnifiedTopology: true },  (err: MongoError) => {
       if(err)
         return console.log(`${err.code}, ${err.message}`);
       console.log("DB connection successful");
@@ -242,7 +245,7 @@ class App {
         }]
       }
     })
-    return model<ICompletedQuiz & Document>('CompletedQuiz', CompletedQuizSchema);
+    return model<ICompletedQuizDBModel & Document>('CompletedQuiz', CompletedQuizSchema);
   }
 
   private handleError(error: any) {

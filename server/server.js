@@ -131,6 +131,18 @@ var App = /** @class */ (function () {
             });
         }); });
         /*************************
+         *  GET COMPLETED QUIZ ANSWERS
+         *************************/
+        router.get('/completed-quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var completedQuizData;
+            return __generator(this, function (_a) {
+                completedQuizData = this.completedQuizModel;
+                completedQuizData.find({})
+                    .then(function (dbResponse) { return res.send(dbResponse); })["catch"](function (error) { return res.send(error); });
+                return [2 /*return*/];
+            });
+        }); });
+        /*************************
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/completed-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
@@ -208,7 +220,7 @@ var App = /** @class */ (function () {
         };
     };
     App.prototype.connectToDb = function () {
-        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true }, function (err) {
+        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function (err) {
             if (err)
                 return console.log(err.code + ", " + err.message);
             console.log("DB connection successful");
