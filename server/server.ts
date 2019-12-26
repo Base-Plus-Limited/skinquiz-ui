@@ -3,7 +3,6 @@ import bodyParser, { json } from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
-import { IWordpressErrorResponse } from './../react-ui/src/Interfaces/WordpressErrorResponse';
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { ICompletedQuiz, IQuizData } from './../react-ui/src/Interfaces/CompletedQuiz';
@@ -148,7 +147,7 @@ class App {
      *  GET ALL INGREDIENTS
      *************************/
     router.get('/ingredients', async (req, res) => {
-      await request.get(`${process.env.BASE_API_URL}/wc/v3/prodfucts?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
+      await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           ingredient.rank = 0;
