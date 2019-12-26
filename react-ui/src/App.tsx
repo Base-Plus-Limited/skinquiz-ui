@@ -6,6 +6,7 @@ import StyledWelcome from './Container/Welcome';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import StyledHeader from './Components/Header';
 import { QuizProvider } from './QuizContext';
+import DownloadData from './Container/DownloadData';
 
 const App: React.FC = () => {
 
@@ -19,6 +20,7 @@ const App: React.FC = () => {
               <Switch>
                 <Route path="/" exact component={StyledWelcome} />
                 <Route path="/quiz" component={StyledQuiz} />
+                <Route path="/download-data" component={DownloadData} />
               </Switch>
             </BrowserRouter>
           </QuizProvider>
