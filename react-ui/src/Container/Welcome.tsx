@@ -7,6 +7,7 @@ import StyledText from '../Components/Shared/Text';
 import { Route } from 'react-router-dom';
 import tubeImg from './../Assets/rotatedTube.png';
 import { QuizContext } from '../QuizContext';
+import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 
 export interface WelcomeProps {
   
@@ -46,8 +47,8 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
   };
 
   return ( 
-    hasApplicationErrored ? 
-      <h1>mah</h1>
+    hasApplicationErrored.error ? 
+      <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
     : <Welcome>
       <WelcomeWrapper maxWidth>
         <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>

@@ -7,6 +7,7 @@ import { IIngredient } from '../Interfaces/WordpressProduct';
 import StyledSummary from '../Components/Summary';
 import StyledFooter from '../Components/Footer';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
+import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 
 
 interface QuizProps {
@@ -34,9 +35,9 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
     fetch('/api/ingredients')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-      .then((ingredients: any) => {
-        const filteredIngredients = ingredients.filter((ingredient: IIngredient) => ingredient.id !== 1474);
-        const baseIngredient = (ingredients.find((ingredient: IIngredient) => ingredient.id === 1474) as IIngredient);
+      .then((ingredients: IIngredient[]) => {
+        const filteredIngredients = ingredients.filter(ingredient => ingredient.id !== 1474);
+        const baseIngredient = (ingredients.find(ingredient => ingredient.id === 1474) as IIngredient);
         saveBaseIngredient(baseIngredient);
         updateIngredients(filteredIngredients);
       })
@@ -86,8 +87,8 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   updateCount(questionsAnswered.length)
 
   return ( 
-    hasApplicationErrored ? 
-      <h1>Sorry</h1>
+    hasApplicationErrored.error ? 
+      <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
     : <React.Fragment>
       <ScrollWrapper>
         <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
