@@ -23,7 +23,6 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((quizData: ICompletedQuiz[]) => {
         saveCompletedQuizData(quizData);
-        console.log(quizData);
       })
       .catch((error) => {
         setApplicationError({
