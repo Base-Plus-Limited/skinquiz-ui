@@ -51,12 +51,32 @@ var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
 var path_1 = require("path");
+var fs_1 = __importDefault(require("fs"));
+var os_1 = __importDefault(require("os"));
 var mongoose_1 = __importStar(require("mongoose"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
         this.completedQuizModel = this.createCompletedQuizModel();
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+        this.writeDbDataTOCSV = function (dbData) {
+            var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+            var output = [];
+            var dataHeadings = ["date"].concat(Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1));
+            output.push(dataHeadings.join());
+            dbData.forEach(function (field) {
+                var quizObject = field.toObject();
+                quizObject.completedQuiz.quizData.forEach(function (x) {
+                    var row = [];
+                    row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
+                    row.push(x.questionId);
+                    row.push(x.question.replace(",", "-"));
+                    row.push(x.answer);
+                    output.push(row.join());
+                });
+            });
+            fs_1["default"].writeFileSync(filename, output.join(os_1["default"].EOL));
+        };
         this.express = express_1["default"]();
         this.connectToDb();
         this.config();
@@ -134,11 +154,13 @@ var App = /** @class */ (function () {
          *  GET COMPLETED QUIZ ANSWERS
          *************************/
         router.get('/completed-quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var completedQuizData;
+            var _this = this;
             return __generator(this, function (_a) {
-                completedQuizData = this.completedQuizModel;
-                completedQuizData.find({})
-                    .then(function (dbResponse) { return res.send(dbResponse); })["catch"](function (error) { return res.send(error); });
+                this.completedQuizModel.find({ 'completedQuiz.quizData': { $size: 8 } })
+                    .then(function (dbResponse) {
+                    res.send(dbResponse);
+                    _this.writeDbDataTOCSV(dbResponse);
+                })["catch"](function (error) { return res.send(error); });
                 return [2 /*return*/];
             });
         }); });
