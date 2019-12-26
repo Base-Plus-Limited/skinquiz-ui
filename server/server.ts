@@ -84,6 +84,13 @@ class App {
         .then((product: WordpressProduct) => res.json(product))
         .catch(error => console.log(error))
     });
+
+    /*************************
+     *  GET COMPLETED QUIZ ANSWERS
+     *************************/
+    router.get('/completed-quiz', async (req, res) => {
+      //
+    });
       
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
