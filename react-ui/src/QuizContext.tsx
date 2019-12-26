@@ -4,6 +4,7 @@ import IQuiz from './Interfaces/QuizState';
 import { IIngredient } from './Interfaces/WordpressProduct';
 import { ISkinCondition } from './Interfaces/SkinCondition';
 import { IErrorResponse } from './Interfaces/ErrorResponse';
+import { ICompletedQuiz } from './Interfaces/CompletedQuiz';
 
 const state: IQuiz = {
   progressCount: 0,
@@ -27,7 +28,9 @@ const state: IQuiz = {
   isAnswersPanelVisible: false,
   setAnswersPanelVisibility: (previousAnswersPanelVisibility: SetStateAction<boolean>) => previousAnswersPanelVisibility,
   hasApplicationErrored: {} as IErrorResponse,
-  setApplicationError: (previousApplicationError: SetStateAction<IErrorResponse>) => previousApplicationError
+  setApplicationError: (previousApplicationError: SetStateAction<IErrorResponse>) => previousApplicationError,
+  completedQuizData: [],
+  saveCompletedQuizData: (previousCompletedQuiz: SetStateAction<ICompletedQuiz[]>) => previousCompletedQuiz
 }
 
 export const QuizContext = createContext(state);
@@ -48,6 +51,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
+  const [completedQuizData, saveCompletedQuizData] = useState<ICompletedQuiz[]>([]);
 
   return (
     <QuizContext.Provider value={{
@@ -72,7 +76,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       isAnswersPanelVisible,
       setAnswersPanelVisibility,
       hasApplicationErrored,
-      setApplicationError
+      setApplicationError,
+      completedQuizData,
+      saveCompletedQuizData
     }}>
       {children}
     </QuizContext.Provider>
