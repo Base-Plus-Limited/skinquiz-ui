@@ -67,13 +67,11 @@ class App {
      *  GET ALL QUESTIONS
      *************************/
     router.get('/questions', async (req, res) => {
-      await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
+      await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool`)
         .then(res => res.body)
-        .then((questions: IWordpressQuestion[]) => questions.map(question => {
-          return this.returnQuizQuestion(question);
-        }))
+        .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
         .then(quiz => res.send(quiz))
-        .catch((error: Error) => res.json({ error: error.message }))
+        .catch((error) => res.status(error.status).send(this.handleError(error))) 
     });
 
     /*************************
@@ -160,7 +158,7 @@ class App {
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
-        .catch((error: Error) => res.send(error))
+        .catch((error) => res.status(error.status).send(this.handleError(error)))
     });
 
     /*************************
@@ -238,6 +236,16 @@ class App {
       }
     })
     return model<ICompletedQuiz & Document>('CompletedQuiz', CompletedQuizSchema);
+  }
+
+  private handleError(error: any) {
+    const response = JSON.parse(error.response.text);
+    return {
+      code: response.data.status,
+      wordpressCode: response.code,
+      info: response.message,
+      error: true 
+    }
   }
   
 }

@@ -104,12 +104,10 @@ var App = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool")
                             .then(function (res) { return res.body; })
-                            .then(function (questions) { return questions.map(function (question) {
-                            return _this.returnQuizQuestion(question);
-                        }); })
-                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.json({ error: error.message }); })];
+                            .then(function (questions) { return questions.map(function (question) { return _this.returnQuizQuestion(question); }); })
+                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.status(error.status).send(_this.handleError(error)); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -153,6 +151,7 @@ var App = /** @class */ (function () {
          *  GET ALL INGREDIENTS
          *************************/
         router.get('/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET + "&category=35&type=simple&per_page=30")
@@ -165,7 +164,7 @@ var App = /** @class */ (function () {
                             ingredient.previouslyRanked = false;
                             return ingredient;
                         }); })
-                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.send(error); })];
+                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.status(error.status).send(_this.handleError(error)); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -245,6 +244,15 @@ var App = /** @class */ (function () {
             }
         });
         return mongoose_1.model('CompletedQuiz', CompletedQuizSchema);
+    };
+    App.prototype.handleError = function (error) {
+        var response = JSON.parse(error.response.text);
+        return {
+            code: response.data.status,
+            wordpressCode: response.code,
+            info: response.message,
+            error: true
+        };
     };
     return App;
 }());

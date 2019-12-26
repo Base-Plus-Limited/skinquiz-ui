@@ -2,6 +2,7 @@ import { IQuizQuestion } from "./QuizQuestion";
 import { Dispatch, SetStateAction } from 'react';
 import { IIngredient } from "./WordpressProduct";
 import { ISkinCondition } from "./SkinCondition";
+import { IErrorResponse } from "./ErrorResponse";
 
 interface IQuiz {
   progressCount: number;
@@ -24,6 +25,8 @@ interface IQuiz {
   isQuizCompleted: boolean;
   isAnswersPanelVisible: boolean;
   setAnswersPanelVisibility: Dispatch<SetStateAction<boolean>>;
+  hasApplicationErrored: IErrorResponse;
+  setApplicationError: Dispatch<SetStateAction<IErrorResponse>>;
 }
 
 export default IQuiz;
