@@ -10,7 +10,7 @@ import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
 import { WordpressProduct } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
-import { IQuizData } from '../Interfaces/CompletedQuiz';
+import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import StyledErrorScreen from './Shared/ErrorScreen';
 
