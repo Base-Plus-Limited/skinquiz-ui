@@ -1,9 +1,15 @@
 export interface ICompletedQuiz {
-  quizData: IQuizData[];
+  completedQuiz: IQuizData;
 }
 
 export interface IQuizData {
-  questionId: number;
+  id: number;
+  date: string;
+  quizData: IData[];
+}
+
+export interface IData {
   answer: string;
   question: string;
+  questionId: number;
 }

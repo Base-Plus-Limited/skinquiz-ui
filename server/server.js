@@ -51,12 +51,34 @@ var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
 var path_1 = require("path");
+var fs_1 = __importDefault(require("fs"));
+var os_1 = __importDefault(require("os"));
 var mongoose_1 = __importStar(require("mongoose"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
         this.completedQuizModel = this.createCompletedQuizModel();
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+        this.writeDbDataTOCSV = function (dbData) {
+            if (dbData.length > 0) {
+                var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+                var output_1 = [];
+                var dataHeadings = ["date"].concat(Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1));
+                output_1.push(dataHeadings.join());
+                dbData.forEach(function (field) {
+                    var quizObject = field.toObject();
+                    quizObject.completedQuiz.quizData.forEach(function (x) {
+                        var row = [];
+                        row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
+                        row.push(x.questionId);
+                        row.push(x.question.replace(",", "-"));
+                        row.push(x.answer);
+                        output_1.push(row.join());
+                    });
+                });
+                fs_1["default"].writeFileSync(filename, output_1.join(os_1["default"].EOL));
+            }
+        };
         this.express = express_1["default"]();
         this.connectToDb();
         this.config();
@@ -123,11 +145,25 @@ var App = /** @class */ (function () {
                     case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
-                            .then(function (product) { return res.json(product); })["catch"](function (error) { return console.log(error); })];
+                            .then(function (product) { return res.send(product); })["catch"](function (error) { return res.send(error); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
                 }
+            });
+        }); });
+        /*************************
+         *  GET COMPLETED QUIZ ANSWERS
+         *************************/
+        router.get('/completed-quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                this.completedQuizModel.find({ 'completedQuiz.quizData': { $size: 8 } })
+                    .then(function (dbResponse) {
+                    res.send(dbResponse);
+                    _this.writeDbDataTOCSV(dbResponse);
+                })["catch"](function (error) { return res.send(error); });
+                return [2 /*return*/];
             });
         }); });
         /*************************
@@ -208,7 +244,7 @@ var App = /** @class */ (function () {
         };
     };
     App.prototype.connectToDb = function () {
-        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true }, function (err) {
+        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function (err) {
             if (err)
                 return console.log(err.code + ", " + err.message);
             console.log("DB connection successful");

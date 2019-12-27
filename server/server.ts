@@ -5,7 +5,8 @@ import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
-import { ICompletedQuiz, IQuizData } from './../react-ui/src/Interfaces/CompletedQuiz';
+import { ICompletedQuizDBModel, IQuizData } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
+import { ICompletedQuiz } from './../react-ui/src/Interfaces/CompletedQuiz';
 import * as request from 'superagent';
 import { resolve, join } from 'path';
 import fs from 'fs';
@@ -81,8 +82,20 @@ class App {
       await request.post(`https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
         .send(req.body)
         .then(productResponse => productResponse.body)
-        .then((product: WordpressProduct) => res.json(product))
-        .catch(error => console.log(error))
+        .then((product: WordpressProduct) => res.send(product))
+        .catch(error => res.send(error))
+    });
+
+    /*************************
+     *  GET COMPLETED QUIZ ANSWERS
+     *************************/
+    router.get('/completed-quiz', async (req, res) => {
+      this.completedQuizModel.find({ 'completedQuiz.quizData': { $size: 8 } })
+        .then(dbResponse => {
+          res.send(dbResponse);
+          this.writeDbDataTOCSV(dbResponse);
+        })
+        .catch(error => res.send(error))
     });
       
     /*************************
@@ -98,49 +111,6 @@ class App {
       completedQuiz.save()
         .then(dbResponse => res.json(dbResponse))
         .catch(error => res.send(error))
-      // const quizAnswers: ICompletedQuiz[] = req.body;
-      // const filename = join(__dirname, '../react-ui/src/Assets/', 'answeredQuestions.csv');
-      // const output = [];
-      // const trimmedDataHeadings = Object.keys(quizAnswers);
-      // output.push(trimmedDataHeadings.join());
-      // quizAnswers.forEach((field) => {
-      //   const row = [];
-      //   row.push(field.question);
-      //   row.push(field.id);
-      //   row.push(field.answer);
-
-      //   output.push(row.join());
-      // });
-      // fs.writeFileSync(filename, output.join(os.EOL));
-      // await request.get(`https://baseplus.co.uk/wp-json/wc/v3/products?WP_CONSUMER_KEY=${process.env.WP_CONSUMER_KEY}&WP_CONSUMER_SECRET=${process.env.WP_CONSUMER_SECRET}&category=21&type=composite&per_page=30`)
-      //   .then(res => res.body)
-      //   .then(products => {
-      //     const trimmedData = products.map(response => {
-      //       const { date_created, id, price } = response;
-      //       return {
-      //         date_created: new Date(date_created),
-      //         id,
-      //         price
-      //       }
-      //     });
-      //     const filename = path.join(__dirname, '/src/assets/', 'productData.csv');
-      //     const output = [];
-
-      //     const trimmedDataHeadings = Object.keys(trimmedData[0]);
-      //     output.push(trimmedDataHeadings.join()); // set headings
-
-      //     trimmedData.forEach((field, index) => {
-      //       const row = []; 
-      //       row.push(field.date_created);
-      //       row.push(field.id);
-      //       row.push(field.price);
-
-      //       output.push(row.join());
-      //     });
-      //     fs.writeFileSync(filename, output.join(os.EOL));
-      //   })
-      //   .then(fileUrl => res.end())
-      //   .catch(error => res.status(400).send(error))
     });
 
     /*************************
@@ -167,6 +137,27 @@ class App {
     router.get('*', function (req, res) {
       res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
+  }
+
+  private writeDbDataTOCSV = (dbData: (ICompletedQuizDBModel & mongoose.Document)[]) => {
+    if(dbData.length > 0) {
+      const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+      const output: string[] = [];
+      const dataHeadings = ["date", ...Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1)];
+      output.push(dataHeadings.join());
+      dbData.forEach((field) => {
+        const quizObject: ICompletedQuiz = field.toObject();
+        quizObject.completedQuiz.quizData.forEach(x => {
+          const row = [];
+          row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
+          row.push(x.questionId);
+          row.push(x.question.replace(",", "-"));
+          row.push(x.answer);
+          output.push(row.join());
+        })
+      });
+      fs.writeFileSync(filename, output.join(os.EOL));
+    }
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
@@ -199,7 +190,7 @@ class App {
   }
 
   private connectToDb() {
-    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true }, (err: MongoError) => {
+    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true, useUnifiedTopology: true },  (err: MongoError) => {
       if(err)
         return console.log(`${err.code}, ${err.message}`);
       console.log("DB connection successful");
@@ -235,7 +226,7 @@ class App {
         }]
       }
     })
-    return model<ICompletedQuiz & Document>('CompletedQuiz', CompletedQuizSchema);
+    return model<ICompletedQuizDBModel & Document>('CompletedQuiz', CompletedQuizSchema);
   }
 
   private handleError(error: any) {
