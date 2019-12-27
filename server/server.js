@@ -60,22 +60,24 @@ var App = /** @class */ (function () {
         this.completedQuizModel = this.createCompletedQuizModel();
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.writeDbDataTOCSV = function (dbData) {
-            var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
-            var output = [];
-            var dataHeadings = ["date"].concat(Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1));
-            output.push(dataHeadings.join());
-            dbData.forEach(function (field) {
-                var quizObject = field.toObject();
-                quizObject.completedQuiz.quizData.forEach(function (x) {
-                    var row = [];
-                    row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
-                    row.push(x.questionId);
-                    row.push(x.question.replace(",", "-"));
-                    row.push(x.answer);
-                    output.push(row.join());
+            if (dbData.length > 0) {
+                var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+                var output_1 = [];
+                var dataHeadings = ["date"].concat(Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1));
+                output_1.push(dataHeadings.join());
+                dbData.forEach(function (field) {
+                    var quizObject = field.toObject();
+                    quizObject.completedQuiz.quizData.forEach(function (x) {
+                        var row = [];
+                        row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
+                        row.push(x.questionId);
+                        row.push(x.question.replace(",", "-"));
+                        row.push(x.answer);
+                        output_1.push(row.join());
+                    });
                 });
-            });
-            fs_1["default"].writeFileSync(filename, output.join(os_1["default"].EOL));
+                fs_1["default"].writeFileSync(filename, output_1.join(os_1["default"].EOL));
+            }
         };
         this.express = express_1["default"]();
         this.connectToDb();
@@ -143,7 +145,7 @@ var App = /** @class */ (function () {
                     case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
-                            .then(function (product) { return res.json(product); })["catch"](function (error) { return console.log(error); })];
+                            .then(function (product) { return res.send(product); })["catch"](function (error) { return res.send(error); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

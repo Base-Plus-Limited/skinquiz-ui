@@ -3,7 +3,6 @@ import { useEffect, useContext } from 'react';
 import { QuizContext } from '../QuizContext';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
-import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import styled from 'styled-components';
 import StyledH2 from '../Components/Shared/H2';
 import StyledText from '../Components/Shared/Text';
@@ -37,6 +36,11 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
   const getLatestCompletedQuizDate = () => {
     const latestQuizDate = new Date(completedQuizData[completedQuizData.length - 1].completedQuiz.date).toLocaleString();
     return completedQuizData.length ? latestQuizDate : "No completed quizzes";
+  }
+
+  const downloadCSV = () => {
+    const completedQuizCSV = require('./../Assets/completedQuizData.csv');
+    window.open(completedQuizCSV);
   }
 
   return (
@@ -73,7 +77,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
           <StyledSummaryTileWrapper>
           <StyledH2 text="Download quiz data"> </StyledH2>
           {
-            <StyledButton>{`Download ${completedQuizData.length ? completedQuizData.length : "--"} entries`}</StyledButton>
+            <StyledButton onClickHandler={downloadCSV}>{`Download ${completedQuizData.length ? completedQuizData.length : "--"} entries`}</StyledButton>
           }
           </StyledSummaryTileWrapper>
         </StyledSummaryTile>

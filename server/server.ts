@@ -82,8 +82,8 @@ class App {
       await request.post(`https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
         .send(req.body)
         .then(productResponse => productResponse.body)
-        .then((product: WordpressProduct) => res.json(product))
-        .catch(error => console.log(error))
+        .then((product: WordpressProduct) => res.send(product))
+        .catch(error => res.send(error))
     });
 
     /*************************
