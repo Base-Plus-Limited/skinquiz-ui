@@ -11,7 +11,7 @@ import * as request from 'superagent';
 import { resolve, join } from 'path';
 import fs from 'fs';
 import os from 'os';
-import mongoose, {Document, Schema, model} from 'mongoose';
+import mongoose, { Document, Schema, model } from 'mongoose';
 import { MongoError } from 'mongodb';
 dotenv.config();
 
@@ -72,7 +72,10 @@ class App {
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
         .then(quiz => res.send(quiz))
-        .catch((error) => res.status(error.status).send(this.handleError(error))) 
+        .catch((error) => {
+          console.error(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          res.status(error.status).send(this.handleError(error));
+        }) 
     });
 
     /*************************
@@ -83,7 +86,10 @@ class App {
         .send(req.body)
         .then(productResponse => productResponse.body)
         .then((product: WordpressProduct) => res.send(product))
-        .catch(error => res.status(error.status).send(this.handleError(error)))
+        .catch((error) => {
+          console.error(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          res.status(error.status).send(this.handleError(error));
+        }) 
     });
 
     /*************************
@@ -95,7 +101,10 @@ class App {
           res.send(dbResponse);
           this.writeDbDataTOCSV(dbResponse);
         })
-        .catch(error => res.send(error))
+        .catch(error => {
+          console.error(error);
+          res.send(error);
+        })
     });
       
     /*************************
@@ -110,7 +119,10 @@ class App {
       });
       completedQuiz.save()
         .then(dbResponse => res.json(dbResponse))
-        .catch(error => res.send(error))
+        .catch(error => {
+          console.error(error);
+          res.send(error);
+        })
     });
 
     /*************************
@@ -128,7 +140,10 @@ class App {
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
-        .catch((error) => res.status(error.status).send(this.handleError(error)))
+        .catch((error) => {
+          console.error(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          res.status(error.status).send(this.handleError(error));
+        }) 
     });
 
     /*************************

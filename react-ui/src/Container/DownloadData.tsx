@@ -41,6 +41,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
   const downloadCSV = () => {
     const completedQuizCSV = require('./../Assets/completedQuizData.csv');
     window.open(completedQuizCSV);
+    console.log("Completed quiz csv downloaded");
   }
 
   return (
