@@ -56,6 +56,9 @@ class App {
     this.express.use('/quiz', bodyParser.json(), (req, res) => {
       res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
+    this.express.use('/download-data', bodyParser.json(), (req, res) => {
+      res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
+    });
 
     /*************************
      *  HEALTHCHECK
