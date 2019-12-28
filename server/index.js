@@ -7,8 +7,8 @@ var server_1 = __importDefault(require("./server"));
 var app = new server_1["default"]().express;
 var port = process.env.PORT || 3001;
 app.listen(port, function () {
-    console.log("server is listening on " + port);
+    process.stdout.write("server is listening on " + port);
 });
 process.on('uncaughtException', function (err) {
-    console.log("ERROR: " + err.message);
+    process.stderr.write("ERROR: " + err.message);
 });

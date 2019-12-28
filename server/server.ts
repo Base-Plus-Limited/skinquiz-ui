@@ -192,8 +192,8 @@ class App {
   private connectToDb() {
     mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true, useUnifiedTopology: true },  (err: MongoError) => {
       if(err)
-        return console.log(`${err.code}, ${err.message}`);
-      console.log("DB connection successful");
+        return process.stderr.write(`${err.code}, ${err.message}`)  
+      process.stdout.write("DB connection successful")  
     });
   }
 
