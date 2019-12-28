@@ -8,6 +8,7 @@ import StyledSummary from '../Components/Summary';
 import StyledFooter from '../Components/Footer';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
+import { IErrorResponse } from '../Interfaces/ErrorResponse';
 
 
 interface QuizProps {
@@ -84,11 +85,15 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     }
   }
 
+  const getErrorMessage = (error: IErrorResponse) => {
+    return `${hasApplicationErrored.uiMessage && hasApplicationErrored.uiMessage.length > 0 ? `${hasApplicationErrored.uiMessage}` : "We're unable to load the quiz at the moment, please try again later"}`
+  }
+
   updateCount(questionsAnswered.length)
 
   return ( 
     hasApplicationErrored.error ? 
-      <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
+      <StyledErrorScreen message={getErrorMessage(hasApplicationErrored)}></StyledErrorScreen>
     : <React.Fragment>
       <ScrollWrapper>
         <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>

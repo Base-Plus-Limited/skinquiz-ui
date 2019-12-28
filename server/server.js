@@ -140,12 +140,13 @@ var App = /** @class */ (function () {
          *  CREATE NEW PRODUCT
          *************************/
         router.post('/new-product', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
-                            .then(function (product) { return res.send(product); })["catch"](function (error) { return res.send(error); })];
+                            .then(function (product) { return res.send(product); })["catch"](function (error) { return res.status(error.status).send(_this.handleError(error)); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -286,7 +287,7 @@ var App = /** @class */ (function () {
         return {
             code: response.data.status,
             wordpressCode: response.code,
-            info: response.message,
+            message: response.message,
             error: true
         };
     };

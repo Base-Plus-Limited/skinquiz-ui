@@ -3,4 +3,5 @@ export interface IErrorResponse {
   code: number;
   wordpressCode?: string;
   message: string;
+  uiMessage?: string;
 }
