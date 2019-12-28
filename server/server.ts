@@ -83,7 +83,7 @@ class App {
         .send(req.body)
         .then(productResponse => productResponse.body)
         .then((product: WordpressProduct) => res.send(product))
-        .catch(error => res.send(error))
+        .catch(error => res.status(error.status).send(this.handleError(error)))
     });
 
     /*************************
@@ -234,8 +234,8 @@ class App {
     return {
       code: response.data.status,
       wordpressCode: response.code,
-      info: response.message,
-      error: true 
+      message: response.message,
+      error: true
     }
   }
   

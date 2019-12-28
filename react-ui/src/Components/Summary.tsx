@@ -12,7 +12,7 @@ import { WordpressProduct } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
 import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
-import StyledErrorScreen from './Shared/ErrorScreen';
+import { IErrorResponse } from '../Interfaces/ErrorResponse';
 
 export interface SummaryProps {
 }
@@ -75,6 +75,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const sendToWordpress = async () => {
     completeQuiz();
+    sendCompletedQuizQuestionsToApi();
     return fetch('/api/new-product', {
       method: 'POST',
       headers: {
@@ -83,16 +84,20 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       cache: 'no-cache',
       body: JSON.stringify(newProduct)
     })
-    .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
+    .then(res => res.ok ? res.json() : res.json().then((errorResponse: IErrorResponse) => {
+      errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
+      setApplicationError(errorResponse);
+    }))
     .then((product: WordpressProduct) => {
-      sendCompletedQuizQuestionsToApi();
-      window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+      if(product)
+        window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
     })
-    .catch(error => {
+    .catch((error: IErrorResponse) => {
       setApplicationError({
         error: true,
-        code: error.status,
-        message: error.message
+        code: error.code,
+        message: error.message,
+        uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
       })
     });
   }
@@ -130,6 +135,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     })
     .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
     .catch(error => {
+      console.log(error)
       setApplicationError({
         error: true,
         code: error.status,
@@ -143,48 +149,45 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       <SummaryWrap>
         <SummaryGrid>
           {
-            hasApplicationErrored.error ?
-              <StyledErrorScreen message={`Sorry${userName ? ` ${userName}` : ''}, we weren't able to create your product.`}></StyledErrorScreen>
+            isQuizCompleted ?
+              <div>
+                <LoadingAnimation />
+                <StyledText margin="0" text={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your bespoke product`}></StyledText>
+              </div>
               :
-              isQuizCompleted ?
-                <div>
-                  <LoadingAnimation />
-                  <StyledText margin="0" text={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your bespoke product`}></StyledText>
-                </div>
-                :
-                <React.Fragment>
-                  {<StyledH2 margin="7px 0 7px" text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
+              <React.Fragment>
+                {<StyledH2 margin="7px 0 7px" text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
+                {
+                  <SummaryBaseIngredient>
+                    <StyledImage src={baseIngredient.images[0].src} alt={baseIngredient.name}></StyledImage>
+                    <div>
+                      <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={baseIngredient.name}></StyledSubHeading>
+                      <StyledText margin="4px 0 0 0" fontSize="9pt" text={baseIngredient.short_description}></StyledText>
+                    </div>
+                  </SummaryBaseIngredient>
+                }
+                <StyledHR></StyledHR>
+                <SummaryIngredientWrap>
                   {
-                    <SummaryBaseIngredient>
-                      <StyledImage src={baseIngredient.images[0].src} alt={baseIngredient.name}></StyledImage>
-                      <div>
-                        <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={baseIngredient.name}></StyledSubHeading>
-                        <StyledText margin="4px 0 0 0" fontSize="9pt" text={baseIngredient.short_description}></StyledText>
-                      </div>
-                    </SummaryBaseIngredient>
+                    sortedIngredients.map((ingredient, index) => (
+                      <React.Fragment key={index}>
+                        <SummaryIngredient key={ingredient.id}>
+                          <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
+                          <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
+                          <StyledText margin="4px 0 0 0" fontSize="9pt" text={ingredient.short_description}></StyledText>
+                        </SummaryIngredient>
+                        {
+                          index === 0 &&
+                          <StyledImage isSummaryScreen={true} width={15} src={plusIcon} alt="Plus icon"></StyledImage>
+                        }
+                      </React.Fragment>
+                    ))
                   }
-                  <StyledHR></StyledHR>
-                  <SummaryIngredientWrap>
-                    {
-                      sortedIngredients.map((ingredient, index) => (
-                        <React.Fragment key={index}>
-                          <SummaryIngredient key={ingredient.id}>
-                            <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
-                            <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
-                            <StyledText margin="4px 0 0 0" fontSize="9pt" text={ingredient.short_description}></StyledText>
-                          </SummaryIngredient>
-                          {
-                            index === 0 &&
-                            <StyledImage isSummaryScreen={true} width={15} src={plusIcon} alt="Plus icon"></StyledImage>
-                          }
-                        </React.Fragment>
-                      ))
-                    }
-                  </SummaryIngredientWrap>
-                  <StyledHR></StyledHR>
-                  <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
-                  <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
-                </React.Fragment>
+                </SummaryIngredientWrap>
+                <StyledHR></StyledHR>
+                <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
+                <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
+              </React.Fragment>
           }
         </SummaryGrid>
       </SummaryWrap>
