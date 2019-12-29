@@ -50,7 +50,7 @@ class App {
     }
     
     /*************************
-     *  SERVE API
+     *  SERVE ROUTES
      *************************/
     this.express.use('/api', bodyParser.json(), router);
     this.express.use('/quiz', bodyParser.json(), (req, res) => {
@@ -121,7 +121,10 @@ class App {
         }
       });
       completedQuiz.save()
-        .then(dbResponse => res.json(dbResponse))
+        .then(dbResponse => {
+          console.log(`Saved quiz data with id ${dbResponse.id}`);
+          res.json(dbResponse)
+        })
         .catch(error => {
           console.error(error);
           res.send(error);
