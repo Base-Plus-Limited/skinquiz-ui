@@ -125,7 +125,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const sendCompletedQuizQuestionsToApi = () => {
-    return fetch('/api/completed-quiz', {
+    return fetch('/api/save-quiz', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
