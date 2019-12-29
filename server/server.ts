@@ -113,7 +113,7 @@ class App {
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
-    router.post('/completed-quiz', bodyParser.json(), async (req, res) => {
+    router.post('/save-quiz', bodyParser.json(), async (req, res) => {
       const quizData: IQuizData[] = req.body;
       const completedQuiz = new this.completedQuizModel({
         completedQuiz: {
