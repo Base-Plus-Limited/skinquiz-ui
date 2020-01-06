@@ -23,13 +23,6 @@ interface PanelProps {
   isSkinToneAnswers: boolean;
 }
 
-interface HalfScreenQuestionProps {
-  questionId: number;
-}
-
-interface HalfScreenQuestionProps {
-  questionId: number;
-}
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
   const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
@@ -380,7 +373,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
               </FaceImageWrapper>
           </SkinConditionQuestion>
           :
-          <HalfScreenQuestion questionId={question.id} key={question.id}>
+          <HalfScreenQuestion key={question.id}>
             {question.question}<br />
             {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
             {
@@ -509,7 +502,6 @@ const HalfScreenQuestion = styled.div`
   padding: 0 10px;
   font-size: 11pt;
   overflow: hidden;
-  grid-row: ${(props: HalfScreenQuestionProps) => props.questionId === 712 ? "1/ span 2" : "" };
   font-family: ${props => props.theme.subHeadingFont};
 `;
 

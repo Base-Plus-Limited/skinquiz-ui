@@ -14,7 +14,7 @@ export interface SharedFooterProps {
 
 const StyledFooter: React.FC<FooterProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, isQuizCompleted } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, isQuizCompleted, quizQuestions } = useContext(QuizContext);
 
   
   const removeLastQuestionAnswered = () => {
@@ -53,7 +53,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
         <ProgressCountSmall>
           {progressCount}
         </ProgressCountSmall>
-        /8
+        /{quizQuestions.length > 0 ? quizQuestions.length : '-'}
       </ProgressCount>
       {
         progressCount > 1 && !isQuizCompleted ?
