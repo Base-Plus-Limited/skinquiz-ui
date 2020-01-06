@@ -104,10 +104,13 @@ var App = /** @class */ (function () {
             });
         }
         /*************************
-         *  SERVE API
+         *  SERVE ROUTES
          *************************/
         this.express.use('/api', body_parser_1["default"].json(), router);
         this.express.use('/quiz', body_parser_1["default"].json(), function (req, res) {
+            res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
+        });
+        this.express.use('/download-data', body_parser_1["default"].json(), function (req, res) {
             res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
         });
         /*************************
@@ -129,7 +132,10 @@ var App = /** @class */ (function () {
                     case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/diagnostic_tool")
                             .then(function (res) { return res.body; })
                             .then(function (questions) { return questions.map(function (question) { return _this.returnQuizQuestion(question); }); })
-                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) { return res.status(error.status).send(_this.handleError(error)); })];
+                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) {
+                            console.error("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            res.status(error.status).send(_this.handleError(error));
+                        })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -146,7 +152,10 @@ var App = /** @class */ (function () {
                     case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
-                            .then(function (product) { return res.send(product); })["catch"](function (error) { return res.status(error.status).send(_this.handleError(error)); })];
+                            .then(function (product) { return res.send(product); })["catch"](function (error) {
+                            console.error("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            res.status(error.status).send(_this.handleError(error));
+                        })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -163,14 +172,17 @@ var App = /** @class */ (function () {
                     .then(function (dbResponse) {
                     res.send(dbResponse);
                     _this.writeDbDataTOCSV(dbResponse);
-                })["catch"](function (error) { return res.send(error); });
+                })["catch"](function (error) {
+                    console.error(error);
+                    res.send(error);
+                });
                 return [2 /*return*/];
             });
         }); });
         /*************************
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
-        router.post('/completed-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.post('/save-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var quizData, completedQuiz;
             return __generator(this, function (_a) {
                 quizData = req.body;
@@ -180,7 +192,13 @@ var App = /** @class */ (function () {
                     }
                 });
                 completedQuiz.save()
-                    .then(function (dbResponse) { return res.json(dbResponse); })["catch"](function (error) { return res.send(error); });
+                    .then(function (dbResponse) {
+                    console.log("Saved quiz data with id " + dbResponse.id);
+                    res.json(dbResponse);
+                })["catch"](function (error) {
+                    console.error(error);
+                    res.send(error);
+                });
                 return [2 /*return*/];
             });
         }); });
@@ -201,7 +219,10 @@ var App = /** @class */ (function () {
                             ingredient.previouslyRanked = false;
                             return ingredient;
                         }); })
-                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) { return res.status(error.status).send(_this.handleError(error)); })];
+                            .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) {
+                            console.error("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            res.status(error.status).send(_this.handleError(error));
+                        })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -247,7 +268,7 @@ var App = /** @class */ (function () {
     App.prototype.connectToDb = function () {
         mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function (err) {
             if (err)
-                return console.log(err.code + ", " + err.message);
+                return console.error(err.code + ", " + err.message);
             console.log("DB connection successful");
         });
     };
