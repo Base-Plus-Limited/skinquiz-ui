@@ -55,26 +55,13 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const amendIngredients = async () => {
-    return fetch('/customisation-tool', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(sortedIngredients)
-    })
-    .then(response => response.json())
-    .catch(error => {
-      setApplicationError({
-        error: true,
-        code: error.status,
-        message: error.message
-      })
-    });
+    setQuizToCompleted(true);
+    sendCompletedQuizQuestionsToApi();
+    window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
   }
 
   const sendToWordpress = async () => {
-    completeQuiz();
+    setQuizToCompleted(true);
     sendCompletedQuizQuestionsToApi();
     return fetch('/api/new-product', {
       method: 'POST',
@@ -100,10 +87,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
       })
     });
-  }
-
-  const completeQuiz = () => {
-    setQuizToCompleted(true);
   }
 
   function returnCompletedQuizData(): IQuizData[] {
