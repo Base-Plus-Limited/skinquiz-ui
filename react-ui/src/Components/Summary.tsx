@@ -57,7 +57,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const amendIngredients = async () => {
     setQuizToCompleted(true);
     sendCompletedQuizQuestionsToApi();
-    window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+    window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&amend=true`);
   }
 
   const sendToWordpress = async () => {
