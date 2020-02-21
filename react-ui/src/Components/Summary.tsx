@@ -13,6 +13,7 @@ import { IAnswer } from '../Interfaces/QuizQuestion';
 import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
+import ICustomProductDBModel from '../Interfaces/CustomProduct';
 
 export interface SummaryProps {
 }
@@ -90,14 +91,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   function returnCompletedQuizData(): IQuizData[] {
-    const quizData: IQuizData[] = quizQuestions.map(question => (
+    const quiz: IQuizData[] = quizQuestions.map(question => (
       {
         questionId: question.id,
         question: question.question,
         answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
       }
     ));
-    return quizData;
+    return quiz;
   }
 
   function returnAnswers(answers: IAnswer[]) {
@@ -125,6 +126,31 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         message: error.message
       })
     });
+  }
+
+  const createFinalProductToSaveToDatabase = () => {
+    const databaseProduct: ICustomProductDBModel = {
+      ingredients: sortedIngredients.map(ingredient => {
+        return {
+          name: ingredient.name,
+          id: ingredient.id
+        }
+      }),
+      amended: false
+    };
+    return databaseProduct;
+  }
+
+  const saveProductToDatabase = () => {
+    return fetch('/api/save-product', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache',
+      body: JSON.stringify(createFinalProductToSaveToDatabase())
+    })
+    .finally(() => sendToWordpress())
   }
 
   return (
@@ -169,7 +195,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                 </SummaryIngredientWrap>
                 <StyledHR></StyledHR>
                 <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
-                <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
+                <StyledSummaryButton addMargin onClick={saveProductToDatabase}>Buy now</StyledSummaryButton>
               </React.Fragment>
           }
         </SummaryGrid>

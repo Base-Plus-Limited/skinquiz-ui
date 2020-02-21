@@ -58,6 +58,7 @@ dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
         this.completedQuizModel = this.createCompletedQuizModel();
+        this.customProductModel = this.createCustomProductModel();
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.writeDbDataTOCSV = function (dbData) {
             if (dbData.length > 0) {
@@ -183,21 +184,41 @@ var App = /** @class */ (function () {
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/save-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var quizData, completedQuiz;
+            var quiz, completedQuiz;
             return __generator(this, function (_a) {
-                quizData = req.body;
+                quiz = req.body;
                 completedQuiz = new this.completedQuizModel({
-                    completedQuiz: {
-                        quizData: quizData
-                    }
+                    quiz: quiz
                 });
                 completedQuiz.save()
                     .then(function (dbResponse) {
-                    console.log("Saved quiz data with id " + dbResponse.id);
+                    console.log("Saved completed quiz with id " + dbResponse.id);
                     res.json(dbResponse);
                 })["catch"](function (error) {
                     console.error(error);
                     res.send(error);
+                });
+                return [2 /*return*/];
+            });
+        }); });
+        /*************************
+         *  SAVE PRODUCTS TO DB
+         *************************/
+        router.post('/save-product', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var customProductRequest, customProduct;
+            return __generator(this, function (_a) {
+                customProductRequest = req.body;
+                customProduct = new this.customProductModel({
+                    ingredients: customProductRequest.ingredients,
+                    amended: customProductRequest.amended
+                });
+                customProduct.save()
+                    .then(function (dbResponse) {
+                    console.log("Saved custom product with id " + dbResponse.id);
+                    res.end();
+                })["catch"](function (error) {
+                    console.error(error);
+                    res.end();
                 });
                 return [2 /*return*/];
             });
@@ -274,34 +295,62 @@ var App = /** @class */ (function () {
     };
     App.prototype.createCompletedQuizModel = function () {
         var CompletedQuizSchema = new mongoose_1.Schema({
-            completedQuiz: {
-                id: {
-                    type: String,
-                    required: false,
-                    "default": mongoose_1["default"].Types.ObjectId
-                },
-                date: {
-                    type: Date,
-                    required: false,
-                    "default": Date.now
-                },
-                quizData: [{
-                        questionId: {
-                            type: Number,
-                            required: true
-                        },
-                        answer: {
-                            type: String,
-                            required: true
-                        },
-                        question: {
-                            type: String,
-                            required: true
-                        }
-                    }]
-            }
+            id: {
+                type: String,
+                required: false,
+                "default": mongoose_1["default"].Types.ObjectId
+            },
+            date: {
+                type: Date,
+                required: false,
+                "default": Date.now
+            },
+            quiz: [{
+                    questionId: {
+                        type: Number,
+                        required: true
+                    },
+                    answer: {
+                        type: String,
+                        required: true
+                    },
+                    question: {
+                        type: String,
+                        required: true
+                    }
+                }]
         });
-        return mongoose_1.model('CompletedQuiz', CompletedQuizSchema);
+        return mongoose_1.model('completed-quizzes', CompletedQuizSchema);
+    };
+    App.prototype.createCustomProductModel = function () {
+        var CustomProductSchema = new mongoose_1.Schema({
+            id: {
+                type: String,
+                required: false,
+                "default": mongoose_1["default"].Types.ObjectId
+            },
+            amended: {
+                type: Boolean,
+                required: true,
+                "default": false
+            },
+            date: {
+                type: Date,
+                required: false,
+                "default": Date.now
+            },
+            ingredients: [{
+                    id: {
+                        type: Number,
+                        required: true
+                    },
+                    name: {
+                        type: String,
+                        required: true
+                    }
+                }]
+        });
+        return mongoose_1.model('custom-products', CustomProductSchema);
     };
     App.prototype.handleError = function (error) {
         var response = JSON.parse(error.response.text);
