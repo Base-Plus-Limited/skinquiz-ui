@@ -1,5 +1,5 @@
 export interface ICompletedQuizDBModel {
-  quizData: IQuizData[];
+  quiz: IQuizData[];
 }
 
 export interface IQuizData {

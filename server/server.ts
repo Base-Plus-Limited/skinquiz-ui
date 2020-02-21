@@ -6,6 +6,7 @@ import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuesti
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { ICompletedQuizDBModel, IQuizData } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
+import ICustomProductDBModel from './../react-ui/src/Interfaces/CustomProduct';
 import { ICompletedQuiz } from './../react-ui/src/Interfaces/CompletedQuiz';
 import * as request from 'superagent';
 import { resolve, join } from 'path';
@@ -18,6 +19,7 @@ dotenv.config();
 class App {
   public express: Application;
   private completedQuizModel = this.createCompletedQuizModel();
+  private customProductModel = this.createCustomProductModel();
 
   constructor () {
     this.express = express();
@@ -114,20 +116,38 @@ class App {
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
     router.post('/save-quiz', bodyParser.json(), async (req, res) => {
-      const quizData: IQuizData[] = req.body;
+      const quiz: IQuizData[] = req.body;
       const completedQuiz = new this.completedQuizModel({
-        completedQuiz: {
-          quizData
-        }
+        quiz
       });
       completedQuiz.save()
         .then(dbResponse => {
-          console.log(`Saved quiz data with id ${dbResponse.id}`);
+          console.log(`Saved completed quiz with id ${dbResponse.id}`);
           res.json(dbResponse)
         })
         .catch(error => {
           console.error(error);
           res.send(error);
+        })
+    });
+
+    /*************************
+     *  SAVE PRODUCTS TO DB
+     *************************/
+    router.post('/save-product', bodyParser.json(), async (req, res) => {
+      const customProductRequest: ICustomProductDBModel = req.body;
+      const customProduct = new this.customProductModel({
+        ingredients: customProductRequest.ingredients,
+        amended: customProductRequest.amended
+      });
+      customProduct.save()
+        .then(dbResponse => {
+          console.log(`Saved custom product with id ${dbResponse.id}`);
+          res.end();
+        })
+        .catch(error => {
+          console.error(error);
+          res.end();
         })
     });
 
@@ -220,34 +240,63 @@ class App {
 
   private createCompletedQuizModel() {
     const CompletedQuizSchema = new Schema({
-      completedQuiz: {
-        id: {
+      id: {
+        type: String,
+        required: false,
+        default: mongoose.Types.ObjectId
+      },
+      date: {
+        type: Date,
+        required: false,
+        default: Date.now
+      },
+      quiz: [{
+        questionId: {
+          type: Number,
+          required: true
+        },
+        answer: {
           type: String,
-          required: false,
-          default: mongoose.Types.ObjectId
+          required: true
         },
-        date: {
-          type: Date,
-          required: false,
-          default: Date.now
-        },
-        quizData: [{
-          questionId: {
-            type: Number,
-            required: true
-          },
-          answer: {
-            type: String,
-            required: true
-          },
-          question: {
-            type: String,
-            required: true
-          }
-        }]
-      }
+        question: {
+          type: String,
+          required: true
+        }
+      }]
     })
-    return model<ICompletedQuizDBModel & Document>('CompletedQuiz', CompletedQuizSchema);
+    return model<ICompletedQuizDBModel & Document>('completed-quizzes', CompletedQuizSchema);
+  }
+
+  private createCustomProductModel() {
+    const CustomProductSchema = new Schema({
+      id: {
+        type: String,
+        required: false,
+        default: mongoose.Types.ObjectId
+      },
+      amended: {
+        type: Boolean,
+        required: true,
+        default: false
+      },
+      date: {
+        type: Date,
+        required: false,
+        default: Date.now
+      },
+      ingredients: [{
+        id: {
+          type: Number,
+          required: true
+        },
+        name: {
+          type: String,
+          required: true
+        }
+      }]
+    })
+    return model<ICustomProductDBModel & Document>('custom-products', CustomProductSchema);
   }
 
   private handleError(error: any) {
