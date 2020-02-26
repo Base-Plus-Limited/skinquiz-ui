@@ -64,18 +64,14 @@ var App = /** @class */ (function () {
             if (dbData.length > 0) {
                 var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
                 var output_1 = [];
-                var dataHeadings = ["date"].concat(Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1));
+                var dbDataAsObject = dbData[0].toObject();
+                var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) { return quiz.question; })).slice(1));
                 output_1.push(dataHeadings.join());
-                dbData.forEach(function (field) {
-                    var quizObject = field.toObject();
-                    quizObject.completedQuiz.quizData.forEach(function (x) {
-                        var row = [];
-                        row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
-                        row.push(x.questionId);
-                        row.push(x.question.replace(",", "-"));
-                        row.push(x.answer);
-                        output_1.push(row.join());
-                    });
+                dbData.forEach(function (dbEntry) {
+                    var row = [];
+                    var JSDbObject = dbEntry.toObject();
+                    row.push.apply(row, [JSDbObject.id, JSDbObject.date].concat(JSDbObject.quiz.map(function (quiz) { return quiz.answer; })));
+                    output_1.push(row.join());
                 });
                 fs_1["default"].writeFileSync(filename, output_1.join(os_1["default"].EOL));
             }
@@ -169,7 +165,7 @@ var App = /** @class */ (function () {
         router.get('/completed-quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                this.completedQuizModel.find({ 'completedQuiz.quizData': { $size: 8 } })
+                this.completedQuizModel.find()
                     .then(function (dbResponse) {
                     res.send(dbResponse);
                     _this.writeDbDataTOCSV(dbResponse);

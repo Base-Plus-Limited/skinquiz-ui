@@ -101,7 +101,7 @@ class App {
      *  GET COMPLETED QUIZ ANSWERS
      *************************/
     router.get('/completed-quiz', async (req, res) => {
-      this.completedQuizModel.find({ 'completedQuiz.quizData': { $size: 8 } })
+      this.completedQuizModel.find()
         .then(dbResponse => {
           res.send(dbResponse);
           this.writeDbDataTOCSV(dbResponse);
@@ -184,18 +184,14 @@ class App {
     if(dbData.length > 0) {
       const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
       const output: string[] = [];
-      const dataHeadings = ["date", ...Object.keys(dbData[0].toObject().completedQuiz.quizData[0]).slice(1)];
+      var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
+      const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => quiz.question)).slice(1)];
       output.push(dataHeadings.join());
-      dbData.forEach((field) => {
-        const quizObject: ICompletedQuiz = field.toObject();
-        quizObject.completedQuiz.quizData.forEach(x => {
-          const row = [];
-          row.push(new Date(quizObject.completedQuiz.date).toLocaleString().split(",")[0]);
-          row.push(x.questionId);
-          row.push(x.question.replace(",", "-"));
-          row.push(x.answer);
-          output.push(row.join());
-        })
+      dbData.forEach((dbEntry) => {
+        const row = [];
+        const JSDbObject: ICompletedQuiz = dbEntry.toObject();
+        row.push(JSDbObject.id, JSDbObject.date,...JSDbObject.quiz.map(quiz => quiz.answer));
+        output.push(row.join());
       });
       fs.writeFileSync(filename, output.join(os.EOL));
     }
