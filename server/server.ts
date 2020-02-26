@@ -183,6 +183,7 @@ class App {
   private writeDbDataTOCSV = (dbData: (ICompletedQuizDBModel & mongoose.Document)[]) => {
     if(dbData.length > 0) {
       const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+      fs.unlinkSync(filename);
       const output: string[] = [];
       var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
       const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => {
