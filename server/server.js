@@ -65,12 +65,17 @@ var App = /** @class */ (function () {
                 var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
                 var output_1 = [];
                 var dbDataAsObject = dbData[0].toObject();
-                var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) { return quiz.question; })).slice(1));
+                var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
+                    if (quiz.question.includes(','))
+                        return quiz.question.split(',').join('-');
+                    return quiz.question;
+                })));
                 output_1.push(dataHeadings.join());
                 dbData.forEach(function (dbEntry) {
                     var row = [];
                     var JSDbObject = dbEntry.toObject();
-                    row.push.apply(row, [JSDbObject.id, JSDbObject.date].concat(JSDbObject.quiz.map(function (quiz) { return quiz.answer; })));
+                    var quizDate = new Date(JSDbObject.date);
+                    row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) { return quiz.answer; })));
                     output_1.push(row.join());
                 });
                 fs_1["default"].writeFileSync(filename, output_1.join(os_1["default"].EOL));

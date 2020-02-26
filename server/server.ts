@@ -185,12 +185,17 @@ class App {
       const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
       const output: string[] = [];
       var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
-      const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => quiz.question)).slice(1)];
+      const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => {
+        if(quiz.question.includes(','))
+          return quiz.question.split(',').join('-');
+        return quiz.question
+      }))];
       output.push(dataHeadings.join());
       dbData.forEach((dbEntry) => {
         const row = [];
         const JSDbObject: ICompletedQuiz = dbEntry.toObject();
-        row.push(JSDbObject.id, JSDbObject.date,...JSDbObject.quiz.map(quiz => quiz.answer));
+        const quizDate = new Date(JSDbObject.date);
+        row.push(JSDbObject.id, `${quizDate.getDate()}/${quizDate.getMonth() + 1}/${quizDate.getFullYear()}`,...JSDbObject.quiz.map(quiz => quiz.answer));
         output.push(row.join());
       });
       fs.writeFileSync(filename, output.join(os.EOL));
