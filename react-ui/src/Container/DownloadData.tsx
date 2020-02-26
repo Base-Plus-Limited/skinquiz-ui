@@ -34,7 +34,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
   }, [setApplicationError]);
 
   const getLatestCompletedQuizDate = () => {
-    const latestQuizDate = new Date(completedQuizData[completedQuizData.length - 1].completedQuiz.date).toLocaleString();
+    const latestQuizDate = new Date(completedQuizData[completedQuizData.length - 1].date).toLocaleString();
     return completedQuizData.length ? latestQuizDate : "No completed quizzes";
   }
 
