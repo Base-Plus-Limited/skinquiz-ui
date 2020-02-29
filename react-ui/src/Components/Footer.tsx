@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledBackButton } from './Button';
 import { IAnswer } from '../Interfaces/QuizQuestion';
+import { track } from './Shared/Analytics';
 
 export interface FooterProps {
 }
@@ -14,7 +15,7 @@ export interface SharedFooterProps {
 
 const StyledFooter: React.FC<FooterProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, isQuizCompleted, quizQuestions } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, isQuizCompleted, quizQuestions, uniqueId } = useContext(QuizContext);
 
   
   const removeLastQuestionAnswered = () => {
@@ -27,6 +28,10 @@ const StyledFooter: React.FC<FooterProps> = () => {
     questionsAnswered.pop();
     updateQuestionsAnswered([...questionsAnswered]);
     resetRanks();
+    track({
+      distinct_id: uniqueId,
+      event_type: "Back selected"
+    }).then();
   }
 
   const resetSkinConcernAnswers = (answers: IAnswer[]) => {

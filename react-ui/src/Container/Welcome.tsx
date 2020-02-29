@@ -8,19 +8,23 @@ import { Route } from 'react-router-dom';
 import tubeImg from './../Assets/rotatedTube.png';
 import { QuizContext } from '../QuizContext';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
+import { track, generateUniqueId } from './../Components/Shared/Analytics';
 
 export interface WelcomeProps {
-  
 }
 
 export interface WelcomeWrapperProps {
   maxWidth?: boolean;
 }
- 
-const StyledWelcome: React.SFC<WelcomeProps> = () => {
-  const { userName, updateUserName, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
 
+const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
+  const { userName, updateUserName, setApplicationError, hasApplicationErrored, saveUniqueId } = useContext(QuizContext);
+
+  const uniqueId = generateUniqueId();
+  
+  
   useEffect(() => {
+    saveUniqueId(uniqueId);
     fetch('/api/questions')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .catch((error) => {
@@ -29,6 +33,11 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
           code: error.status,
           message: error.message
         })
+      });
+
+      track({
+        distinct_id: uniqueId,
+        event_type: "Quiz started"
       });
 
     fetch('/api/ingredients')
@@ -40,26 +49,37 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
           message: error.message
         })
       });
-  }, []);
+  }, [setApplicationError]);
 
   const logName = (event: ChangeEvent<HTMLInputElement>) => {
     updateUserName(event.target.value);
   };
 
-  return ( 
-    hasApplicationErrored.error ? 
+  const logNameEvent = () => {
+    if (userName.trim().length > 0)
+      track({
+        distinct_id: uniqueId,
+        event_type: "Name entered"
+      }).then();
+  };
+
+  return (
+    hasApplicationErrored.error ?
       <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
-    : <Welcome>
-      <WelcomeWrapper maxWidth>
-        <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
-        <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
-        <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
-        <Route render={({ history }) => (
-          <StyledButton onClickHandler={() => { history.push('/quiz'); }}>Start Quiz</StyledButton>
-        )} />
-      </WelcomeWrapper>
-    </Welcome>
-   );
+      : <Welcome>
+        <WelcomeWrapper maxWidth>
+          <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
+          <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
+          <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
+          <Route render={({ history }) => (
+            <StyledButton onClickHandler={() => {
+              history.push('/quiz');
+              logNameEvent();
+            }}>Start Quiz</StyledButton>
+          )} />
+        </WelcomeWrapper>
+      </Welcome>
+  );
 }
 
 const Welcome = styled.div`
@@ -86,5 +106,5 @@ const WelcomeWrapper = styled.div`
   }
 `;
 
- 
+
 export default StyledWelcome;

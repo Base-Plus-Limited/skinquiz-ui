@@ -8,14 +8,16 @@ export const track = async (event: IAnalyticsEvent) => {
     },
     cache: 'no-cache',
     body: JSON.stringify({
-      eventType: event.eventType,
+      event_type: event.event_type,
       distinct_id: event.distinct_id,
-      eventData: event.eventData
+      question_id: event.question_id,
+      ingredients: event.ingredients
     })
-  })
+  }).then()
   .catch((error) => console.error(error))
 }
 
 export const generateUniqueId = () => {
-  return btoa(Math.random().toString()).substring(0,12);
+  const uniqueId = btoa(Math.random().toString()).substring(0,12);
+  return uniqueId;
 }
