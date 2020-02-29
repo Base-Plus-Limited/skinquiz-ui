@@ -50,6 +50,7 @@ var body_parser_1 = __importDefault(require("body-parser"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
 var request = __importStar(require("superagent"));
+var mixpanel = __importStar(require("mixpanel"));
 var path_1 = require("path");
 var fs_1 = __importDefault(require("fs"));
 var os_1 = __importDefault(require("os"));
@@ -59,10 +60,12 @@ var App = /** @class */ (function () {
     function App() {
         this.completedQuizModel = this.createCompletedQuizModel();
         this.customProductModel = this.createCustomProductModel();
+        this.mixPanelClient = mixpanel.init("681feefe585dbd39172d23aa0b2a0011");
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.writeDbDataTOCSV = function (dbData) {
             if (dbData.length > 0) {
                 var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+                fs_1["default"].unlinkSync(filename);
                 var output_1 = [];
                 var dbDataAsObject = dbData[0].toObject();
                 var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
@@ -181,6 +184,18 @@ var App = /** @class */ (function () {
                 return [2 /*return*/];
             });
         }); });
+        /*************************
+         *  LOG ANALYTICS
+         *************************/
+        router.post('/analytics', function (req, res) {
+            var data = req.body;
+            _this.mixPanelClient.track(data.eventType, {
+                distinct_id: data.distinct_id,
+                meta: data.eventData
+            }, function (error) {
+                res.send(error);
+            });
+        });
         /*************************
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
