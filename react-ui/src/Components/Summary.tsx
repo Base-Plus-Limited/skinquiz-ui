@@ -61,7 +61,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       distinct_id: uniqueId,
       event_type: "Amend selected",
       ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`
-    }).then();
+    });
     setQuizToCompleted(true);
     sendCompletedQuizQuestionsToApi();
     window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
@@ -161,7 +161,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         distinct_id: uniqueId,
         event_type: "Quiz completed",
         ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`
-      }).then();
+      });
       sendToWordpress();
     })
   }

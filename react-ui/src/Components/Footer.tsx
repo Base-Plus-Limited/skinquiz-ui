@@ -31,7 +31,7 @@ const StyledFooter: React.FC<FooterProps> = () => {
     track({
       distinct_id: uniqueId,
       event_type: "Back selected"
-    }).then();
+    });
   }
 
   const resetSkinConcernAnswers = (answers: IAnswer[]) => {

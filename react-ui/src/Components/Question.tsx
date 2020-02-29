@@ -206,7 +206,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       distinct_id: uniqueId,
       event_type: "Question answered",
       question_id: answeredQuestion.id
-    }).finally();
+    });
   }
 
   const rankIngredients = (answerValue: string, tagValue: string, ingredient: IIngredient) => {

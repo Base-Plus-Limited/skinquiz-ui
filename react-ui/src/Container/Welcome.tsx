@@ -60,7 +60,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
       track({
         distinct_id: uniqueId,
         event_type: "Name entered"
-      }).then();
+      });
   };
 
   return (

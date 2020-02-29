@@ -30,6 +30,8 @@ interface IQuiz {
   setApplicationError: Dispatch<SetStateAction<IErrorResponse>>;
   completedQuizData: ICompletedQuiz[];
   saveCompletedQuizData: Dispatch<SetStateAction<ICompletedQuiz[]>>;
+  uniqueId: string;
+  saveUniqueId: Dispatch<SetStateAction<string>>;
 }
 
 export default IQuiz;
