@@ -60,7 +60,7 @@ var App = /** @class */ (function () {
     function App() {
         this.completedQuizModel = this.createCompletedQuizModel();
         this.customProductModel = this.createCustomProductModel();
-        this.mixPanelClient = mixpanel.init("681feefe585dbd39172d23aa0b2a0011");
+        this.mixPanelClient = mixpanel.init("" + process.env.MIXPANEL_ID);
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.writeDbDataTOCSV = function (dbData) {
             if (dbData.length > 0) {
@@ -189,11 +189,17 @@ var App = /** @class */ (function () {
          *************************/
         router.post('/analytics', function (req, res) {
             var data = req.body;
-            _this.mixPanelClient.track(data.eventType, {
+            _this.mixPanelClient.track(data.event_type, {
                 distinct_id: data.distinct_id,
-                meta: data.eventData
-            }, function (error) {
-                res.send(error);
+                meta: data.meta
+            }, function (response) {
+                if (response) {
+                    res.send(response);
+                    console.error("Error logging anlalytics event " + response);
+                    return;
+                }
+                res.send(response);
+                console.log("Logged analytics event " + data.event_type);
             });
         });
         /*************************

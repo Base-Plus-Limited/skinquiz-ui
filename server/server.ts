@@ -121,12 +121,18 @@ class App {
      *************************/
     router.post('/analytics', (req, res) => {
       const data: IAnalyticsEvent = req.body;
-      this.mixPanelClient.track(data.eventType, {
+      this.mixPanelClient.track(data.event_type, {
         distinct_id: data.distinct_id,
-        meta: data.eventData
-      }, (error) => {
-        res.send(error);
-        console.error(error);
+        question_id: data.question_id,
+        ingredients: data.ingredients
+      }, (response) => {
+        if(response) {
+          res.send(response);
+          console.error(`Error logging anlalytics event ${response}`);
+          return;
+        }
+        res.send(response);
+        console.log(`Logged analytics event ${data.event_type}`);
       })
     });
 
