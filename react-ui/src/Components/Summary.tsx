@@ -14,12 +14,13 @@ import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
+import { track } from './Shared/Analytics';
 
 export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, hasApplicationErrored, isQuizCompleted } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId } = useContext(QuizContext);
   const sortedIngredients =
   ingredients
     .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
@@ -56,9 +57,16 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const amendIngredients = async () => {
-    setQuizToCompleted(true);
-    sendCompletedQuizQuestionsToApi();
-    window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+    track({
+      distinct_id: uniqueId,
+      event_type: "Quiz completed",
+      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      amendSelected: true
+    }).then(() => {
+      setQuizToCompleted(true);
+      sendCompletedQuizQuestionsToApi();
+      window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+    });
   }
 
   const sendToWordpress = async () => {
@@ -119,7 +127,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     })
     .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
     .catch(error => {
-      console.log(error)
+      console.log(error);
       setApplicationError({
         error: true,
         code: error.status,
@@ -142,15 +150,22 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const saveProductToDatabase = () => {
-    return fetch('/api/save-product', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(createFinalProductToSaveToDatabase())
-    })
-    .finally(() => sendToWordpress())
+    track({
+      distinct_id: uniqueId,
+      event_type: "Quiz completed",
+      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      amendSelected: false
+    }).then(() => {
+      return fetch('/api/save-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+        body: JSON.stringify(createFinalProductToSaveToDatabase())
+      })
+      .finally(() => sendToWordpress())
+    });
   }
 
   return (

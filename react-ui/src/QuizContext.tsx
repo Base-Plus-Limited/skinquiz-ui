@@ -30,7 +30,9 @@ const state: IQuiz = {
   hasApplicationErrored: {} as IErrorResponse,
   setApplicationError: (previousApplicationError: SetStateAction<IErrorResponse>) => previousApplicationError,
   completedQuizData: [],
-  saveCompletedQuizData: (previousCompletedQuiz: SetStateAction<ICompletedQuiz[]>) => previousCompletedQuiz
+  saveCompletedQuizData: (previousCompletedQuiz: SetStateAction<ICompletedQuiz[]>) => previousCompletedQuiz,
+  uniqueId: "",
+  saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId
 }
 
 export const QuizContext = createContext(state);
@@ -52,6 +54,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
   const [completedQuizData, saveCompletedQuizData] = useState<ICompletedQuiz[]>([]);
+  const [uniqueId, saveUniqueId] = useState<string>("");
 
   return (
     <QuizContext.Provider value={{
@@ -78,7 +81,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       hasApplicationErrored,
       setApplicationError,
       completedQuizData,
-      saveCompletedQuizData
+      saveCompletedQuizData,
+      uniqueId,
+      saveUniqueId
     }}>
       {children}
     </QuizContext.Provider>

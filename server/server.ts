@@ -4,11 +4,13 @@ import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IAnalyticsEvent } from './../react-ui/src/Interfaces/Analytics';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { ICompletedQuizDBModel, IQuizData } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
 import ICustomProductDBModel from './../react-ui/src/Interfaces/CustomProduct';
 import { ICompletedQuiz } from './../react-ui/src/Interfaces/CompletedQuiz';
 import * as request from 'superagent';
+import * as mixpanel from 'mixpanel';
 import { resolve, join } from 'path';
 import fs from 'fs';
 import os from 'os';
@@ -20,6 +22,7 @@ class App {
   public express: Application;
   private completedQuizModel = this.createCompletedQuizModel();
   private customProductModel = this.createCustomProductModel();
+  private mixPanelClient = mixpanel.init(`${process.env.MIXPANEL_ID}`);
 
   constructor () {
     this.express = express();
@@ -111,7 +114,30 @@ class App {
           res.send(error);
         })
     });
-      
+
+
+    /*************************
+     *  LOG ANALYTICS
+     *************************/
+    router.post('/analytics', (req, res) => {
+      const data: IAnalyticsEvent = req.body;
+      const {distinct_id, question_id, ingredients, event_type } = data;
+      this.mixPanelClient.track(event_type, {
+        distinct_id,
+        question_id,
+        ingredients
+      }, (response) => {
+        if(response) {
+          res.send(response);
+          console.error(`Error logging anlalytics event ${response}`);
+          return;
+        }
+        res.send(response);
+        console.log(`Logged analytics event ${data.event_type}`);
+      })
+    });
+
+    
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
      *************************/

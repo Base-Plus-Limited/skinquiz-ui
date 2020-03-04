@@ -13,6 +13,7 @@ import CheekArea from './../Assets/cheek_areas.png';
 import TZoneArea from './../Assets/tzone_areas.png';
 import { ISkinCondition } from '../Interfaces/SkinCondition';
 import SkinConditionEnums from './../SkinConditons';
+import { track } from './Shared/Analytics';
 
 export interface QuestionProps {
   questions: IQuizQuestion[];
@@ -25,7 +26,7 @@ interface PanelProps {
 
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, uniqueId } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     if(answeredQuestion.isMobilePanelOpen && answeredQuestion.id !== 706)
@@ -57,11 +58,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     if (answeredQuestion.answered)
       doQuestionIdsMatch(answeredQuestion);
     // getCompletedQuizQuestions();
-  }
-
-  const isSkinConcernQuestionAnswered = () => {
-    const skinConcernQuestion = (quizQuestions.find(question => question.id === 706) as IQuizQuestion);
-    return skinConcernQuestion.answered;
   }
 
   const answerSkinConcernQuestion = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
@@ -203,9 +199,20 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       if (questionsAnswered[questionsAnswered.length - 1].id === answeredQuestion.id){
         return;
       }
+      track({
+        distinct_id: uniqueId,
+        event_type: "Question answered",
+        question_id: answeredQuestion.id
+      });
       updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
+      return;
     }
-    updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
+    track({
+      distinct_id: uniqueId,
+      event_type: "Question answered",
+      question_id: answeredQuestion.id
+    });
+    updateQuestionsAnswered([answeredQuestion]);
   }
 
   const rankIngredients = (answerValue: string, tagValue: string, ingredient: IIngredient) => {
@@ -254,6 +261,11 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     skinConditionQuestion[0].customAnswer = SkinConditionEnums[conditionId];
     skinConditionQuestion[0].answered = true;
     updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
+    track({
+      distinct_id: uniqueId,
+      event_type: "Question answered",
+      question_id: skinConditionQuestion[0].id
+    });
   }
 
   const cheekZoneMargin = () => { // to refactor
