@@ -199,14 +199,20 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       if (questionsAnswered[questionsAnswered.length - 1].id === answeredQuestion.id){
         return;
       }
+      track({
+        distinct_id: uniqueId,
+        event_type: "Question answered",
+        question_id: answeredQuestion.id
+      });
       updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
+      return;
     }
-    updateQuestionsAnswered([...questionsAnswered, answeredQuestion]);
     track({
       distinct_id: uniqueId,
       event_type: "Question answered",
       question_id: answeredQuestion.id
     });
+    updateQuestionsAnswered([answeredQuestion]);
   }
 
   const rankIngredients = (answerValue: string, tagValue: string, ingredient: IIngredient) => {
@@ -255,6 +261,11 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     skinConditionQuestion[0].customAnswer = SkinConditionEnums[conditionId];
     skinConditionQuestion[0].answered = true;
     updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
+    track({
+      distinct_id: uniqueId,
+      event_type: "Question answered",
+      question_id: skinConditionQuestion[0].id
+    });
   }
 
   const cheekZoneMargin = () => { // to refactor

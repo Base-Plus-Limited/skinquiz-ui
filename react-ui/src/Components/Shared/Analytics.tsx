@@ -18,6 +18,5 @@ export const track = async (event: IAnalyticsEvent) => {
 }
 
 export const generateUniqueId = () => {
-  const uniqueId = btoa(Math.random().toString()).substring(0,12);
-  return uniqueId;
+  return btoa(Math.random().toString()).substring(0,12)
 }

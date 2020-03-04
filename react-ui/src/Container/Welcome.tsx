@@ -18,26 +18,23 @@ export interface WelcomeWrapperProps {
 }
 
 const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
-  const { userName, updateUserName, setApplicationError, hasApplicationErrored, saveUniqueId } = useContext(QuizContext);
+  const { userName, updateUserName, setApplicationError, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
 
-  const uniqueId = generateUniqueId();
-  
-  
   useEffect(() => {
-    saveUniqueId(uniqueId);
     fetch('/api/questions')
-      .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
+      .then(res => {
+        if(res.ok) {
+          logQuizStarted();
+          return res.json();
+        }
+        res.json().then(errorResponse => setApplicationError(errorResponse))
+      })
       .catch((error) => {
         setApplicationError({
           error: true,
           code: error.status,
           message: error.message
         })
-      });
-
-      track({
-        distinct_id: uniqueId,
-        event_type: "Quiz started"
       });
 
     fetch('/api/ingredients')
@@ -50,6 +47,16 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
         })
       });
   }, [setApplicationError]);
+
+
+  const logQuizStarted = () => {
+    const id = generateUniqueId();
+    track({
+      distinct_id: id,
+      event_type: "Quiz started"
+    });
+    saveUniqueId(id);
+  }
 
   const logName = (event: ChangeEvent<HTMLInputElement>) => {
     updateUserName(event.target.value);

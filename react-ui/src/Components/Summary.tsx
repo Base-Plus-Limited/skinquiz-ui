@@ -59,12 +59,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const amendIngredients = async () => {
     track({
       distinct_id: uniqueId,
-      event_type: "Amend selected",
-      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`
+      event_type: "Quiz completed",
+      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      amendSelected: true
+    }).then(() => {
+      setQuizToCompleted(true);
+      sendCompletedQuizQuestionsToApi();
+      window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
     });
-    setQuizToCompleted(true);
-    sendCompletedQuizQuestionsToApi();
-    window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
   }
 
   const sendToWordpress = async () => {
@@ -148,22 +150,22 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const saveProductToDatabase = () => {
-    return fetch('/api/save-product', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(createFinalProductToSaveToDatabase())
-    })
-    .finally(() => {
-      track({
-        distinct_id: uniqueId,
-        event_type: "Quiz completed",
-        ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`
-      });
-      sendToWordpress();
-    })
+    track({
+      distinct_id: uniqueId,
+      event_type: "Quiz completed",
+      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      amendSelected: false
+    }).then(() => {
+      return fetch('/api/save-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+        body: JSON.stringify(createFinalProductToSaveToDatabase())
+      })
+      .finally(() => sendToWordpress())
+    });
   }
 
   return (
