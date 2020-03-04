@@ -121,10 +121,11 @@ class App {
      *************************/
     router.post('/analytics', (req, res) => {
       const data: IAnalyticsEvent = req.body;
-      this.mixPanelClient.track(data.event_type, {
-        distinct_id: data.distinct_id,
-        question_id: data.question_id,
-        ingredients: data.ingredients
+      const {distinct_id, question_id, ingredients, event_type } = data;
+      this.mixPanelClient.track(event_type, {
+        distinct_id,
+        question_id,
+        ingredients
       }, (response) => {
         if(response) {
           res.send(response);

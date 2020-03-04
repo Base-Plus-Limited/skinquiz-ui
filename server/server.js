@@ -189,9 +189,11 @@ var App = /** @class */ (function () {
          *************************/
         router.post('/analytics', function (req, res) {
             var data = req.body;
-            _this.mixPanelClient.track(data.event_type, {
-                distinct_id: data.distinct_id,
-                meta: data.meta
+            var distinct_id = data.distinct_id, question_id = data.question_id, ingredients = data.ingredients, event_type = data.event_type;
+            _this.mixPanelClient.track(event_type, {
+                distinct_id: distinct_id,
+                question_id: question_id,
+                ingredients: ingredients
             }, function (response) {
                 if (response) {
                     res.send(response);
