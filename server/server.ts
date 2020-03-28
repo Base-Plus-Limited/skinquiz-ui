@@ -90,7 +90,7 @@ class App {
      *  CREATE NEW PRODUCT
      *************************/
     router.post('/new-product', bodyParser.json(), async (req, res) => {
-      await request.post(`https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
+      await request.post(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
         .send(req.body)
         .then(productResponse => productResponse.body)
         .then((product: WordpressProduct) => res.send(product))
@@ -259,10 +259,17 @@ class App {
   }
 
   private connectToDb() {
-    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true, useUnifiedTopology: true },  (err: MongoError) => {
-      if(err)
-        return console.error(`${err.code}, ${err.message}`);
-      console.log("DB connection successful");
+    mongoose.connect(`${process.env.DB_CONNECTION_STRING}`, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(_ => {
+      console.log("Db connection successful");
+      this.listenForErrorsAfterConnection();
+    })
+    .catch(error => console.error(`Database connection error: ${error.message}`));
+  }
+
+  private listenForErrorsAfterConnection() {
+    mongoose.connection.on('error', err => {
+      console.error(`Database error: ${err.message}`);
     });
   }
 
