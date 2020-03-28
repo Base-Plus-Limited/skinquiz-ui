@@ -168,6 +168,10 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
+  const limitCharacterLength = (description: string) => {
+    return description.slice(0, 73);
+  }
+
   return (
     <React.Fragment>
       <SummaryWrap>
@@ -186,7 +190,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                     <StyledImage src={baseIngredient.images[0].src} alt={baseIngredient.name}></StyledImage>
                     <div>
                       <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={baseIngredient.name}></StyledSubHeading>
-                      <StyledText margin="4px 0 0 0" fontSize="9pt" text={baseIngredient.short_description}></StyledText>
+                      <StyledText margin="4px 0 0 0" fontSize="9pt" text={limitCharacterLength(baseIngredient.short_description)}></StyledText>
                     </div>
                   </SummaryBaseIngredient>
                 }
@@ -198,7 +202,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                         <SummaryIngredient key={ingredient.id}>
                           <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
                           <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
-                          <StyledText margin="4px 0 0 0" fontSize="9pt" text={ingredient.short_description}></StyledText>
+                          <StyledText margin="4px 0 0 0" fontSize="9pt" text={limitCharacterLength(ingredient.short_description)}></StyledText>
                         </SummaryIngredient>
                         {
                           index === 0 &&
