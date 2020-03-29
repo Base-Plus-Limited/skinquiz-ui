@@ -49,12 +49,14 @@ var express_1 = __importDefault(require("express"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var dotenv_1 = __importDefault(require("dotenv"));
 var html_entities_1 = require("html-entities");
+var ErrorTypes_1 = require("./../react-ui/src/Interfaces/ErrorTypes");
 var request = __importStar(require("superagent"));
 var mixpanel = __importStar(require("mixpanel"));
 var path_1 = require("path");
 var fs_1 = __importDefault(require("fs"));
 var os_1 = __importDefault(require("os"));
 var mongoose_1 = __importStar(require("mongoose"));
+var honeybadger_1 = __importDefault(require("honeybadger"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
@@ -85,9 +87,10 @@ var App = /** @class */ (function () {
             }
         };
         this.express = express_1["default"]();
-        this.connectToDb();
+        this.configureHoneyBadger();
         this.config();
         this.mountRoutes();
+        this.connectToDb();
     }
     App.prototype.config = function () {
         this.express.use(express_1["default"].static(path_1.resolve(__dirname, '../react-ui/build')));
@@ -95,6 +98,11 @@ var App = /** @class */ (function () {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
+        });
+    };
+    App.prototype.configureHoneyBadger = function () {
+        honeybadger_1["default"].configure({
+            apiKey: "" + String(process.env.HONEYBADGER_API_KEY)
         });
     };
     App.prototype.mountRoutes = function () {
@@ -111,6 +119,7 @@ var App = /** @class */ (function () {
         /*************************
          *  SERVE ROUTES
          *************************/
+        // this.express.use(hb.requestHandler);
         this.express.use('/api', body_parser_1["default"].json(), router);
         this.express.use('/quiz', body_parser_1["default"].json(), function (req, res) {
             res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
@@ -154,7 +163,7 @@ var App = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.post("https://baseplus.co.uk/wp-json/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
+                    case 0: return [4 /*yield*/, request.post(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
                             .then(function (product) { return res.send(product); })["catch"](function (error) {
@@ -178,6 +187,7 @@ var App = /** @class */ (function () {
                     res.send(dbResponse);
                     _this.writeDbDataTOCSV(dbResponse);
                 })["catch"](function (error) {
+                    // hb.notify(error)
                     console.error(error);
                     res.send(error);
                 });
@@ -311,10 +321,18 @@ var App = /** @class */ (function () {
         };
     };
     App.prototype.connectToDb = function () {
-        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function (err) {
-            if (err)
-                return console.error(err.code + ", " + err.message);
-            console.log("DB connection successful");
+        var _this = this;
+        mongoose_1["default"].connect("" + process.env.DB_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
+            .then(function (_) {
+            console.log("Db connection successful");
+            _this.listenForErrorsAfterConnection();
+        })["catch"](function (error) {
+            honeybadger_1["default"].notify("Database connection error: " + error.message, ErrorTypes_1.IHoneyBadgerErrors.DATABASE);
+        });
+    };
+    App.prototype.listenForErrorsAfterConnection = function () {
+        mongoose_1["default"].connection.on('error', function (err) {
+            honeybadger_1["default"].notify(err.message, ErrorTypes_1.IHoneyBadgerErrors.DATABASE);
         });
     };
     App.prototype.createCompletedQuizModel = function () {
