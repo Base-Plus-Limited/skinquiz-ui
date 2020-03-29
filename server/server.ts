@@ -6,6 +6,7 @@ import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuesti
 import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IAnalyticsEvent } from './../react-ui/src/Interfaces/Analytics';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
+import { IHoneyBadgerErrorTypes } from './../react-ui/src/Interfaces/ErrorTypes';
 import { ICompletedQuizDBModel, IQuizData } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
 import ICustomProductDBModel from './../react-ui/src/Interfaces/CustomProduct';
 import { ICompletedQuiz } from './../react-ui/src/Interfaces/CompletedQuiz';
@@ -16,6 +17,7 @@ import fs from 'fs';
 import os from 'os';
 import mongoose, { Document, Schema, model } from 'mongoose';
 import { MongoError } from 'mongodb';
+import honeybadger from 'honeybadger';
 dotenv.config();
 
 class App {
@@ -26,9 +28,10 @@ class App {
 
   constructor () {
     this.express = express();
-    this.connectToDb();
+    this.configureHoneyBadger();
     this.config(); 
     this.mountRoutes(); 
+    this.connectToDb();
   }
 
   private skinTypeCodes: string[] = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
@@ -39,6 +42,12 @@ class App {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
+    });
+  }
+
+  private configureHoneyBadger () {
+    honeybadger.configure({
+      apiKey: `${process.env.HONEYBADGER_API_KEY}`
     });
   }
 
@@ -57,6 +66,7 @@ class App {
     /*************************
      *  SERVE ROUTES
      *************************/
+    this.express.use(honeybadger.requestHandler);
     this.express.use('/api', bodyParser.json(), router);
     this.express.use('/quiz', bodyParser.json(), (req, res) => {
       res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
@@ -81,7 +91,7 @@ class App {
         .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
         .then(quiz => res.send(quiz))
         .catch((error) => {
-          console.error(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
           res.status(error.status).send(this.handleError(error));
         }) 
     });
@@ -95,7 +105,7 @@ class App {
         .then(productResponse => productResponse.body)
         .then((product: WordpressProduct) => res.send(product))
         .catch((error) => {
-          console.error(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
           res.status(error.status).send(this.handleError(error));
         }) 
     });
@@ -110,11 +120,10 @@ class App {
           this.writeDbDataTOCSV(dbResponse);
         })
         .catch(error => {
-          console.error(error);
+          honeybadger.notify(`Error retrieving completed quizzes: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE);
           res.send(error);
         })
     });
-
 
     /*************************
      *  LOG ANALYTICS
@@ -129,14 +138,13 @@ class App {
       }, (response) => {
         if(response) {
           res.send(response);
-          console.error(`Error logging anlalytics event ${response}`);
+          honeybadger.notify(`Error logging analytics: ${response}`, IHoneyBadgerErrorTypes.ANALYTICS)
           return;
         }
         res.send(response);
         console.log(`Logged analytics event ${data.event_type}`);
       })
     });
-
     
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
@@ -152,7 +160,7 @@ class App {
           res.json(dbResponse)
         })
         .catch(error => {
-          console.error(error);
+          honeybadger.notify(`Error saving quiz: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE);
           res.send(error);
         })
     });
@@ -172,7 +180,7 @@ class App {
           res.end();
         })
         .catch(error => {
-          console.error(error);
+          honeybadger.notify(`Error saving product: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE);
           res.end();
         })
     });
@@ -193,7 +201,7 @@ class App {
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
         .catch((error) => {
-          console.error(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
           res.status(error.status).send(this.handleError(error));
         }) 
     });
@@ -264,12 +272,14 @@ class App {
       console.log("Db connection successful");
       this.listenForErrorsAfterConnection();
     })
-    .catch(error => console.error(`Database connection error: ${error.message}`));
+    .catch(error => {
+      honeybadger.notify(`Database connection error: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE)
+    });
   }
 
   private listenForErrorsAfterConnection() {
     mongoose.connection.on('error', err => {
-      console.error(`Database error: ${err.message}`);
+      honeybadger.notify(err.message, IHoneyBadgerErrorTypes.DATABASE);
     });
   }
 
