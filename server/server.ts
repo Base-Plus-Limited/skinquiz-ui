@@ -91,6 +91,11 @@ class App {
         .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
         .then(quiz => res.send(quiz))
         .catch((error) => {
+          if(error instanceof TypeError) {
+            honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
+            res.status(500).end();
+            return;
+          }
           honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
           res.status(error.status).send(this.handleError(error));
         }) 
@@ -136,9 +141,9 @@ class App {
         question_id,
         ingredients
       }, (response) => {
-        if(response) {
+        if(response instanceof Error) {
           res.send(response);
-          honeybadger.notify(`Error logging analytics: ${response}`, IHoneyBadgerErrorTypes.ANALYTICS)
+          honeybadger.notify(`Error logging analytics: ${response.message}`, IHoneyBadgerErrorTypes.ANALYTICS)
           return;
         }
         res.send(response);
@@ -201,6 +206,11 @@ class App {
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
         .catch((error) => {
+          if(error instanceof TypeError) {
+            honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
+            res.status(500).end();
+            return;
+          }
           honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
           res.status(error.status).send(this.handleError(error));
         }) 
