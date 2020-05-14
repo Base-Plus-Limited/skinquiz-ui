@@ -102,7 +102,7 @@ var App = /** @class */ (function () {
     };
     App.prototype.configureHoneyBadger = function () {
         honeybadger_1["default"].configure({
-            apiKey: "" + String(process.env.HONEYBADGER_API_KEY)
+            apiKey: "" + process.env.HONEYBADGER_API_KEY
         });
     };
     App.prototype.mountRoutes = function () {
@@ -119,7 +119,7 @@ var App = /** @class */ (function () {
         /*************************
          *  SERVE ROUTES
          *************************/
-        // this.express.use(hb.requestHandler);
+        this.express.use(honeybadger_1["default"].requestHandler);
         this.express.use('/api', body_parser_1["default"].json(), router);
         this.express.use('/quiz', body_parser_1["default"].json(), function (req, res) {
             res.sendFile(path_1.join(__dirname, '../react-ui/build', 'index.html'));
@@ -147,7 +147,12 @@ var App = /** @class */ (function () {
                             .then(function (res) { return res.body; })
                             .then(function (questions) { return questions.map(function (question) { return _this.returnQuizQuestion(question); }); })
                             .then(function (quiz) { return res.send(quiz); })["catch"](function (error) {
-                            console.error("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            if (error instanceof TypeError) {
+                                honeybadger_1["default"].notify(error.name + ": " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.CODE);
+                                res.status(500).end();
+                                return;
+                            }
+                            honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message, ErrorTypes_1.IHoneyBadgerErrorTypes.APIREQUEST);
                             res.status(error.status).send(_this.handleError(error));
                         })];
                     case 1:
@@ -167,7 +172,7 @@ var App = /** @class */ (function () {
                             .send(req.body)
                             .then(function (productResponse) { return productResponse.body; })
                             .then(function (product) { return res.send(product); })["catch"](function (error) {
-                            console.error("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message, ErrorTypes_1.IHoneyBadgerErrorTypes.APIREQUEST);
                             res.status(error.status).send(_this.handleError(error));
                         })];
                     case 1:
@@ -187,8 +192,7 @@ var App = /** @class */ (function () {
                     res.send(dbResponse);
                     _this.writeDbDataTOCSV(dbResponse);
                 })["catch"](function (error) {
-                    // hb.notify(error)
-                    console.error(error);
+                    honeybadger_1["default"].notify("Error retrieving completed quizzes: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
                     res.send(error);
                 });
                 return [2 /*return*/];
@@ -207,7 +211,7 @@ var App = /** @class */ (function () {
             }, function (response) {
                 if (response) {
                     res.send(response);
-                    console.error("Error logging anlalytics event " + response);
+                    honeybadger_1["default"].notify("Error logging analytics: " + response, ErrorTypes_1.IHoneyBadgerErrorTypes.ANALYTICS);
                     return;
                 }
                 res.send(response);
@@ -229,7 +233,7 @@ var App = /** @class */ (function () {
                     console.log("Saved completed quiz with id " + dbResponse.id);
                     res.json(dbResponse);
                 })["catch"](function (error) {
-                    console.error(error);
+                    honeybadger_1["default"].notify("Error saving quiz: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
                     res.send(error);
                 });
                 return [2 /*return*/];
@@ -251,7 +255,7 @@ var App = /** @class */ (function () {
                     console.log("Saved custom product with id " + dbResponse.id);
                     res.end();
                 })["catch"](function (error) {
-                    console.error(error);
+                    honeybadger_1["default"].notify("Error saving product: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
                     res.end();
                 });
                 return [2 /*return*/];
@@ -275,7 +279,7 @@ var App = /** @class */ (function () {
                             return ingredient;
                         }); })
                             .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) {
-                            console.error("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
                             res.status(error.status).send(_this.handleError(error));
                         })];
                     case 1:
@@ -327,12 +331,12 @@ var App = /** @class */ (function () {
             console.log("Db connection successful");
             _this.listenForErrorsAfterConnection();
         })["catch"](function (error) {
-            honeybadger_1["default"].notify("Database connection error: " + error.message, ErrorTypes_1.IHoneyBadgerErrors.DATABASE);
+            honeybadger_1["default"].notify("Database connection error: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
         });
     };
     App.prototype.listenForErrorsAfterConnection = function () {
         mongoose_1["default"].connection.on('error', function (err) {
-            honeybadger_1["default"].notify(err.message, ErrorTypes_1.IHoneyBadgerErrors.DATABASE);
+            honeybadger_1["default"].notify(err.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
         });
     };
     App.prototype.createCompletedQuizModel = function () {
