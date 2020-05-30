@@ -76,13 +76,13 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
       : <Welcome>
         <WelcomeWrapper maxWidth>
           <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
-          <StyledText text="Product description lorem ipsum dolor sit amet, cons ectetuer adipis cing elit, sed diam dolore magnat volutpat diam dolore."></StyledText>
+          <StyledText text="Use our product builder to create your own bespoke moisturiser in 60 seconds"></StyledText>
           <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
           <Route render={({ history }) => (
             <StyledButton onClickHandler={() => {
               history.push('/quiz');
               logNameEvent();
-            }}>Start Quiz</StyledButton>
+            }}>Start</StyledButton>
           )} />
         </WelcomeWrapper>
       </Welcome>
