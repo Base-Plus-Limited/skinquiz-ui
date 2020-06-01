@@ -206,7 +206,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                         </SummaryIngredient>
                         {
                           index === 0 &&
-                          <StyledImage isSummaryScreen={true} width={15} src={plusIcon} alt="Plus icon"></StyledImage>
+                          <StyledImage width={15} src={plusIcon} alt="Plus icon"></StyledImage>
                         }
                       </React.Fragment>
                     ))
@@ -225,6 +225,12 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
 const SummaryIngredientWrap = styled.div`
   position: relative;
+  display: grid;
+  align-items: center;
+  max-width: 430px;
+  grid-gap: 10px;
+  margin: 0 auto;
+  grid-template-columns: 1fr 15px 1fr;
 `
 
 const SummaryBaseIngredient = styled.div`
@@ -234,6 +240,7 @@ const SummaryBaseIngredient = styled.div`
   width: 190px;
   img{
     margin: 0 auto;
+    max-height: 110px;
   }
   p{
     height: 30px;
@@ -250,13 +257,8 @@ const SummaryBaseIngredient = styled.div`
 `
 
 const SummaryIngredient = styled.div`
-  display: inline-block;
   img{
     width: 90px;
-  }
-  @media screen and (min-width: 768px) {
-    margin: 0 30px;
-    width: 230px;
   }
 `
 
