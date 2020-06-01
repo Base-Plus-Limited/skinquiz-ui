@@ -234,6 +234,7 @@ const SummaryBaseIngredient = styled.div`
   width: 190px;
   img{
     margin: 0 auto;
+    max-height: 110px;
   }
   p{
     height: 30px;
