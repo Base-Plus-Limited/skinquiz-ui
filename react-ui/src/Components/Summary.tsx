@@ -8,7 +8,7 @@ import StyledHR from './Shared/HR';
 import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
-import { WordpressProduct, IIngredient } from '../Interfaces/WordpressProduct';
+import { WordpressProduct, IIngredient, Tag } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
 import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
@@ -130,7 +130,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     })
     .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
     .catch(error => {
-      console.log(error);
       setApplicationError({
         error: true,
         code: error.status,
@@ -182,59 +181,90 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       return q.answers[index].meta[index];
     });
 
-    const rankedIngredients = ingredients.map(ingredient => {
+    let updateIngredientList: IIngredient[] = ingredients;
+
+    if (answers.some(x => x.toLowerCase() === 'lemon oil'))
+      updateIngredientList = updateIngredientList.filter(x => x.id !== 697);
+
+    if (answers.some(x => x.toLowerCase() === 'sensitive'))
+      updateIngredientList = updateIngredientList
+        .filter(x => x.id !== 697)
+        .filter(x => x.id !== 2054);
+      
+
+    updateIngredientList.forEach((ingredient, index) => {
       answers.forEach(a => {
-        if (ingredient.tags.some(x => x.name === a)) {
+        if (ingredient.tags.some(x => x.name === a))
           ingredient.rank = ingredient.rank + 1;
-        }
-        if ("lemon oil" === a.toLowerCase()) {
-          derankSomeIngredients();
-        }
-        if ("sensitive" === a.toLowerCase()) {
-          derankSomeIngredients(true);
-        }
       })
-      return ingredient;
     })
-    
-    updateIngredients(selectFinalIngredients(rankedIngredients));
+    updateIngredients(selectFinalIngredients(updateIngredientList));
     
   }
 
   const selectFinalIngredients = (rankedIngredients: IIngredient[]) => {
-    const rankedIngredientsHigherThanZero = rankedIngredients
-                .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
-                .reverse()
-                .filter(x => x.rank > 0)
-    const highestRank = rankedIngredientsHigherThanZero[0].rank;
-    const highestRankedIngredients = rankedIngredientsHigherThanZero.filter(x => x.rank >= highestRank -1);
+    const tags = rankedIngredients.flatMap(r => r.tags);
+    const tagsWithOccurence = [...getTagsWithOccurence(tags)];
+    
+    const uniqueTags = removeDuplicates(tagsWithOccurence).sort((a,b) => a.total - b.total).reverse();
+    const conditionOneIngredients = 
+      rankedIngredients.filter(x => x.tags.some(t => t.slug === uniqueTags[0].slug));
+    const conditionTwoIngredients = rankedIngredients
+        .filter(x => x.tags.some(t => t.slug === uniqueTags[1].slug));
+    
+    const highestRankedIngredientsOne = getHighestRankedIngredients(conditionOneIngredients);
+    const highestRankedIngredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(highestRankedIngredientsOne[0].id, conditionTwoIngredients));
 
-    const ingredientOne = highestRankedIngredients[Math.floor(Math.random() * highestRankedIngredients.length)];
-    const unselectedIngredients = highestRankedIngredients.filter(x => x.id !== ingredientOne.id);
-    const ingredientTwo = unselectedIngredients[Math.floor(Math.random() * unselectedIngredients.length)];
+    let ingredientOne: IIngredient;
+    let ingredientTwo: IIngredient;
+
+    if (highestRankedIngredientsOne.length > 1) {
+      ingredientOne = conditionOneIngredients[Math.floor(Math.random() * Math.floor(highestRankedIngredientsOne.length))];
+    } else {
+      ingredientOne = highestRankedIngredientsOne[0];
+    }
+
+    if (highestRankedIngredientsTwo.length > 1) {
+      const unselectedIngredients = highestRankedIngredientsTwo.filter(x => x.id !== ingredientOne.id);
+      ingredientTwo = unselectedIngredients[Math.floor(Math.random() * Math.floor(unselectedIngredients.length))];
+    } else {
+      ingredientTwo = highestRankedIngredientsTwo[0];
+    }
 
     rankedIngredients.forEach(x => {
       if(x.id === ingredientTwo.id)
         x.isSelectedForSummary = true;
       if(x.id === ingredientOne.id)
         x.isSelectedForSummary = true;
-    })
+    });
     return rankedIngredients;
   }
 
-  const derankSomeIngredients = (derankTwoOils: boolean = false) => {
-    ingredients.map(x => {
-      if (derankTwoOils) {
-        if ((x.id === 697) || (x.id === 2054)) {
-          x.rank = x.rank - 1;
-        }
-      } else {
-        if (x.id === 697) {
-          x.rank = x.rank - 1;
-        }
-      }
-      return x;
-    })
+  const removeIngredientIfInSecondList = (id: number, ingredientListTwo: IIngredient[]) => {
+    return ingredientListTwo.filter(x => x.id !== id);
+  } 
+
+  const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
+    const highestNum = Math.max(...ingredients.map(x => x.rank));
+    return ingredients.filter(x => x.rank === highestNum);
+  }
+
+  const getTagsWithOccurence = (tags: Tag[]) => {
+    return tags.map(c => {
+      return {
+        tagName: c.name,
+        total: tags.filter(n => n.slug === c.slug).length,
+        slug: c.slug
+      };
+    });
+  }
+
+  const removeDuplicates = (array: Array<{
+    tagName: string,
+    total: number,
+    slug: string
+  }>) => {
+    return array.filter((v, i, a) => a.findIndex(t => (t.slug === v.slug)) === i)
   }
 
   return (
