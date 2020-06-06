@@ -207,7 +207,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                 .reverse()
                 .filter(x => x.rank > 0)
     const highestRank = rankedIngredientsHigherThanZero[0].rank;
-    const highestRankedIngredients = rankedIngredientsHigherThanZero.filter(x => x.rank === highestRank);
+    const highestRankedIngredients = rankedIngredientsHigherThanZero.filter(x => x.rank >= highestRank -1);
 
     const ingredientOne = highestRankedIngredients[Math.floor(Math.random() * highestRankedIngredients.length)];
     const unselectedIngredients = highestRankedIngredients.filter(x => x.id !== ingredientOne.id);
