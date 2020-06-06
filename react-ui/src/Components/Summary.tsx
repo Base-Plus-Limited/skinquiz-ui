@@ -68,7 +68,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     }).then(() => {
       setQuizToCompleted(true);
       sendCompletedQuizQuestionsToApi();
-      window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+      window.location.assign(`https://baseplus.co.uk/customise#customise-tool?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
     });
   }
 
