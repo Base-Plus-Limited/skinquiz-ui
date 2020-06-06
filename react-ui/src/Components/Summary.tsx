@@ -8,7 +8,7 @@ import StyledHR from './Shared/HR';
 import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
-import { WordpressProduct } from '../Interfaces/WordpressProduct';
+import { WordpressProduct, IIngredient } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
 import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
@@ -26,40 +26,37 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     rankIngredients();
   }, []);
 
+  const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
 
-  const sortedIngredients =
-  ingredients
-    .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
-    .reverse()
-    .slice(0, 2);
-
-  function getProductName(): string {
+  const getProductName = (): string => {
     if(userName)
       return `${userName}'s Bespoke Product`;
     return `Your Bespoke Product`;
   }
 
-  function getTotalPrice() {
+  const getTotalPrice = () => {
     const total = Number(sortedIngredients[0].price) + Number(sortedIngredients[1].price) + Number(baseIngredient.price);
     return total.toFixed(2);
   }
 
-  const newProduct = {
-    name: getProductName(),
-    type: 'simple',
-    regular_price: getTotalPrice(),
-    description: '',
-    short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
-    categories: [
-      {
-        id: 21
-      }
-    ],
-    images: [
-      {
-        src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
-      }
-    ]
+  const getNewProduct = () => {
+    return {
+      name: getProductName(),
+      type: 'simple',
+      regular_price: getTotalPrice(),
+      description: '',
+      short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
+      categories: [
+        {
+          id: 21
+        }
+      ],
+      images: [
+        {
+          src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
+        }
+      ]
+    }
   }
 
   const amendIngredients = async () => {
@@ -84,7 +81,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         'Content-Type': 'application/json',
       },
       cache: 'no-cache',
-      body: JSON.stringify(newProduct)
+      body: JSON.stringify(getNewProduct())
     })
     .then(res => res.ok ? res.json() : res.json().then((errorResponse: IErrorResponse) => {
       errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
@@ -185,7 +182,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       return q.answers[index].meta[index];
     });
 
-
     const rankedIngredients = ingredients.map(ingredient => {
       answers.forEach(a => {
         if (ingredient.tags.some(x => x.name === a)) {
@@ -200,21 +196,40 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       })
       return ingredient;
     })
+    
+    updateIngredients(selectFinalIngredients(rankedIngredients));
+    
+  }
 
+  const selectFinalIngredients = (rankedIngredients: IIngredient[]) => {
+    const rankedIngredientsHigherThanZero = rankedIngredients
+                .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
+                .reverse()
+                .filter(x => x.rank > 0)
+    const highestRank = rankedIngredientsHigherThanZero[0].rank;
+    const highestRankedIngredients = rankedIngredientsHigherThanZero.filter(x => x.rank === highestRank);
 
-    updateIngredients(rankedIngredients);
+    const ingredientOne = highestRankedIngredients[Math.floor(Math.random() * highestRankedIngredients.length)];
+    const unselectedIngredients = highestRankedIngredients.filter(x => x.id !== ingredientOne.id);
+    const ingredientTwo = unselectedIngredients[Math.floor(Math.random() * unselectedIngredients.length)];
+
+    rankedIngredients.forEach(x => {
+      if(x.id === ingredientTwo.id)
+        x.isSelectedForSummary = true;
+      if(x.id === ingredientOne.id)
+        x.isSelectedForSummary = true;
+    })
+    return rankedIngredients;
   }
 
   const derankSomeIngredients = (derankTwoOils: boolean = false) => {
     ingredients.map(x => {
       if (derankTwoOils) {
         if ((x.id === 697) || (x.id === 2054)) {
-          console.log(x.name);
           x.rank = x.rank - 1;
         }
       } else {
         if (x.id === 697) {
-          console.log(x.name);
           x.rank = x.rank - 1;
         }
       }
