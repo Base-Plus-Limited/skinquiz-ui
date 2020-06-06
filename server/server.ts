@@ -165,7 +165,7 @@ class App {
           res.json(dbResponse)
         })
         .catch(error => {
-          honeybadger.notify(`Error saving quiz: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE);
+          honeybadger.notify(`Error saving quiz: ${error}`, IHoneyBadgerErrorTypes.DATABASE);
           res.send(error);
         })
     });
@@ -202,6 +202,7 @@ class App {
           ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
           ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
           ingredient.previouslyRanked = false;
+          ingredient.isSelectedForSummary = false;
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
