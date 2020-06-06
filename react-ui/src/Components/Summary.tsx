@@ -101,7 +101,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  function returnCompletedQuizData(): IQuizData[] {
+  const returnCompletedQuizData = (): IQuizData[] => {
     const quiz: IQuizData[] = quizQuestions.map(question => (
       {
         questionId: question.id,
@@ -112,7 +112,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return quiz;
   }
 
-  function returnAnswers(answers: IAnswer[]) {
+  const returnAnswers = (answers: IAnswer[]) => {
     const selectedAnswers = answers.filter(answer => answer.selected).map(answer => answer.value)[0];
     if (Array.isArray(selectedAnswers))
       return selectedAnswers.join(" & ");
@@ -176,59 +176,80 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const rankIngredients = () => {
 
+    const skinConcernAnswers: string[] = [];
     const answers = quizQuestions.map(q => {
+      if (q.id === 706) {
+        const selected = (q.answers.map((a, i) => {
+          if (a.selected)
+            return a.meta[i];
+        }) as string[]).filter(x => x !== undefined);
+        skinConcernAnswers.push(...selected);
+        return;
+      }
       const index = q.answers.findIndex(x => x.selected);
       return q.answers[index].meta[index];
     });
+    answers.push(...skinConcernAnswers);
+    const filteredAnswers = (answers.filter(x => x !== undefined)) as string[];
 
-    let updateIngredientList: IIngredient[] = ingredients;
 
-    if (answers.some(x => x.toLowerCase() === 'lemon oil'))
-      updateIngredientList = updateIngredientList.filter(x => x.id !== 697);
+    let updatedIngredientList: IIngredient[] = ingredients;
 
-    if (answers.some(x => x.toLowerCase() === 'sensitive'))
-      updateIngredientList = updateIngredientList
+    if (filteredAnswers.some(x => x.toLowerCase() === 'lemon oil'))
+      updatedIngredientList = updatedIngredientList.filter(x => x.id !== 697);
+
+    if (filteredAnswers.some(x => x.toLowerCase() === 'sensitive'))
+      updatedIngredientList = updatedIngredientList
         .filter(x => x.id !== 697)
         .filter(x => x.id !== 2054);
       
 
-    updateIngredientList.forEach((ingredient, index) => {
-      answers.forEach(a => {
-        if (ingredient.tags.some(x => x.name === a))
-          ingredient.rank = ingredient.rank + 1;
+    updatedIngredientList.forEach(ingredient => {
+      filteredAnswers.forEach(a => {
+        ingredient.tags.forEach(tag => {
+          if (tag.name === a)
+            ingredient.rank = ingredient.rank + 1;
+        })
       })
     })
-    updateIngredients(selectFinalIngredients(updateIngredientList));
-    
+    updateIngredients(selectFinalIngredients(updatedIngredientList, skinConcernAnswers));
   }
 
-  const selectFinalIngredients = (rankedIngredients: IIngredient[]) => {
-    const tags = rankedIngredients.flatMap(r => r.tags);
-    const tagsWithOccurence = [...getTagsWithOccurence(tags)];
+  const selectFinalIngredients = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+    const categorisedIngredients: {concernOne: string, concernTwo: string, ingredientsOne: IIngredient[], ingredientsTwo: IIngredient[]} = {
+      concernOne: "",
+      concernTwo: "",
+      ingredientsOne: [],
+      ingredientsTwo: [],
+    }
+    rankedIngredients.forEach(x => {
+      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[0])) {
+        categorisedIngredients.concernOne = skinConcerns[0];
+        categorisedIngredients.ingredientsOne.push(x);
+      }
+      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[1])) {
+        categorisedIngredients.concernTwo = skinConcerns[1];
+        categorisedIngredients.ingredientsTwo.push(x);
+      }
+    });
     
-    const uniqueTags = removeDuplicates(tagsWithOccurence).sort((a,b) => a.total - b.total).reverse();
-    const conditionOneIngredients = 
-      rankedIngredients.filter(x => x.tags.some(t => t.slug === uniqueTags[0].slug));
-    const conditionTwoIngredients = rankedIngredients
-        .filter(x => x.tags.some(t => t.slug === uniqueTags[1].slug));
-    
-    const highestRankedIngredientsOne = getHighestRankedIngredients(conditionOneIngredients);
-    const highestRankedIngredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(highestRankedIngredientsOne[0].id, conditionTwoIngredients));
+    categorisedIngredients.ingredientsOne = getHighestRankedIngredients(categorisedIngredients.ingredientsOne);
+    categorisedIngredients.ingredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(categorisedIngredients.ingredientsOne[0].id, categorisedIngredients.ingredientsTwo));
 
     let ingredientOne: IIngredient;
     let ingredientTwo: IIngredient;
 
-    if (highestRankedIngredientsOne.length > 1) {
-      ingredientOne = conditionOneIngredients[Math.floor(Math.random() * Math.floor(highestRankedIngredientsOne.length))];
+    if (categorisedIngredients.ingredientsOne.length > 1) {
+      ingredientOne = categorisedIngredients.ingredientsOne[Math.floor(Math.random() * Math.floor(categorisedIngredients.ingredientsOne.length))];
     } else {
-      ingredientOne = highestRankedIngredientsOne[0];
+      ingredientOne = categorisedIngredients.ingredientsOne[0];
     }
 
-    if (highestRankedIngredientsTwo.length > 1) {
-      const unselectedIngredients = highestRankedIngredientsTwo.filter(x => x.id !== ingredientOne.id);
+    if (categorisedIngredients.ingredientsTwo.length > 1) {
+      const unselectedIngredients = categorisedIngredients.ingredientsTwo.filter(x => x.id !== ingredientOne.id);
       ingredientTwo = unselectedIngredients[Math.floor(Math.random() * Math.floor(unselectedIngredients.length))];
     } else {
-      ingredientTwo = highestRankedIngredientsTwo[0];
+      ingredientTwo = categorisedIngredients.ingredientsTwo[0];
     }
 
     rankedIngredients.forEach(x => {
@@ -247,24 +268,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
     const highestNum = Math.max(...ingredients.map(x => x.rank));
     return ingredients.filter(x => x.rank === highestNum);
-  }
-
-  const getTagsWithOccurence = (tags: Tag[]) => {
-    return tags.map(c => {
-      return {
-        tagName: c.name,
-        total: tags.filter(n => n.slug === c.slug).length,
-        slug: c.slug
-      };
-    });
-  }
-
-  const removeDuplicates = (array: Array<{
-    tagName: string,
-    total: number,
-    slug: string
-  }>) => {
-    return array.filter((v, i, a) => a.findIndex(t => (t.slug === v.slug)) === i)
   }
 
   return (
