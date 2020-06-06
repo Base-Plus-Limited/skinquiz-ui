@@ -278,7 +278,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                   }
                 </SummaryIngredientWrap>
                 <StyledHR></StyledHR>
-                <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
+                <StyledSummaryButton addMargin onClick={amendIngredients}>Change</StyledSummaryButton>
                 <StyledSummaryButton addMargin onClick={saveProductToDatabase}>Buy now</StyledSummaryButton>
               </React.Fragment>
           }
