@@ -179,47 +179,70 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     const skinConcernAnswers: string[] = [];
     const answers = quizQuestions.map(q => {
       if (q.id === 706) {
-        skinConcernAnswers.push(...q.answers.filter(a => a.selected).map((x,i) => x.meta[i]));
+        const selected = (q.answers.map((a, i) => {
+          if (a.selected)
+            return a.meta[i];
+        }) as string[]).filter(x => x !== undefined);
+        skinConcernAnswers.push(...selected);
         return;
       }
       const index = q.answers.findIndex(x => x.selected);
       return q.answers[index].meta[index];
     });
     answers.push(...skinConcernAnswers);
-    const filteredAnswers = answers.filter(x => x !== undefined);
+    const filteredAnswers = (answers.filter(x => x !== undefined)) as string[];
 
 
-    // let updateIngredientList: IIngredient[] = ingredients;
+    let updateIngredientList: IIngredient[] = ingredients;
 
-    // if (answers.some(x => x.toLowerCase() === 'lemon oil'))
-    //   updateIngredientList = updateIngredientList.filter(x => x.id !== 697);
+    if (filteredAnswers.some(x => x.toLowerCase() === 'lemon oil'))
+      updateIngredientList = updateIngredientList.filter(x => x.id !== 697);
 
-    // if (answers.some(x => x.toLowerCase() === 'sensitive'))
-    //   updateIngredientList = updateIngredientList
-    //     .filter(x => x.id !== 697)
-    //     .filter(x => x.id !== 2054);
+    if (filteredAnswers.some(x => x.toLowerCase() === 'sensitive'))
+      updateIngredientList = updateIngredientList
+        .filter(x => x.id !== 697)
+        .filter(x => x.id !== 2054);
       
 
-    // updateIngredientList.forEach((ingredient, index) => {
-    //   answers.forEach(a => {
-    //     if (ingredient.tags.some(x => x.name === a))
-    //       ingredient.rank = ingredient.rank + 1;
-    //   })
-    // })
-    // updateIngredients(selectFinalIngredients(updateIngredientList));
-    // console.log(updateIngredientList.map(x => {
-    //   return {
-    //     name: x.name,
-    //     rank: x.rank
-    //   }
-    // }))
+    updateIngredientList.forEach(ingredient => {
+      filteredAnswers.forEach(a => {
+        ingredient.tags.forEach(tag => {
+          if (tag.name === a)
+            ingredient.rank = ingredient.rank + 1;
+        })
+      })
+    })
+    updateIngredients(selectFinalIngredients(updateIngredientList, skinConcernAnswers));
+    console.log('ingredientsAndRank', updateIngredientList.map(x => {
+      return {
+        name: x.name,
+        rank: x.rank
+      }
+    }));
   }
 
-  const selectFinalIngredients = (rankedIngredients: IIngredient[]) => {
+  const selectFinalIngredients = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+    const categorisedIngredients: {concernOne: string, concernTwo: string, ingredientsOne: IIngredient[], ingredientsTwo: IIngredient[]} = {
+      concernOne: "",
+      concernTwo: "",
+      ingredientsOne: [],
+      ingredientsTwo: [],
+    }
+    rankedIngredients.forEach(x => {
+      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[0])) {
+        categorisedIngredients.concernOne = skinConcerns[0];
+        categorisedIngredients.ingredientsOne.push(x);
+      }
+      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[1])) {
+        categorisedIngredients.concernTwo = skinConcerns[1];
+        categorisedIngredients.ingredientsTwo.push(x);
+      }
+    });
     // const tags = rankedIngredients.flatMap(r => r.tags);
     // const tagsWithOccurence = [...getTagsWithOccurence(tags)];
-    
     // const uniqueTags = removeDuplicates(tagsWithOccurence).sort((a,b) => a.total - b.total).reverse();
+    // console.log('uniqueTags', uniqueTags)
+    
     // const conditionOneIngredients = 
     //   rankedIngredients.filter(x => x.tags.some(t => t.slug === uniqueTags[0].slug));
     // const conditionTwoIngredients = rankedIngredients
@@ -269,7 +292,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return tags.map(c => {
       return {
         tagName: c.name,
-        total: tags.filter(n => n.slug === c.slug).length,
+        total: ingredients.filter(ing => ing.tags.some(t => t.name === c.name)).length,
         slug: c.slug
       };
     });
