@@ -101,7 +101,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  function returnCompletedQuizData(): IQuizData[] {
+  const returnCompletedQuizData = (): IQuizData[] => {
     const quiz: IQuizData[] = quizQuestions.map(question => (
       {
         questionId: question.id,
@@ -112,7 +112,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return quiz;
   }
 
-  function returnAnswers(answers: IAnswer[]) {
+  const returnAnswers = (answers: IAnswer[]) => {
     const selectedAnswers = answers.filter(answer => answer.selected).map(answer => answer.value)[0];
     if (Array.isArray(selectedAnswers))
       return selectedAnswers.join(" & ");
@@ -176,67 +176,83 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const rankIngredients = () => {
 
+    const skinConcernAnswers: string[] = [];
     const answers = quizQuestions.map(q => {
+      if (q.id === 706) {
+        skinConcernAnswers.push(...q.answers.filter(a => a.selected).map((x,i) => x.meta[i]));
+        return;
+      }
       const index = q.answers.findIndex(x => x.selected);
       return q.answers[index].meta[index];
     });
+    answers.push(...skinConcernAnswers);
+    const filteredAnswers = answers.filter(x => x !== undefined);
 
-    let updateIngredientList: IIngredient[] = ingredients;
 
-    if (answers.some(x => x.toLowerCase() === 'lemon oil'))
-      updateIngredientList = updateIngredientList.filter(x => x.id !== 697);
+    // let updateIngredientList: IIngredient[] = ingredients;
 
-    if (answers.some(x => x.toLowerCase() === 'sensitive'))
-      updateIngredientList = updateIngredientList
-        .filter(x => x.id !== 697)
-        .filter(x => x.id !== 2054);
+    // if (answers.some(x => x.toLowerCase() === 'lemon oil'))
+    //   updateIngredientList = updateIngredientList.filter(x => x.id !== 697);
+
+    // if (answers.some(x => x.toLowerCase() === 'sensitive'))
+    //   updateIngredientList = updateIngredientList
+    //     .filter(x => x.id !== 697)
+    //     .filter(x => x.id !== 2054);
       
 
-    updateIngredientList.forEach((ingredient, index) => {
-      answers.forEach(a => {
-        if (ingredient.tags.some(x => x.name === a))
-          ingredient.rank = ingredient.rank + 1;
-      })
-    })
-    updateIngredients(selectFinalIngredients(updateIngredientList));
-    
+    // updateIngredientList.forEach((ingredient, index) => {
+    //   answers.forEach(a => {
+    //     if (ingredient.tags.some(x => x.name === a))
+    //       ingredient.rank = ingredient.rank + 1;
+    //   })
+    // })
+    // updateIngredients(selectFinalIngredients(updateIngredientList));
+    // console.log(updateIngredientList.map(x => {
+    //   return {
+    //     name: x.name,
+    //     rank: x.rank
+    //   }
+    // }))
   }
 
   const selectFinalIngredients = (rankedIngredients: IIngredient[]) => {
-    const tags = rankedIngredients.flatMap(r => r.tags);
-    const tagsWithOccurence = [...getTagsWithOccurence(tags)];
+    // const tags = rankedIngredients.flatMap(r => r.tags);
+    // const tagsWithOccurence = [...getTagsWithOccurence(tags)];
     
-    const uniqueTags = removeDuplicates(tagsWithOccurence).sort((a,b) => a.total - b.total).reverse();
-    const conditionOneIngredients = 
-      rankedIngredients.filter(x => x.tags.some(t => t.slug === uniqueTags[0].slug));
-    const conditionTwoIngredients = rankedIngredients
-        .filter(x => x.tags.some(t => t.slug === uniqueTags[1].slug));
+    // const uniqueTags = removeDuplicates(tagsWithOccurence).sort((a,b) => a.total - b.total).reverse();
+    // const conditionOneIngredients = 
+    //   rankedIngredients.filter(x => x.tags.some(t => t.slug === uniqueTags[0].slug));
+    // const conditionTwoIngredients = rankedIngredients
+    //     .filter(x => x.tags.some(t => t.slug === uniqueTags[1].slug));
     
-    const highestRankedIngredientsOne = getHighestRankedIngredients(conditionOneIngredients);
-    const highestRankedIngredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(highestRankedIngredientsOne[0].id, conditionTwoIngredients));
+    // const highestRankedIngredientsOne = getHighestRankedIngredients(conditionOneIngredients);
+    // const highestRankedIngredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(highestRankedIngredientsOne[0].id, conditionTwoIngredients));
 
-    let ingredientOne: IIngredient;
-    let ingredientTwo: IIngredient;
+    // let ingredientOne: IIngredient;
+    // let ingredientTwo: IIngredient;
 
-    if (highestRankedIngredientsOne.length > 1) {
-      ingredientOne = conditionOneIngredients[Math.floor(Math.random() * Math.floor(highestRankedIngredientsOne.length))];
-    } else {
-      ingredientOne = highestRankedIngredientsOne[0];
-    }
+    // if (highestRankedIngredientsOne.length > 1) {
+    //   ingredientOne = conditionOneIngredients[Math.floor(Math.random() * Math.floor(highestRankedIngredientsOne.length))];
+    // } else {
+    //   ingredientOne = highestRankedIngredientsOne[0];
+    // }
 
-    if (highestRankedIngredientsTwo.length > 1) {
-      const unselectedIngredients = highestRankedIngredientsTwo.filter(x => x.id !== ingredientOne.id);
-      ingredientTwo = unselectedIngredients[Math.floor(Math.random() * Math.floor(unselectedIngredients.length))];
-    } else {
-      ingredientTwo = highestRankedIngredientsTwo[0];
-    }
+    // if (highestRankedIngredientsTwo.length > 1) {
+    //   const unselectedIngredients = highestRankedIngredientsTwo.filter(x => x.id !== ingredientOne.id);
+    //   ingredientTwo = unselectedIngredients[Math.floor(Math.random() * Math.floor(unselectedIngredients.length))];
+    // } else {
+    //   ingredientTwo = highestRankedIngredientsTwo[0];
+    // }
+    // console.log('condition one list', conditionOneIngredients);
+    // console.log('condition two list', conditionOneIngredients);
+    // console.log('conditions with rank', uniqueTags);
 
-    rankedIngredients.forEach(x => {
-      if(x.id === ingredientTwo.id)
-        x.isSelectedForSummary = true;
-      if(x.id === ingredientOne.id)
-        x.isSelectedForSummary = true;
-    });
+    // rankedIngredients.forEach(x => {
+    //   if(x.id === ingredientTwo.id)
+    //     x.isSelectedForSummary = true;
+    //   if(x.id === ingredientOne.id)
+    //     x.isSelectedForSummary = true;
+    // });
     return rankedIngredients;
   }
 
