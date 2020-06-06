@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledSummaryButton } from './Button';
@@ -20,7 +20,13 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients } = useContext(QuizContext);
+
+  useEffect(() => {
+    rankIngredients();
+  }, []);
+
+
   const sortedIngredients =
   ingredients
     .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
@@ -170,6 +176,50 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const limitCharacterLength = (description: string) => {
     return description.slice(0, 73);
+  }
+
+  const rankIngredients = () => {
+
+    const answers = quizQuestions.map(q => {
+      const index = q.answers.findIndex(x => x.selected);
+      return q.answers[index].meta[index];
+    });
+
+
+    const rankedIngredients = ingredients.map(ingredient => {
+      answers.forEach(a => {
+        if (ingredient.tags.some(x => x.name === a)) {
+          ingredient.rank = ingredient.rank + 1;
+        }
+        if ("lemon oil" === a.toLowerCase()) {
+          derankSomeIngredients();
+        }
+        if ("sensitive" === a.toLowerCase()) {
+          derankSomeIngredients(true);
+        }
+      })
+      return ingredient;
+    })
+
+
+    updateIngredients(rankedIngredients);
+  }
+
+  const derankSomeIngredients = (derankTwoOils: boolean = false) => {
+    ingredients.map(x => {
+      if (derankTwoOils) {
+        if ((x.id === 697) || (x.id === 2054)) {
+          console.log(x.name);
+          x.rank = x.rank - 1;
+        }
+      } else {
+        if (x.id === 697) {
+          console.log(x.name);
+          x.rank = x.rank - 1;
+        }
+      }
+      return x;
+    })
   }
 
   return (

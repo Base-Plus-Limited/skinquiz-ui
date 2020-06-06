@@ -48,7 +48,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
             question.customAnswer = "";
             answer.selected = true;
             question.answered = true;
-            doValuesMatch(answeredQuestion.answers[answerIndex], answerIndex); // refactor this to return a boolean
           }
         })
       }
@@ -213,30 +212,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       question_id: answeredQuestion.id
     });
     updateQuestionsAnswered([answeredQuestion]);
-  }
-
-  const rankIngredients = (answerValue: string, tagValue: string, ingredient: IIngredient) => {
-    ingredient.previouslyRanked = false;
-    if (answerValue === tagValue) {
-      ingredient.previouslyRanked = true;
-      ingredient.rank = ingredient.rank + 1;
-    }
-  }
-
-  const doValuesMatch = (answer: IAnswer, answerIndex: number) => {
-    ingredients.forEach((ingredient: IIngredient) => {
-      ingredient.tags.forEach(tag => {
-        if(answer.meta[answerIndex] === undefined)
-          return;
-        if (answer.meta[answerIndex].includes(',')) {
-          const metaArray = answer.meta[answerIndex].split(',');
-          rankIngredients(metaArray[answerIndex], tag.name, ingredient);
-        } else {
-          rankIngredients(answer.meta[answerIndex], tag.name, ingredient);
-        }
-      })
-    })
-    updateIngredients(ingredients);
   }
 
   const logSkinConditionAnswers = (answers: IAnswer[]) => {
