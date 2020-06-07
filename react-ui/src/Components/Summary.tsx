@@ -113,10 +113,10 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const returnAnswers = (answers: IAnswer[]) => {
-    const selectedAnswers = answers.filter(answer => answer.selected).map(answer => answer.value)[0];
-    if (Array.isArray(selectedAnswers))
-      return selectedAnswers.join(" & ");
-    return selectedAnswers;
+    const selectedAnswers = answers.filter(answer => answer.selected);
+    if (selectedAnswers.length === 2)
+      return selectedAnswers.map(x => x.value).join(" & ");
+    return String(selectedAnswers[0].value);
   }
 
   const sendCompletedQuizQuestionsToApi = () => {
