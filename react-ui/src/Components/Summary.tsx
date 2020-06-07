@@ -67,14 +67,15 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       amendSelected: true
     }).then(() => {
       setQuizToCompleted(true);
-      sendCompletedQuizQuestionsToApi();
-      window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+      sendCompletedQuizQuestionsToApi()
+        .then(x => {
+          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+        })
     });
   }
 
   const sendToWordpress = async () => {
     setQuizToCompleted(true);
-    sendCompletedQuizQuestionsToApi();
     return fetch('/api/new-product', {
       method: 'POST',
       headers: {
@@ -88,8 +89,12 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       setApplicationError(errorResponse);
     }))
     .then((product: WordpressProduct) => {
-      if(product)
-        window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+      if(product) {
+        sendCompletedQuizQuestionsToApi()
+          .then(x => {
+            window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+          });
+        }
     })
     .catch((error: IErrorResponse) => {
       setApplicationError({
