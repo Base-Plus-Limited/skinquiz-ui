@@ -209,9 +209,9 @@ var App = /** @class */ (function () {
                 question_id: question_id,
                 ingredients: ingredients
             }, function (response) {
-                if (response) {
+                if (response instanceof Error) {
                     res.send(response);
-                    honeybadger_1["default"].notify("Error logging analytics: " + response, ErrorTypes_1.IHoneyBadgerErrorTypes.ANALYTICS);
+                    honeybadger_1["default"].notify("Error logging analytics: " + response.message, ErrorTypes_1.IHoneyBadgerErrorTypes.ANALYTICS);
                     return;
                 }
                 res.send(response);
@@ -222,11 +222,14 @@ var App = /** @class */ (function () {
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/save-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var quiz, completedQuiz;
+            var quiz, utc, gmtTime, completedQuiz;
             return __generator(this, function (_a) {
                 quiz = req.body;
+                utc = new Date();
+                gmtTime = utc.setHours(utc.getHours() + 1);
                 completedQuiz = new this.completedQuizModel({
-                    quiz: quiz
+                    quiz: quiz,
+                    date: gmtTime
                 });
                 completedQuiz.save()
                     .then(function (dbResponse) {
@@ -280,6 +283,11 @@ var App = /** @class */ (function () {
                             return ingredient;
                         }); })
                             .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) {
+                            if (error instanceof TypeError) {
+                                honeybadger_1["default"].notify(error.name + ": " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.CODE);
+                                res.status(500).end();
+                                return;
+                            }
                             honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
                             res.status(error.status).send(_this.handleError(error));
                         })];

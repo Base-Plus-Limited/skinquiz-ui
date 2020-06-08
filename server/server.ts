@@ -154,10 +154,11 @@ class App {
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
-    router.post('/save-quiz', bodyParser.json(), async (req, res) => {
+  router.post('/save-quiz', bodyParser.json(), async (req, res) => {
       const quiz: IQuizData[] = req.body;
       const completedQuiz = new this.completedQuizModel({
-        quiz
+        quiz,
+        date: this.getGmtTime()
       });
       completedQuiz.save()
         .then(dbResponse => {
@@ -177,7 +178,8 @@ class App {
       const customProductRequest: ICustomProductDBModel = req.body;
       const customProduct = new this.customProductModel({
         ingredients: customProductRequest.ingredients,
-        amended: customProductRequest.amended
+        amended: customProductRequest.amended,
+        date: this.getGmtTime()
       });
       customProduct.save()
         .then(dbResponse => {
@@ -223,6 +225,11 @@ class App {
     router.get('*', function (req, res) {
       res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
+  }
+
+  private getGmtTime = () => {
+    const utc = new Date();
+    return utc.setHours( utc.getHours() + 1);
   }
 
   private writeDbDataTOCSV = (dbData: (ICompletedQuizDBModel & mongoose.Document)[]) => {
