@@ -233,7 +233,7 @@ var App = /** @class */ (function () {
                     console.log("Saved completed quiz with id " + dbResponse.id);
                     res.json(dbResponse);
                 })["catch"](function (error) {
-                    honeybadger_1["default"].notify("Error saving quiz: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
+                    honeybadger_1["default"].notify("Error saving quiz: " + error, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
                     res.send(error);
                 });
                 return [2 /*return*/];
@@ -276,6 +276,7 @@ var App = /** @class */ (function () {
                             ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
                             ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
                             ingredient.previouslyRanked = false;
+                            ingredient.isSelectedForSummary = false;
                             return ingredient;
                         }); })
                             .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) {

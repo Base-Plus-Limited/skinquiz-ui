@@ -15,7 +15,7 @@ export interface SharedFooterProps {
 
 const StyledFooter: React.FC<FooterProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, isQuizCompleted, quizQuestions, uniqueId } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, uniqueId } = useContext(QuizContext);
 
   
   const removeLastQuestionAnswered = () => {
@@ -51,17 +51,21 @@ const StyledFooter: React.FC<FooterProps> = () => {
     updateIngredients([...derankedIngredients])
   }
 
+  const areAllQuestionsAnswered = () => {
+    return quizQuestions.filter(x => x.answered).length === quizQuestions.length;
+  }
+
   return (
     <Footer>
-      <InnerFooterWrap progressCount={progressCount} isQuizCompleted={isQuizCompleted}>
-      <ProgressCount progressCount={progressCount} isQuizCompleted={isQuizCompleted}>
+      <InnerFooterWrap progressCount={progressCount} isQuizCompleted={areAllQuestionsAnswered()}>
+      <ProgressCount progressCount={progressCount} isQuizCompleted={areAllQuestionsAnswered()}>
         <ProgressCountSmall>
           {progressCount}
         </ProgressCountSmall>
         /{quizQuestions.length > 0 ? quizQuestions.length : '-'}
       </ProgressCount>
       {
-        progressCount > 1 && !isQuizCompleted ?
+        (progressCount > 1) && (areAllQuestionsAnswered() === false)  ?
         <StyledBackButton onClick={removeLastQuestionAnswered}>back</StyledBackButton>
         : ''
       }

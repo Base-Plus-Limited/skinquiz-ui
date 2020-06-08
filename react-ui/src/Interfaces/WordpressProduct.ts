@@ -1,6 +1,7 @@
 export interface IIngredient extends WordpressProduct {
   rank: number;
   previouslyRanked: boolean
+  isSelectedForSummary: boolean
 }
 
 export interface WordpressProduct {
@@ -61,7 +62,7 @@ export interface WordpressProduct {
   parent_id: number;
   purchase_note: string;
   categories: Category[];
-  tags: Category[];
+  tags: Tag[];
   images: Image[];
   attributes: any[];
   default_attributes: any[];
@@ -97,6 +98,12 @@ interface Image {
   src: string;
   name: string;
   alt: string;
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
 }
 
 interface Category {

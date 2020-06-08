@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledSummaryButton } from './Button';
@@ -8,7 +8,7 @@ import StyledHR from './Shared/HR';
 import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
-import { WordpressProduct } from '../Interfaces/WordpressProduct';
+import { WordpressProduct, IIngredient, Tag } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
 import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
@@ -20,40 +20,43 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId } = useContext(QuizContext);
-  const sortedIngredients =
-  ingredients
-    .sort((ingredientA, ingredientB) => ingredientA.rank - ingredientB.rank)
-    .reverse()
-    .slice(0, 2);
+  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients } = useContext(QuizContext);
 
-  function getProductName(): string {
+  useEffect(() => {
+    rankIngredients();
+  }, []);
+
+  const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
+
+  const getProductName = (): string => {
     if(userName)
       return `${userName}'s Bespoke Product`;
     return `Your Bespoke Product`;
   }
 
-  function getTotalPrice() {
+  const getTotalPrice = () => {
     const total = Number(sortedIngredients[0].price) + Number(sortedIngredients[1].price) + Number(baseIngredient.price);
     return total.toFixed(2);
   }
 
-  const newProduct = {
-    name: getProductName(),
-    type: 'simple',
-    regular_price: getTotalPrice(),
-    description: '',
-    short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
-    categories: [
-      {
-        id: 21
-      }
-    ],
-    images: [
-      {
-        src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
-      }
-    ]
+  const getNewProduct = () => {
+    return {
+      name: getProductName(),
+      type: 'simple',
+      regular_price: getTotalPrice(),
+      description: '',
+      short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
+      categories: [
+        {
+          id: 21
+        }
+      ],
+      images: [
+        {
+          src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
+        }
+      ]
+    }
   }
 
   const amendIngredients = async () => {
@@ -64,29 +67,34 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       amendSelected: true
     }).then(() => {
       setQuizToCompleted(true);
-      sendCompletedQuizQuestionsToApi();
-      window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+      sendCompletedQuizQuestionsToApi()
+        .then(x => {
+          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+        })
     });
   }
 
   const sendToWordpress = async () => {
     setQuizToCompleted(true);
-    sendCompletedQuizQuestionsToApi();
     return fetch('/api/new-product', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       cache: 'no-cache',
-      body: JSON.stringify(newProduct)
+      body: JSON.stringify(getNewProduct())
     })
     .then(res => res.ok ? res.json() : res.json().then((errorResponse: IErrorResponse) => {
       errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
       setApplicationError(errorResponse);
     }))
     .then((product: WordpressProduct) => {
-      if(product)
-        window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+      if(product) {
+        sendCompletedQuizQuestionsToApi()
+          .then(x => {
+            window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+          });
+        }
     })
     .catch((error: IErrorResponse) => {
       setApplicationError({
@@ -98,7 +106,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  function returnCompletedQuizData(): IQuizData[] {
+  const returnCompletedQuizData = (): IQuizData[] => {
     const quiz: IQuizData[] = quizQuestions.map(question => (
       {
         questionId: question.id,
@@ -109,11 +117,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return quiz;
   }
 
-  function returnAnswers(answers: IAnswer[]) {
-    const selectedAnswers = answers.filter(answer => answer.selected).map(answer => answer.value)[0];
-    if (Array.isArray(selectedAnswers))
-      return selectedAnswers.join(" & ");
-    return selectedAnswers;
+  const returnAnswers = (answers: IAnswer[]) => {
+    const selectedAnswers = answers.filter(answer => answer.selected);
+    if (selectedAnswers.length === 2)
+      return selectedAnswers.map(x => x.value).join(" & ");
+    return String(selectedAnswers[0].value);
   }
 
   const sendCompletedQuizQuestionsToApi = () => {
@@ -127,7 +135,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     })
     .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
     .catch(error => {
-      console.log(error);
       setApplicationError({
         error: true,
         code: error.status,
@@ -172,6 +179,102 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return description.slice(0, 73);
   }
 
+  const rankIngredients = () => {
+
+    const skinConcernAnswers: string[] = [];
+    const answers = quizQuestions.map(q => {
+      if (q.id === 706) {
+        const selected = (q.answers.map((a, i) => {
+          if (a.selected)
+            return a.meta[i];
+        }) as string[]).filter(x => x !== undefined);
+        skinConcernAnswers.push(...selected);
+        return;
+      }
+      const index = q.answers.findIndex(x => x.selected);
+      return q.answers[index].meta[index];
+    });
+    answers.push(...skinConcernAnswers);
+    const filteredAnswers = (answers.filter(x => x !== undefined)) as string[];
+
+
+    let updatedIngredientList: IIngredient[] = ingredients;
+
+    if (filteredAnswers.some(x => x.toLowerCase() === 'lemon oil'))
+      updatedIngredientList = updatedIngredientList.filter(x => x.id !== 697);
+
+    if (filteredAnswers.some(x => x.toLowerCase() === 'sensitive'))
+      updatedIngredientList = updatedIngredientList
+        .filter(x => x.id !== 697)
+        .filter(x => x.id !== 2054);
+      
+
+    updatedIngredientList.forEach(ingredient => {
+      filteredAnswers.forEach(a => {
+        ingredient.tags.forEach(tag => {
+          if (tag.name === a)
+            ingredient.rank = ingredient.rank + 1;
+        })
+      })
+    })
+    updateIngredients(selectFinalIngredients(updatedIngredientList, skinConcernAnswers));
+  }
+
+  const selectFinalIngredients = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+    const categorisedIngredients: {concernOne: string, concernTwo: string, ingredientsOne: IIngredient[], ingredientsTwo: IIngredient[]} = {
+      concernOne: "",
+      concernTwo: "",
+      ingredientsOne: [],
+      ingredientsTwo: [],
+    }
+    rankedIngredients.forEach(x => {
+      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[0])) {
+        categorisedIngredients.concernOne = skinConcerns[0];
+        categorisedIngredients.ingredientsOne.push(x);
+      }
+      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[1])) {
+        categorisedIngredients.concernTwo = skinConcerns[1];
+        categorisedIngredients.ingredientsTwo.push(x);
+      }
+    });
+    
+    categorisedIngredients.ingredientsOne = getHighestRankedIngredients(categorisedIngredients.ingredientsOne);
+    categorisedIngredients.ingredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(categorisedIngredients.ingredientsOne[0].id, categorisedIngredients.ingredientsTwo));
+
+    let ingredientOne: IIngredient;
+    let ingredientTwo: IIngredient;
+
+    if (categorisedIngredients.ingredientsOne.length > 1) {
+      ingredientOne = categorisedIngredients.ingredientsOne[Math.floor(Math.random() * Math.floor(categorisedIngredients.ingredientsOne.length))];
+    } else {
+      ingredientOne = categorisedIngredients.ingredientsOne[0];
+    }
+
+    if (categorisedIngredients.ingredientsTwo.length > 1) {
+      const unselectedIngredients = categorisedIngredients.ingredientsTwo.filter(x => x.id !== ingredientOne.id);
+      ingredientTwo = unselectedIngredients[Math.floor(Math.random() * Math.floor(unselectedIngredients.length))];
+    } else {
+      ingredientTwo = categorisedIngredients.ingredientsTwo[0];
+    }
+
+    rankedIngredients.forEach(x => {
+      if(x.id === ingredientTwo.id)
+        x.isSelectedForSummary = true;
+      if(x.id === ingredientOne.id)
+        x.isSelectedForSummary = true;
+    });
+    return rankedIngredients;
+  }
+
+  const removeIngredientIfInSecondList = (id: number, ingredientListTwo: IIngredient[]) => {
+    return ingredientListTwo.filter(x => x.id !== id);
+  } 
+
+  const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
+    const highestNum = Math.max(...ingredients.map(x => x.rank));
+    return ingredients.filter(x => x.rank === highestNum);
+  }
+
   return (
     <React.Fragment>
       <SummaryWrap>
@@ -213,7 +316,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                   }
                 </SummaryIngredientWrap>
                 <StyledHR></StyledHR>
-                <StyledSummaryButton addMargin onClick={amendIngredients}>Amend</StyledSummaryButton>
+                <StyledSummaryButton addMargin onClick={amendIngredients}>Change</StyledSummaryButton>
                 <StyledSummaryButton addMargin onClick={saveProductToDatabase}>Buy now</StyledSummaryButton>
               </React.Fragment>
           }
