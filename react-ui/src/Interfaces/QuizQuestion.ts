@@ -9,6 +9,7 @@ export interface IQuizQuestion {
   displayAnswersAsADropdownOnMobile: boolean;
   isMobilePanelOpen: boolean;
   isSkintoneQuestion: boolean;
+  isFullScreen: boolean;
   isSkinConditionQuestion: boolean;
   answers: IAnswer[];
 }

@@ -269,6 +269,7 @@ class App {
       displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
       isMobilePanelOpen: false,
       isInputVisible: false,
+      isFullScreen: false,
       totalAnswersSelected: 0,
       question: entities.decode(question.title.rendered),
       answers: answerArr.map((answer, index) => {
