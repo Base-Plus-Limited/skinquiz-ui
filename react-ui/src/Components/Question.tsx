@@ -1,10 +1,9 @@
-import React, { useContext, ChangeEvent, SyntheticEvent } from 'react';
+import React, { useContext, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import { IQuizQuestion, IAnswer } from '../Interfaces/QuizQuestion';
 import StyledAnswer from './Answer';
 import StyledSkintoneAnswer from './SkintoneAnswer';
 import { QuizContext } from '../QuizContext';
-import { IIngredient } from '../Interfaces/WordpressProduct';
 import StyledInput from './Shared/Input';
 import StyledPrompt from './Prompt';
 import { StyledButton } from './Button';
@@ -56,7 +55,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     updateQuizQuestions(updatedQuestions);
     if (answeredQuestion.answered)
       doQuestionIdsMatch(answeredQuestion);
-    // getCompletedQuizQuestions();
   }
 
   const answerSkinConcernQuestion = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
@@ -171,27 +169,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
   const setCustomAnswerAsSelected = (question: IQuizQuestion) => {
     question.answers[question.answers.length - 1].selected = true;
   }
-
-  const getCompletedQuizQuestions = () => { // TRIGGGER THIS WHEN FINAL INGREDIENTS ARE BEING SENT TO WORDPRESS
-    // if (progressCount === 4) {
-    //   const completedQuizAnswers: ICompletedQuiz[] = questionsAnswered.map(answeredQ => {
-    //     const { question, answers, id } = answeredQ;
-    //     return {
-    //       id,
-    //       question,
-    //       answer: answers.filter(answer => answer.selected)[0].value
-    //     }
-    //   })
-    //   try {
-    //     sendCompletedQuizQuestionsToApi(completedQuizAnswers)
-    //   }
-    //   catch (error) {
-    //     console.log(error)
-    //   }
-    // }
-  }
-
-
 
   const doQuestionIdsMatch = (answeredQuestion: IQuizQuestion) => {
     if(questionsAnswered.length) {
@@ -330,48 +307,101 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     <QuestionWrapper>
       {
         questions.map(question =>
-          question.isSkinConditionQuestion ?
-          <SkinConditionQuestion key={question.id}>
-              <div>
-                {question.question}<br /><br />
-                {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
-                {question.answers.slice(0,3).map((answer: IAnswer, index: number) => {
-                  return <StyledAnswer isDisabled={false} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
-                  </StyledAnswer>
-                  })}
-                <br/>
-                <StyledHR></StyledHR>
-                {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
-                {question.answers.slice(3).map((answer: IAnswer, index: number) => {
-                  return <StyledAnswer value={answer.value} isDisabled={false} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
-                  </StyledAnswer>
-                })}
-                <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
-                {
-                  selectedSkinConditions.length === 2 ?
-                  <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>
-                  : ""
-                }
-              </div>
-              <FaceImageWrapper>
-                <CheekImageArea style={cheekZoneMargin()} src={CheekArea}></CheekImageArea>
-                <TZoneImageArea style={returnTZoneMargin()} src={TZoneArea}></TZoneImageArea>
-                <img src={faceImg} alt="" />
-              </FaceImageWrapper>
-          </SkinConditionQuestion>
-          :
-          <HalfScreenQuestion key={question.id}>
-            {question.question}<br />
-            {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
-            {
-              question.isInputVisible ?
-                <span>
-                  <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
-                  <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
-                  <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>save</StyledButton>
-                </span>
+          question.isFullScreen ?
+            <FullScreenQuestion key={question.id}>
+              {
+                question.isSkinConditionQuestion ?
+                  <SkinConditionQuestion key={question.id}>
+                      <div>
+                        {question.question}<br /><br />
+                        {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[0]}></StyledPrompt>}  <br />
+                        {question.answers.slice(0,3).map((answer: IAnswer, index: number) => {
+                          return <StyledAnswer isDisabled={false} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}>{answer.value}
+                          </StyledAnswer>
+                          })}
+                        <br/>
+                        <StyledHR></StyledHR>
+                        {question.prompt && <StyledPrompt noMargin={true} prompt={question.prompt[1]}></StyledPrompt>}  <br />
+                        {question.answers.slice(3).map((answer: IAnswer, index: number) => {
+                          return <StyledAnswer value={answer.value} isDisabled={false} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
+                          </StyledAnswer>
+                        })}
+                        <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
+                        {
+                          selectedSkinConditions.length === 2 ?
+                          <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>
+                          : ""
+                        }
+                      </div>
+                      <FaceImageWrapper>
+                        <CheekImageArea style={cheekZoneMargin()} src={CheekArea}></CheekImageArea>
+                        <TZoneImageArea style={returnTZoneMargin()} src={TZoneArea}></TZoneImageArea>
+                        <img src={faceImg} alt="" />
+                      </FaceImageWrapper>
+                  </SkinConditionQuestion>
                 :
-                <React.Fragment>
+                  <React.Fragment>
+                  {question.question}<br />
+                  {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
+                  {
+                    question.isInputVisible ?
+                      <span>
+                        <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
+                        <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+                        <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>save</StyledButton>
+                      </span>
+                      :
+                      <React.Fragment>
+                        {
+                          question.isSkintoneQuestion ?
+                            <MobileAnswersWrapper>
+                              <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                              <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                                {
+                                  question.answers.map((answer: IAnswer, index: number) => {
+                                    return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}>
+                                    </StyledSkintoneAnswer>
+                                  })
+                                }
+                                <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
+                              </Panel>
+                            </MobileAnswersWrapper>
+                            :
+                            question.displayAnswersAsADropdownOnMobile ?
+                              <MobileAnswersWrapper>
+                                <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                                <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                                  {
+                                    question.answers.map((answer, index) => (
+                                      <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                                    ))
+                                  }
+                                  <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
+                                </Panel>
+                              </MobileAnswersWrapper>
+                              :
+                              question.answers.map((answer: IAnswer, index: number) => (
+                                <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
+                              ))
+                        }
+                      </React.Fragment>
+                  }
+                </React.Fragment>
+              }
+            </FullScreenQuestion>
+          :
+            <HalfScreenQuestion key={question.id}>
+              {question.question}<br />
+              {question.prompt && <StyledPrompt prompt={question.prompt}></StyledPrompt>}  <br />
+              {
+                question.isInputVisible ?
+                  <span>
+                    <StyledInput logInputValue={logQuestionInput} width="500px" placeholderText="Let us know" type="text"></StyledInput>
+                    <StyledButton addMargin onClickHandler={() => customAnswerWrapperHandler()}>close</StyledButton>
+                    <StyledButton onClickHandler={() => customAnswerWrapperHandler(question.id)}>save</StyledButton>
+                  </span>
+                  :
+                  <React.Fragment>
                     {
                       question.isSkintoneQuestion ?
                         <MobileAnswersWrapper>
@@ -404,9 +434,9 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                             <StyledAnswer isDisabled={answer.disable} selected={answer.selected} value={answer.value} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                           ))
                     }
-                </React.Fragment>
-            }
-          </HalfScreenQuestion>
+                  </React.Fragment>
+              }
+            </HalfScreenQuestion>
         )
       }
     </QuestionWrapper>
@@ -489,6 +519,15 @@ const HalfScreenQuestion = styled.div`
   padding: 0 10px;
   font-size: 11pt;
   overflow: hidden;
+  font-family: ${props => props.theme.subHeadingFont};
+`;
+
+const FullScreenQuestion = styled.div`
+  margin: 0;
+  padding: 0 10px;
+  font-size: 11pt;
+  overflow: hidden;
+  grid-row: 1/ span 2;
   font-family: ${props => props.theme.subHeadingFont};
 `;
 
