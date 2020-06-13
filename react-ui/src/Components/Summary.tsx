@@ -44,6 +44,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       name: getProductName(),
       type: 'simple',
       regular_price: getTotalPrice(),
+      purchase_note: `Your custom mixture will include ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
       description: '',
       short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
       categories: [
