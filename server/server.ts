@@ -237,8 +237,9 @@ class App {
     if (fs.existsSync(filename)) {
       var stats = fs.statSync(filename);
       console.log('current file size', stats["size"] / 1000000.0);   
+      console.log('deleting file...');   
       fs.unlinkSync(filename);  
-      console.log('does current file exist:', fs.existsSync(filename));
+      console.log('delete successful?', fs.existsSync(filename));
     }
 
     const output: string[] = [];
@@ -261,8 +262,9 @@ class App {
       output.push(row.join());
     });
     fs.writeFileSync(filename, output.join(os.EOL));
+    console.log('has a new file been written?', fs.existsSync(filename));
     var updatedStats = fs.statSync(filename);
-    console.log('updated file size', updatedStats["size"] / 1000000.0);   
+    console.log('new file size', updatedStats["size"] / 1000000.0);   
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {
