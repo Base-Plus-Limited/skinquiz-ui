@@ -64,27 +64,40 @@ var App = /** @class */ (function () {
         this.customProductModel = this.createCustomProductModel();
         this.mixPanelClient = mixpanel.init("" + process.env.MIXPANEL_ID);
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+        this.getGmtTime = function () {
+            var utc = new Date();
+            return utc.setHours(utc.getHours() + 1);
+        };
         this.writeDbDataTOCSV = function (dbData) {
-            if (dbData.length > 0) {
-                var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+            var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
+            if (fs_1["default"].existsSync(filename)) {
+                var stats = fs_1["default"].statSync(filename);
+                console.log('current file size', stats["size"] / 1000000.0);
                 fs_1["default"].unlinkSync(filename);
-                var output_1 = [];
-                var dbDataAsObject = dbData[0].toObject();
-                var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
-                    if (quiz.question.includes(','))
-                        return quiz.question.split(',').join('-');
-                    return quiz.question;
-                })));
-                output_1.push(dataHeadings.join());
-                dbData.forEach(function (dbEntry) {
-                    var row = [];
-                    var JSDbObject = dbEntry.toObject();
-                    var quizDate = new Date(JSDbObject.date);
-                    row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) { return quiz.answer; })));
-                    output_1.push(row.join());
-                });
-                fs_1["default"].writeFileSync(filename, output_1.join(os_1["default"].EOL));
+                console.log('does file exist', fs_1["default"].existsSync(filename));
             }
+            var output = [];
+            var dbDataAsObject = dbData[0].toObject();
+            var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
+                if (quiz.question.includes(','))
+                    return quiz.question.split(',').join('-');
+                return quiz.question;
+            })));
+            output.push(dataHeadings.join());
+            dbData.forEach(function (dbEntry) {
+                var row = [];
+                var JSDbObject = dbEntry.toObject();
+                var quizDate = new Date(JSDbObject.date);
+                row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) {
+                    if (quiz.answer.includes(','))
+                        return quiz.answer.split(',').join(' - ');
+                    return quiz.answer;
+                })));
+                output.push(row.join());
+            });
+            fs_1["default"].writeFileSync(filename, output.join(os_1["default"].EOL));
+            var updatedStats = fs_1["default"].statSync(filename);
+            console.log('updated file size', updatedStats["size"] / 1000000.0);
         };
         this.express = express_1["default"]();
         this.configureHoneyBadger();
@@ -222,14 +235,12 @@ var App = /** @class */ (function () {
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/save-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var quiz, utc, gmtTime, completedQuiz;
+            var quiz, completedQuiz;
             return __generator(this, function (_a) {
                 quiz = req.body;
-                utc = new Date();
-                gmtTime = utc.setHours(utc.getHours() + 1);
                 completedQuiz = new this.completedQuizModel({
                     quiz: quiz,
-                    date: gmtTime
+                    date: this.getGmtTime()
                 });
                 completedQuiz.save()
                     .then(function (dbResponse) {
@@ -251,7 +262,8 @@ var App = /** @class */ (function () {
                 customProductRequest = req.body;
                 customProduct = new this.customProductModel({
                     ingredients: customProductRequest.ingredients,
-                    amended: customProductRequest.amended
+                    amended: customProductRequest.amended,
+                    date: this.getGmtTime()
                 });
                 customProduct.save()
                     .then(function (dbResponse) {
@@ -319,6 +331,7 @@ var App = /** @class */ (function () {
             displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
             isMobilePanelOpen: false,
             isInputVisible: false,
+            isFullScreen: false,
             totalAnswersSelected: 0,
             question: entities.decode(question.title.rendered),
             answers: answerArr.map(function (answer, index) {

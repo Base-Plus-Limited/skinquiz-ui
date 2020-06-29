@@ -57,14 +57,22 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   const formattedQuiz = () => {
     const skinConditionQuestion = quizQuestions.filter(question => question.id === 1443);
-    const y = quizQuestions.filter(question => question.id !== 1443);
-    const x = y.map((q, i) => {
+    const nonSkinConditionQuestions = quizQuestions.filter(question => question.id !== 1443);
+    const formattedQuestions = nonSkinConditionQuestions.map((q, i) => {
       if (i % 2 === 0)
-        return y.slice(i, i + 2);
+        return nonSkinConditionQuestions.slice(i, i + 2);
     }).filter(quizArr => quizArr !== undefined) as (IQuizQuestion[])[]
-    x.splice(2, 0, skinConditionQuestion);
-    return x;
+    formattedQuestions.splice(2, 0, skinConditionQuestion);
+    setWhetherQuestionShouldDisplayFullScreen(formattedQuestions);
+    return formattedQuestions;
   };
+
+  const setWhetherQuestionShouldDisplayFullScreen = (questions: IQuizQuestion[][]) => {
+    questions.forEach(questions => {
+      if(questions.length !== 2)
+        questions.map(x => x.isFullScreen = true)
+    })
+  }
 
   const returnMarginAmount = () => {
     switch (questionsAnswered.length) {
