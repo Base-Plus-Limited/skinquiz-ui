@@ -60,9 +60,11 @@ var honeybadger_1 = __importDefault(require("honeybadger"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
+        var _this = this;
         this.completedQuizModel = this.createCompletedQuizModel();
         this.customProductModel = this.createCustomProductModel();
         this.mixPanelClient = mixpanel.init("" + process.env.MIXPANEL_ID);
+        this.newFileName = "";
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
         this.getGmtTime = function () {
             var utc = new Date();
@@ -70,34 +72,39 @@ var App = /** @class */ (function () {
         };
         this.writeDbDataTOCSV = function (dbData) {
             var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
-            if (fs_1["default"].existsSync(filename)) {
-                var stats = fs_1["default"].statSync(filename);
-                console.log('current file size', stats["size"] / 1000000.0);
-                fs_1["default"].unlinkSync(filename);
-                console.log('does file exist', fs_1["default"].existsSync(filename));
-            }
-            var output = [];
-            var dbDataAsObject = dbData[0].toObject();
-            var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
-                if (quiz.question.includes(','))
-                    return quiz.question.split(',').join('-');
-                return quiz.question;
-            })));
-            output.push(dataHeadings.join());
-            dbData.forEach(function (dbEntry) {
-                var row = [];
-                var JSDbObject = dbEntry.toObject();
-                var quizDate = new Date(JSDbObject.date);
-                row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) {
-                    if (quiz.answer.includes(','))
-                        return quiz.answer.split(',').join(' - ');
-                    return quiz.answer;
+            var newFileNameFilePath = path_1.join(__dirname, '../react-ui/src/Assets/', "" + _this.newFileName);
+            if (dbData.length > 0) {
+                if (fs_1["default"].existsSync(filename)) {
+                    var stats = fs_1["default"].statSync(filename);
+                    console.log('current file size', stats["size"] / 1000000.0);
+                    console.log('deleting file...');
+                    fs_1["default"].unlinkSync(filename);
+                    console.log('does file exist?', fs_1["default"].existsSync(filename));
+                }
+                var output_1 = [];
+                var dbDataAsObject = dbData[0].toObject();
+                var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
+                    if (quiz.question.includes(','))
+                        return quiz.question.split(',').join('-');
+                    return quiz.question;
                 })));
-                output.push(row.join());
-            });
-            fs_1["default"].writeFileSync(filename, output.join(os_1["default"].EOL));
-            var updatedStats = fs_1["default"].statSync(filename);
-            console.log('updated file size', updatedStats["size"] / 1000000.0);
+                output_1.push(dataHeadings.join());
+                dbData.forEach(function (dbEntry) {
+                    var row = [];
+                    var JSDbObject = dbEntry.toObject();
+                    var quizDate = new Date(JSDbObject.date);
+                    row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) {
+                        if (quiz.answer.includes(','))
+                            return quiz.answer.split(',').join(' - ');
+                        return quiz.answer;
+                    })));
+                    output_1.push(row.join());
+                });
+                fs_1["default"].writeFileSync(newFileNameFilePath, output_1.join(os_1["default"].EOL));
+                console.log('has a new file been written?', fs_1["default"].existsSync(newFileNameFilePath));
+                var updatedStats = fs_1["default"].statSync(newFileNameFilePath);
+                console.log('new file size', updatedStats["size"] / 1000000.0);
+            }
         };
         this.express = express_1["default"]();
         this.configureHoneyBadger();
@@ -202,7 +209,16 @@ var App = /** @class */ (function () {
             return __generator(this, function (_a) {
                 this.completedQuizModel.find()
                     .then(function (dbResponse) {
-                    res.send(dbResponse);
+                    var quizzes = dbResponse.map(function (x) { return x.toJSON(); });
+                    var date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
+                    var fileName = "completed-quiz-" + date.split(",")[1].split(":").join("").trim() + "-" + quizzes.length.toString() + ".csv";
+                    var valuesForDashboard = {
+                        totalQuizItems: quizzes.length,
+                        latestQuizDate: date,
+                        fileName: fileName
+                    };
+                    _this.newFileName = fileName;
+                    res.send(valuesForDashboard);
                     _this.writeDbDataTOCSV(dbResponse);
                 })["catch"](function (error) {
                     honeybadger_1["default"].notify("Error retrieving completed quizzes: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
