@@ -4,7 +4,7 @@ import IQuiz from './Interfaces/QuizState';
 import { IIngredient } from './Interfaces/WordpressProduct';
 import { ISkinCondition } from './Interfaces/SkinCondition';
 import { IErrorResponse } from './Interfaces/ErrorResponse';
-import { ICompletedQuiz } from './Interfaces/CompletedQuiz';
+import { IDashboardValue } from './Interfaces/DashboardValue';
 
 const state: IQuiz = {
   progressCount: 0,
@@ -29,8 +29,8 @@ const state: IQuiz = {
   setAnswersPanelVisibility: (previousAnswersPanelVisibility: SetStateAction<boolean>) => previousAnswersPanelVisibility,
   hasApplicationErrored: {} as IErrorResponse,
   setApplicationError: (previousApplicationError: SetStateAction<IErrorResponse>) => previousApplicationError,
-  completedQuizData: [],
-  saveCompletedQuizData: (previousCompletedQuiz: SetStateAction<ICompletedQuiz[]>) => previousCompletedQuiz,
+  dashboardValues: {} as IDashboardValue,
+  saveDashboardValues: (previousDashboardValue: SetStateAction<IDashboardValue>) => previousDashboardValue,
   uniqueId: "",
   saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId
 }
@@ -53,7 +53,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
-  const [completedQuizData, saveCompletedQuizData] = useState<ICompletedQuiz[]>([]);
+  const [dashboardValues, saveDashboardValues] = useState<IDashboardValue>({} as IDashboardValue);
   const [uniqueId, saveUniqueId] = useState<string>("");
 
   return (
@@ -80,8 +80,8 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       setAnswersPanelVisibility,
       hasApplicationErrored,
       setApplicationError,
-      completedQuizData,
-      saveCompletedQuizData,
+      dashboardValues,
+      saveDashboardValues,
       uniqueId,
       saveUniqueId
     }}>
