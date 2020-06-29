@@ -70,8 +70,12 @@ var App = /** @class */ (function () {
         };
         this.writeDbDataTOCSV = function (dbData) {
             var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
-            if (fs_1["default"].existsSync(filename))
+            if (fs_1["default"].existsSync(filename)) {
+                var stats = fs_1["default"].statSync(filename);
+                console.log('current file size', stats["size"] / 1000000.0);
                 fs_1["default"].unlinkSync(filename);
+                console.log('does file exist', fs_1["default"].existsSync(filename));
+            }
             var output = [];
             var dbDataAsObject = dbData[0].toObject();
             var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
@@ -92,6 +96,8 @@ var App = /** @class */ (function () {
                 output.push(row.join());
             });
             fs_1["default"].writeFileSync(filename, output.join(os_1["default"].EOL));
+            var updatedStats = fs_1["default"].statSync(filename);
+            console.log('updated file size', updatedStats["size"] / 1000000.0);
         };
         this.express = express_1["default"]();
         this.configureHoneyBadger();
