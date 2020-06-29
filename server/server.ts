@@ -239,7 +239,7 @@ class App {
       console.log('current file size', stats["size"] / 1000000.0);   
       console.log('deleting file...');   
       fs.unlinkSync(filename);  
-      console.log('delete successful?', fs.existsSync(filename));
+      console.log('does file exist?', fs.existsSync(filename));
     }
 
     const output: string[] = [];
