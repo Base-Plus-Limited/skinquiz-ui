@@ -123,8 +123,9 @@ class App {
       this.completedQuizModel.find()
         .then(dbResponse => {
           const quizzes: ICompletedQuiz[] = dbResponse.map(x => x.toJSON());
-          const date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
+          const date = new Date(quizzes[quizzes.length - 1].date).toLocaleString('en-GB', { timeZone: 'GMT' });
           const fileName = `completed-quiz-${date.split(",")[1].split(":").join("").trim()}-${quizzes.length.toString()}.csv`;
+          console.log(date.split(",")[1].split(":").join("").trim());
           const valuesForDashboard = {
             totalQuizItems: quizzes.length,
             latestQuizDate: date,
