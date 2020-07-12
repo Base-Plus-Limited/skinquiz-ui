@@ -212,6 +212,7 @@ var App = /** @class */ (function () {
                     var quizzes = dbResponse.map(function (x) { return x.toJSON(); });
                     var date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
                     var fileName = "completed-quiz-" + date.split(",")[1].split(":").join("").trim() + "-" + quizzes.length.toString() + ".csv";
+                    console.log(date.split(",")[1].split(":").join("").trim());
                     var valuesForDashboard = {
                         totalQuizItems: quizzes.length,
                         latestQuizDate: date,
