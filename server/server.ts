@@ -271,6 +271,8 @@ class App {
       fs.writeFileSync(newFileNameFilePath, output.join(os.EOL));
       console.log('has a new file been written?', fs.existsSync(newFileNameFilePath));
       var updatedStats = fs.statSync(newFileNameFilePath);
+      console.log('new file name', newFileNameFilePath);   
+      console.log('paths in folder', fs.readdirSync(newFileNameFilePath));
       console.log('new file size', updatedStats["size"] / 1000000.0);   
     }
   }
