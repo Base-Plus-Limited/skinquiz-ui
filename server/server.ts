@@ -123,8 +123,8 @@ class App {
       this.completedQuizModel.find()
         .then(dbResponse => {
           const quizzes: ICompletedQuiz[] = dbResponse.map(x => x.toJSON());
-          const date = this.replaceAMAndPM(new Date(quizzes[quizzes.length - 1].date).toLocaleString('en-GB', { timeZone: 'UTC' }));
-          const fileName = `completed-quiz-${date.split(",")[1].split(":").join("").trim()}-${quizzes.length.toString()}.csv`;
+          const date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
+          const fileName = `completed-quiz-${this.generateRandomString()}.csv`;
           const valuesForDashboard = {
             totalQuizItems: quizzes.length,
             latestQuizDate: date,
@@ -237,12 +237,8 @@ class App {
     });
   }
 
-  private replaceAMAndPM = (date: string) => {
-    if (date.includes("PM"))
-      return date.replace("PM", "");
-    if (date.includes("AM"))
-      return date.replace("AM", "");
-    return date;
+  private generateRandomString = () => {
+    return Math.random().toString().split('.')[1].slice(0,5);
   }
 
   private getGmtTime = () => {
