@@ -247,17 +247,8 @@ class App {
   }
 
   private writeDbDataTOCSV = (dbData: (ICompletedQuizDBModel & mongoose.Document)[]) => {
-    const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
     const newFileNameFilePath = join(__dirname, '../react-ui/src/Assets/', `${this.newFileName}`);
     if (dbData.length > 0) {
-      if (fs.existsSync(filename)) {
-        var stats = fs.statSync(filename);
-        console.log('current file size', stats["size"] / 1000000.0);   
-        console.log('deleting file...');   
-        fs.unlinkSync(filename);  
-        console.log('does file exist?', fs.existsSync(filename));
-      }
-  
       const output: string[] = [];
       var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
       const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => {
