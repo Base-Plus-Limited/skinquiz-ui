@@ -123,7 +123,7 @@ class App {
       this.completedQuizModel.find()
         .then(dbResponse => {
           const quizzes: ICompletedQuiz[] = dbResponse.map(x => x.toJSON());
-          const date = new Date(quizzes[quizzes.length - 1].date).toLocaleString('en-GB', { timeZone: 'UTC' });
+          const date = this.replaceAMAndPM(new Date(quizzes[quizzes.length - 1].date).toLocaleString('en-GB', { timeZone: 'UTC' }));
           const fileName = `completed-quiz-${date.split(",")[1].split(":").join("").trim()}-${quizzes.length.toString()}.csv`;
           const valuesForDashboard = {
             totalQuizItems: quizzes.length,
@@ -164,7 +164,7 @@ class App {
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
-  router.post('/save-quiz', bodyParser.json(), async (req, res) => {
+    router.post('/save-quiz', bodyParser.json(), async (req, res) => {
       const quiz: IQuizData[] = req.body;
       const completedQuiz = new this.completedQuizModel({
         quiz,
@@ -235,6 +235,14 @@ class App {
     router.get('*', function (req, res) {
       res.sendFile(join(__dirname, '../react-ui/build', 'index.html'));
     });
+  }
+
+  private replaceAMAndPM = (date: string) => {
+    if (date.includes("PM"))
+      return date.replace("PM", "");
+    if (date.includes("AM"))
+      return date.replace("AM", "");
+    return date;
   }
 
   private getGmtTime = () => {
