@@ -123,8 +123,8 @@ class App {
       this.completedQuizModel.find()
         .then(dbResponse => {
           const quizzes: ICompletedQuiz[] = dbResponse.map(x => x.toJSON());
-          const date = this.replaceAMAndPM(new Date(quizzes[quizzes.length - 1].date).toLocaleString('en-GB', { timeZone: 'UTC' }));
-          const fileName = `completed-quiz-${date.split(",")[1].split(":").join("").trim()}-${quizzes.length.toString()}.csv`;
+          const date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
+          const fileName = `completed-quiz-${this.generateRandomString()}.csv`;
           const valuesForDashboard = {
             totalQuizItems: quizzes.length,
             latestQuizDate: date,
@@ -237,12 +237,8 @@ class App {
     });
   }
 
-  private replaceAMAndPM = (date: string) => {
-    if (date.includes("PM"))
-      return date.replace("PM", "");
-    if (date.includes("AM"))
-      return date.replace("AM", "");
-    return date;
+  private generateRandomString = () => {
+    return Math.random().toString().split('.')[1].slice(0,5);
   }
 
   private getGmtTime = () => {
@@ -251,17 +247,8 @@ class App {
   }
 
   private writeDbDataTOCSV = (dbData: (ICompletedQuizDBModel & mongoose.Document)[]) => {
-    const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
     const newFileNameFilePath = join(__dirname, '../react-ui/src/Assets/', `${this.newFileName}`);
     if (dbData.length > 0) {
-      if (fs.existsSync(filename)) {
-        var stats = fs.statSync(filename);
-        console.log('current file size', stats["size"] / 1000000.0);   
-        console.log('deleting file...');   
-        fs.unlinkSync(filename);  
-        console.log('does file exist?', fs.existsSync(filename));
-      }
-  
       const output: string[] = [];
       var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
       const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => {
