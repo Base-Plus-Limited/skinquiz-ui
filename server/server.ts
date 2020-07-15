@@ -165,18 +165,23 @@ class App {
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
     router.post('/save-quiz', bodyParser.json(), async (req, res) => {
-      const quiz: IQuizData[] = req.body;
+      const uiRequest: ICompletedQuizDBModel = req.body;
       const completedQuiz = new this.completedQuizModel({
-        quiz,
-        date: this.getGmtTime()
+        quiz: uiRequest.quiz,
+        productId: uiRequest.productId,
+        date: this.getGmtTime(),
       });
       completedQuiz.save()
         .then(dbResponse => {
           console.log(`Saved completed quiz with id ${dbResponse.id}`);
-          res.json(dbResponse)
+          res.send(dbResponse);
         })
         .catch(error => {
           honeybadger.notify(`Error saving quiz: ${error}`, IHoneyBadgerErrorTypes.DATABASE);
+          if (error.name === "ValidationError") {
+            res.status(400).send({message:error.message});
+            return;
+          }
           res.send(error);
         })
     });
@@ -189,16 +194,21 @@ class App {
       const customProduct = new this.customProductModel({
         ingredients: customProductRequest.ingredients,
         amended: customProductRequest.amended,
+        productId: customProductRequest.productId,
         date: this.getGmtTime()
       });
       customProduct.save()
         .then(dbResponse => {
           console.log(`Saved custom product with id ${dbResponse.id}`);
-          res.end();
+          res.send(dbResponse);
         })
         .catch(error => {
           honeybadger.notify(`Error saving product: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE);
-          res.end();
+          if (error.name === "ValidationError") {
+            res.status(400).send({message:error.message});
+            return;
+          }
+          res.send(error);
         })
     });
 
@@ -326,15 +336,14 @@ class App {
 
   private createCompletedQuizModel() {
     const CompletedQuizSchema = new Schema({
-      id: {
-        type: String,
-        required: false,
-        default: mongoose.Types.ObjectId
-      },
       date: {
         type: Date,
         required: false,
         default: Date.now
+      },
+      productId: {
+        type: Number,
+        required: true
       },
       quiz: [{
         questionId: {
@@ -356,10 +365,9 @@ class App {
 
   private createCustomProductModel() {
     const CustomProductSchema = new Schema({
-      id: {
-        type: String,
-        required: false,
-        default: mongoose.Types.ObjectId
+      productId: {
+        type: Number,
+        required: true
       },
       amended: {
         type: Boolean,

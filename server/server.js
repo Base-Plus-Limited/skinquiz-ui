@@ -1,9 +1,29 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -34,15 +54,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
 };
 exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
@@ -66,24 +86,19 @@ var App = /** @class */ (function () {
         this.mixPanelClient = mixpanel.init("" + process.env.MIXPANEL_ID);
         this.newFileName = "";
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+        this.generateRandomString = function () {
+            return Math.random().toString().split('.')[1].slice(0, 5);
+        };
         this.getGmtTime = function () {
             var utc = new Date();
             return utc.setHours(utc.getHours() + 1);
         };
         this.writeDbDataTOCSV = function (dbData) {
-            var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
             var newFileNameFilePath = path_1.join(__dirname, '../react-ui/src/Assets/', "" + _this.newFileName);
             if (dbData.length > 0) {
-                if (fs_1["default"].existsSync(filename)) {
-                    var stats = fs_1["default"].statSync(filename);
-                    console.log('current file size', stats["size"] / 1000000.0);
-                    console.log('deleting file...');
-                    fs_1["default"].unlinkSync(filename);
-                    console.log('does file exist?', fs_1["default"].existsSync(filename));
-                }
                 var output_1 = [];
                 var dbDataAsObject = dbData[0].toObject();
-                var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
+                var dataHeadings = __spreadArrays(["id", "date"], Object.values(dbDataAsObject.quiz.map(function (quiz) {
                     if (quiz.question.includes(','))
                         return quiz.question.split(',').join('-');
                     return quiz.question;
@@ -93,7 +108,7 @@ var App = /** @class */ (function () {
                     var row = [];
                     var JSDbObject = dbEntry.toObject();
                     var quizDate = new Date(JSDbObject.date);
-                    row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) {
+                    row.push.apply(row, __spreadArrays([JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()], JSDbObject.quiz.map(function (quiz) {
                         if (quiz.answer.includes(','))
                             return quiz.answer.split(',').join(' - ');
                         return quiz.answer;
@@ -103,6 +118,8 @@ var App = /** @class */ (function () {
                 fs_1["default"].writeFileSync(newFileNameFilePath, output_1.join(os_1["default"].EOL));
                 console.log('has a new file been written?', fs_1["default"].existsSync(newFileNameFilePath));
                 var updatedStats = fs_1["default"].statSync(newFileNameFilePath);
+                console.log('new file name', newFileNameFilePath);
+                console.log('paths in folder', fs_1["default"].readdirSync(path_1.join(__dirname, '../react-ui/src/Assets/')));
                 console.log('new file size', updatedStats["size"] / 1000000.0);
             }
         };
@@ -211,8 +228,7 @@ var App = /** @class */ (function () {
                     .then(function (dbResponse) {
                     var quizzes = dbResponse.map(function (x) { return x.toJSON(); });
                     var date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
-                    var fileName = "completed-quiz-" + date.split(",")[1].split(":").join("").trim() + "-" + quizzes.length.toString() + ".csv";
-                    console.log(date.split(",")[1].split(":").join("").trim());
+                    var fileName = "completed-quiz-" + _this.generateRandomString() + ".csv";
                     var valuesForDashboard = {
                         totalQuizItems: quizzes.length,
                         latestQuizDate: date,
@@ -252,19 +268,25 @@ var App = /** @class */ (function () {
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/save-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var quiz, completedQuiz;
+            var uiRequest, completedQuiz;
             return __generator(this, function (_a) {
-                quiz = req.body;
+                uiRequest = req.body;
                 completedQuiz = new this.completedQuizModel({
-                    quiz: quiz,
+                    quiz: uiRequest.quiz,
+                    productId: uiRequest.productId,
                     date: this.getGmtTime()
                 });
+                console.log(completedQuiz);
                 completedQuiz.save()
                     .then(function (dbResponse) {
                     console.log("Saved completed quiz with id " + dbResponse.id);
-                    res.json(dbResponse);
+                    res.send(dbResponse);
                 })["catch"](function (error) {
                     honeybadger_1["default"].notify("Error saving quiz: " + error, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
+                    if (error.name === "ValidationError") {
+                        res.status(400).send({ message: error.message });
+                        return;
+                    }
                     res.send(error);
                 });
                 return [2 /*return*/];
@@ -280,15 +302,20 @@ var App = /** @class */ (function () {
                 customProduct = new this.customProductModel({
                     ingredients: customProductRequest.ingredients,
                     amended: customProductRequest.amended,
+                    productId: customProductRequest.productId,
                     date: this.getGmtTime()
                 });
                 customProduct.save()
                     .then(function (dbResponse) {
                     console.log("Saved custom product with id " + dbResponse.id);
-                    res.end();
+                    res.send(dbResponse);
                 })["catch"](function (error) {
                     honeybadger_1["default"].notify("Error saving product: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
-                    res.end();
+                    if (error.name === "ValidationError") {
+                        res.status(400).send({ message: error.message });
+                        return;
+                    }
+                    res.send(error);
                 });
                 return [2 /*return*/];
             });
@@ -380,15 +407,14 @@ var App = /** @class */ (function () {
     };
     App.prototype.createCompletedQuizModel = function () {
         var CompletedQuizSchema = new mongoose_1.Schema({
-            id: {
-                type: String,
-                required: false,
-                "default": mongoose_1["default"].Types.ObjectId
-            },
             date: {
                 type: Date,
                 required: false,
                 "default": Date.now
+            },
+            productId: {
+                type: Number,
+                required: true
             },
             quiz: [{
                     questionId: {
@@ -409,10 +435,9 @@ var App = /** @class */ (function () {
     };
     App.prototype.createCustomProductModel = function () {
         var CustomProductSchema = new mongoose_1.Schema({
-            id: {
-                type: String,
-                required: false,
-                "default": mongoose_1["default"].Types.ObjectId
+            productId: {
+                type: Number,
+                required: true
             },
             amended: {
                 type: Boolean,
