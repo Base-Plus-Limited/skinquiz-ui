@@ -27,11 +27,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }, []);
 
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
-  const dev = true;
 
   const getProductName = (): string => {
-    if(dev)
-      return "Dev"
     if(userName)
       return `${userName}'s Bespoke Product`;
     return `Your Bespoke Product`;
@@ -69,12 +66,17 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
+      const tempProductId = generateTempProductId();
       setQuizToCompleted(true);
-      saveQuizToDatabase(0)
+      saveQuizToDatabase(tempProductId)
         .then(x => {
-          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}`);
         })
     });
+  }
+
+  const generateTempProductId = () => {
+    return Number(Math.random().toString().split('.')[1].slice(0,5));
   }
 
   const sendToWordpress = async () => {
