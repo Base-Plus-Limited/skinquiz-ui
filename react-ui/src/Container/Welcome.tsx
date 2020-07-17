@@ -75,14 +75,14 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
       <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
       : <Welcome>
         <WelcomeWrapper maxWidth>
-          <StyledH1 text={`Welcome`}></StyledH1>
-          <StyledText text="Thank you so much for your support. We've reached our maximum preorder limit"></StyledText>
-          {/* <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput> */}
+          <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
+          <StyledText text="Use our product builder to create your own bespoke moisturiser in 60 seconds"></StyledText>
+          <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
           <Route render={({ history }) => (
             <StyledButton onClickHandler={() => {
-              window.location.replace('http://baseplus.co.uk/sign-up');
-              // logNameEvent();
-            }}>Join the mailing list</StyledButton>
+              history.push('/quiz');
+              logNameEvent();
+            }}>Start</StyledButton>
           )} />
         </WelcomeWrapper>
       </Welcome>
