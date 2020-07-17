@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { IIngredient } from "./WordpressProduct";
 import { ISkinCondition } from "./SkinCondition";
 import { IErrorResponse } from "./ErrorResponse";
-import { ICompletedQuiz } from "./CompletedQuiz";
+import { IDashboardValue } from "./DashboardValue";
 
 interface IQuiz {
   progressCount: number;
@@ -28,8 +28,8 @@ interface IQuiz {
   setAnswersPanelVisibility: Dispatch<SetStateAction<boolean>>;
   hasApplicationErrored: IErrorResponse;
   setApplicationError: Dispatch<SetStateAction<IErrorResponse>>;
-  completedQuizData: ICompletedQuiz[];
-  saveCompletedQuizData: Dispatch<SetStateAction<ICompletedQuiz[]>>;
+  dashboardValues: IDashboardValue;
+  saveDashboardValues: Dispatch<SetStateAction<IDashboardValue>>;
   uniqueId: string;
   saveUniqueId: Dispatch<SetStateAction<string>>;
 }

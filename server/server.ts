@@ -25,6 +25,7 @@ class App {
   private completedQuizModel = this.createCompletedQuizModel();
   private customProductModel = this.createCustomProductModel();
   private mixPanelClient = mixpanel.init(`${process.env.MIXPANEL_ID}`);
+  private newFileName = "";
 
   constructor () {
     this.express = express();
@@ -121,7 +122,16 @@ class App {
     router.get('/completed-quiz', async (req, res) => {
       this.completedQuizModel.find()
         .then(dbResponse => {
-          res.send(dbResponse);
+          const quizzes: ICompletedQuiz[] = dbResponse.map(x => x.toJSON());
+          const date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
+          const fileName = `completed-quiz-${this.generateRandomString()}.csv`;
+          const valuesForDashboard = {
+            totalQuizItems: quizzes.length,
+            latestQuizDate: date,
+            fileName
+          }
+          this.newFileName = fileName;
+          res.send(valuesForDashboard);
           this.writeDbDataTOCSV(dbResponse);
         })
         .catch(error => {
@@ -154,7 +164,7 @@ class App {
     /*************************
      *  SAVE QUIZ ANSWERS TO DB
      *************************/
-  router.post('/save-quiz', bodyParser.json(), async (req, res) => {
+    router.post('/save-quiz', bodyParser.json(), async (req, res) => {
       const quiz: IQuizData[] = req.body;
       const completedQuiz = new this.completedQuizModel({
         quiz,
@@ -227,44 +237,44 @@ class App {
     });
   }
 
+  private generateRandomString = () => {
+    return Math.random().toString().split('.')[1].slice(0,5);
+  }
+
   private getGmtTime = () => {
     const utc = new Date();
     return utc.setHours( utc.getHours() + 1);
   }
 
   private writeDbDataTOCSV = (dbData: (ICompletedQuizDBModel & mongoose.Document)[]) => {
-    const filename = join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
-    if (fs.existsSync(filename)) {
-      var stats = fs.statSync(filename);
-      console.log('current file size', stats["size"] / 1000000.0);   
-      console.log('deleting file...');   
-      fs.unlinkSync(filename);  
-      console.log('does file exist?', fs.existsSync(filename));
+    const newFileNameFilePath = join(__dirname, '../react-ui/src/Assets/', `${this.newFileName}`);
+    if (dbData.length > 0) {
+      const output: string[] = [];
+      var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
+      const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => {
+        if(quiz.question.includes(','))
+          return quiz.question.split(',').join('-');
+        return quiz.question
+      }))];
+      output.push(dataHeadings.join());
+      dbData.forEach((dbEntry) => {
+        const row = [];
+        const JSDbObject: ICompletedQuiz = dbEntry.toObject();
+        const quizDate = new Date(JSDbObject.date);
+        row.push(JSDbObject.id, `${quizDate.getDate()}/${quizDate.getMonth() + 1}/${quizDate.getFullYear()}`,...JSDbObject.quiz.map(quiz => {
+          if (quiz.answer.includes(','))
+            return quiz.answer.split(',').join(' - ');
+          return quiz.answer;
+        }));
+        output.push(row.join());
+      });
+      fs.writeFileSync(newFileNameFilePath, output.join(os.EOL));
+      console.log('has a new file been written?', fs.existsSync(newFileNameFilePath));
+      var updatedStats = fs.statSync(newFileNameFilePath);
+      console.log('new file name', newFileNameFilePath);   
+      console.log('paths in folder', fs.readdirSync(join(__dirname, '../react-ui/src/Assets/')));
+      console.log('new file size', updatedStats["size"] / 1000000.0);   
     }
-
-    const output: string[] = [];
-    var dbDataAsObject:ICompletedQuiz = dbData[0].toObject();
-    const dataHeadings = ["id","date", ...Object.values(dbDataAsObject.quiz.map(quiz => {
-      if(quiz.question.includes(','))
-        return quiz.question.split(',').join('-');
-      return quiz.question
-    }))];
-    output.push(dataHeadings.join());
-    dbData.forEach((dbEntry) => {
-      const row = [];
-      const JSDbObject: ICompletedQuiz = dbEntry.toObject();
-      const quizDate = new Date(JSDbObject.date);
-      row.push(JSDbObject.id, `${quizDate.getDate()}/${quizDate.getMonth() + 1}/${quizDate.getFullYear()}`,...JSDbObject.quiz.map(quiz => {
-        if (quiz.answer.includes(','))
-          return quiz.answer.split(',').join(' - ');
-        return quiz.answer;
-      }));
-      output.push(row.join());
-    });
-    fs.writeFileSync(filename, output.join(os.EOL));
-    console.log('has a new file been written?', fs.existsSync(filename));
-    var updatedStats = fs.statSync(filename);
-    console.log('new file size', updatedStats["size"] / 1000000.0);   
   }
 
   private returnQuizQuestion(question: IWordpressQuestion): IQuizQuestion {

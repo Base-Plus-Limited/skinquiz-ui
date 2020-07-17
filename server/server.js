@@ -1,9 +1,29 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -34,15 +54,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
 };
 exports.__esModule = true;
 var express_1 = __importDefault(require("express"));
@@ -60,44 +80,48 @@ var honeybadger_1 = __importDefault(require("honeybadger"));
 dotenv_1["default"].config();
 var App = /** @class */ (function () {
     function App() {
+        var _this = this;
         this.completedQuizModel = this.createCompletedQuizModel();
         this.customProductModel = this.createCustomProductModel();
         this.mixPanelClient = mixpanel.init("" + process.env.MIXPANEL_ID);
+        this.newFileName = "";
         this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+        this.generateRandomString = function () {
+            return Math.random().toString().split('.')[1].slice(0, 5);
+        };
         this.getGmtTime = function () {
             var utc = new Date();
             return utc.setHours(utc.getHours() + 1);
         };
         this.writeDbDataTOCSV = function (dbData) {
-            var filename = path_1.join(__dirname, '../react-ui/src/Assets/', 'completedQuizData.csv');
-            if (fs_1["default"].existsSync(filename)) {
-                var stats = fs_1["default"].statSync(filename);
-                console.log('current file size', stats["size"] / 1000000.0);
-                fs_1["default"].unlinkSync(filename);
-                console.log('does file exist', fs_1["default"].existsSync(filename));
-            }
-            var output = [];
-            var dbDataAsObject = dbData[0].toObject();
-            var dataHeadings = ["id", "date"].concat(Object.values(dbDataAsObject.quiz.map(function (quiz) {
-                if (quiz.question.includes(','))
-                    return quiz.question.split(',').join('-');
-                return quiz.question;
-            })));
-            output.push(dataHeadings.join());
-            dbData.forEach(function (dbEntry) {
-                var row = [];
-                var JSDbObject = dbEntry.toObject();
-                var quizDate = new Date(JSDbObject.date);
-                row.push.apply(row, [JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()].concat(JSDbObject.quiz.map(function (quiz) {
-                    if (quiz.answer.includes(','))
-                        return quiz.answer.split(',').join(' - ');
-                    return quiz.answer;
+            var newFileNameFilePath = path_1.join(__dirname, '../react-ui/src/Assets/', "" + _this.newFileName);
+            if (dbData.length > 0) {
+                var output_1 = [];
+                var dbDataAsObject = dbData[0].toObject();
+                var dataHeadings = __spreadArrays(["id", "date"], Object.values(dbDataAsObject.quiz.map(function (quiz) {
+                    if (quiz.question.includes(','))
+                        return quiz.question.split(',').join('-');
+                    return quiz.question;
                 })));
-                output.push(row.join());
-            });
-            fs_1["default"].writeFileSync(filename, output.join(os_1["default"].EOL));
-            var updatedStats = fs_1["default"].statSync(filename);
-            console.log('updated file size', updatedStats["size"] / 1000000.0);
+                output_1.push(dataHeadings.join());
+                dbData.forEach(function (dbEntry) {
+                    var row = [];
+                    var JSDbObject = dbEntry.toObject();
+                    var quizDate = new Date(JSDbObject.date);
+                    row.push.apply(row, __spreadArrays([JSDbObject.id, quizDate.getDate() + "/" + (quizDate.getMonth() + 1) + "/" + quizDate.getFullYear()], JSDbObject.quiz.map(function (quiz) {
+                        if (quiz.answer.includes(','))
+                            return quiz.answer.split(',').join(' - ');
+                        return quiz.answer;
+                    })));
+                    output_1.push(row.join());
+                });
+                fs_1["default"].writeFileSync(newFileNameFilePath, output_1.join(os_1["default"].EOL));
+                console.log('has a new file been written?', fs_1["default"].existsSync(newFileNameFilePath));
+                var updatedStats = fs_1["default"].statSync(newFileNameFilePath);
+                console.log('new file name', newFileNameFilePath);
+                console.log('paths in folder', fs_1["default"].readdirSync(path_1.join(__dirname, '../react-ui/src/Assets/')));
+                console.log('new file size', updatedStats["size"] / 1000000.0);
+            }
         };
         this.express = express_1["default"]();
         this.configureHoneyBadger();
@@ -202,7 +226,16 @@ var App = /** @class */ (function () {
             return __generator(this, function (_a) {
                 this.completedQuizModel.find()
                     .then(function (dbResponse) {
-                    res.send(dbResponse);
+                    var quizzes = dbResponse.map(function (x) { return x.toJSON(); });
+                    var date = new Date(quizzes[quizzes.length - 1].date).toLocaleString();
+                    var fileName = "completed-quiz-" + _this.generateRandomString() + ".csv";
+                    var valuesForDashboard = {
+                        totalQuizItems: quizzes.length,
+                        latestQuizDate: date,
+                        fileName: fileName
+                    };
+                    _this.newFileName = fileName;
+                    res.send(valuesForDashboard);
                     _this.writeDbDataTOCSV(dbResponse);
                 })["catch"](function (error) {
                     honeybadger_1["default"].notify("Error retrieving completed quizzes: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);

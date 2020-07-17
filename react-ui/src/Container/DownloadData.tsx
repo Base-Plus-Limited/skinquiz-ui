@@ -2,12 +2,12 @@ import * as React from 'react';
 import { useEffect, useContext } from 'react';
 import { QuizContext } from '../QuizContext';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
-import { ICompletedQuiz } from '../Interfaces/CompletedQuiz';
 import styled from 'styled-components';
 import StyledH2 from '../Components/Shared/H2';
 import StyledText from '../Components/Shared/Text';
 import { StyledButton } from '../Components/Button';
 import StyledH1 from '../Components/Shared/H1';
+import { IDashboardValue } from '../Interfaces/DashboardValue';
 
 
 export interface DownloadDataProps {
@@ -15,13 +15,13 @@ export interface DownloadDataProps {
 }
  
 const DownloadData: React.SFC<DownloadDataProps> = () => {
-  const { setApplicationError, hasApplicationErrored, saveCompletedQuizData, completedQuizData } = useContext(QuizContext);
+  const { setApplicationError, hasApplicationErrored, saveDashboardValues, dashboardValues } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/api/completed-quiz')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-      .then((quizData: ICompletedQuiz[]) => {
-        saveCompletedQuizData(quizData);
+      .then((dashboardValues: IDashboardValue) => {
+        saveDashboardValues(dashboardValues);
       })
       .catch((error) => {
         setApplicationError({
@@ -34,13 +34,14 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
   }, [setApplicationError]);
 
   const getLatestCompletedQuizDate = () => {
-    const latestQuizDate = new Date(completedQuizData[completedQuizData.length - 1].date).toLocaleString();
-    return completedQuizData.length ? latestQuizDate : "No completed quizzes";
+    return dashboardValues.totalQuizItems > 0 ? dashboardValues.latestQuizDate : "No completed quizzes";
   }
 
   const downloadCSV = () => {
-    const completedQuizCSV = require('./../Assets/completedQuizData.csv');
-    window.open(completedQuizCSV);
+    if (dashboardValues) {
+      const completedQuizCSV = require(`./../Assets/${dashboardValues.fileName}`);
+      window.open(completedQuizCSV);
+    }
   }
 
   return (
@@ -53,8 +54,8 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
           <StyledSummaryTileWrapper>
           <StyledH2 text="Quizzes completed"> </StyledH2>
           {
-            completedQuizData.length ?
-            <StyledText fontSize="11.7pt" text={`${completedQuizData.length}`}></StyledText> :
+            dashboardValues.totalQuizItems > 0 ?
+            <StyledText fontSize="11.7pt" text={`${dashboardValues.totalQuizItems}`}></StyledText> :
             <StyledText fontSize="11.7pt" text="Loading..."></StyledText>
           }
           </StyledSummaryTileWrapper>
@@ -65,7 +66,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
           <StyledSummaryTileWrapper>
           <StyledH2 text="Last quiz completed on"> </StyledH2>
           {
-            completedQuizData.length ?
+            dashboardValues.totalQuizItems > 0 ?
             <StyledText fontSize="11.7pt" text={`${getLatestCompletedQuizDate()}`}></StyledText> :
             <StyledText fontSize="11.7pt" text="Loading..."></StyledText>
           }
@@ -77,7 +78,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
           <StyledSummaryTileWrapper>
           <StyledH2 text="Download quiz data"> </StyledH2>
           {
-            <StyledButton onClickHandler={downloadCSV}>{`Download ${completedQuizData.length ? completedQuizData.length : "--"} entries`}</StyledButton>
+            <StyledButton onClickHandler={downloadCSV}>{`Download ${dashboardValues.totalQuizItems > 0 ? dashboardValues.totalQuizItems : "--"} entries`}</StyledButton>
           }
           </StyledSummaryTileWrapper>
         </StyledSummaryTile>
