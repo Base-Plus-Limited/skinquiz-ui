@@ -523,7 +523,7 @@ const HalfScreenQuestion = styled.div`
 `;
 
 const FullScreenQuestion = styled.div`
-  margin: 0;
+  margin: 0 auto;
   padding: 0 10px;
   font-size: 11pt;
   overflow: hidden;
