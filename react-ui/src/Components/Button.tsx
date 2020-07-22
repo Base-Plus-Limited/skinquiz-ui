@@ -13,41 +13,44 @@ const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, addMarg
 }
 
 const Button = styled.button`
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  margin: ${(props: ButtonProps) => props.addMargin ? "0 8px 0 0" : "0 auto"};
+  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   padding: 10px 15px;
   background: none;
   outline: none;
-  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
-  margin: ${(props: ButtonProps) => props.addMargin ? "0 8px 0 0" : "0 auto"};
   cursor: pointer;
   text-transform: uppercase;
-  color: ${props => props.theme.brandColours.baseDarkGreen};
   font-family: ${props => props.theme.subHeadingFont};
   font-weight: 600;
 `;
 
 const StyledBackButton = styled.button`
   color: ${props => props.theme.brandColours.basePink};
-  border: solid 2px ${props => props.theme.brandColours.basePink};
   margin: -3px 0 0 0;
   padding: 3px 10px;
-  font-family: ${props => props.theme.subHeadingFont};
-  font-weight: 600;
-  cursor: pointer;
-  text-transform: uppercase;
+  border: solid 2px ${props => props.theme.brandColours.basePink};
+  padding: 10px 15px;
   background: none;
   outline: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: ${props => props.theme.subHeadingFont};
+  font-weight: 600;
 `
 
 const StyledSummaryButton = styled.button`
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   margin: ${(props: ButtonProps) => props.addMargin ? "0 15px 0" : "0 auto"};
-  font-family: ${props => props.theme.subHeadingFont};
-  font-weight: 600;
-  cursor: pointer;
-  text-transform: uppercase;
+  padding: 3px 10px;
   padding: 10px 15px;
   background: none;
-  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   outline: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: ${props => props.theme.subHeadingFont};
+  font-weight: 600;
 `
 
 export { StyledButton, StyledBackButton, StyledSummaryButton };

@@ -1,6 +1,7 @@
 export interface ICompletedQuiz {
   id: number;
   date: string;
+  productId: number;
   quiz: IData[];
 }
 

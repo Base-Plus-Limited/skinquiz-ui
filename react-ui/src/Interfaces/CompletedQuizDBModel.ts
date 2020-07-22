@@ -1,5 +1,6 @@
 export interface ICompletedQuizDBModel {
   quiz: IQuizData[];
+  productId: number;
 }
 
 export interface IQuizData {

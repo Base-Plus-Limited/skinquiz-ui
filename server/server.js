@@ -268,19 +268,25 @@ var App = /** @class */ (function () {
          *  SAVE QUIZ ANSWERS TO DB
          *************************/
         router.post('/save-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var quiz, completedQuiz;
+            var uiRequest, completedQuiz;
             return __generator(this, function (_a) {
-                quiz = req.body;
+                uiRequest = req.body;
                 completedQuiz = new this.completedQuizModel({
-                    quiz: quiz,
+                    quiz: uiRequest.quiz,
+                    productId: uiRequest.productId,
                     date: this.getGmtTime()
                 });
+                console.log(completedQuiz);
                 completedQuiz.save()
                     .then(function (dbResponse) {
                     console.log("Saved completed quiz with id " + dbResponse.id);
-                    res.json(dbResponse);
+                    res.send(dbResponse);
                 })["catch"](function (error) {
                     honeybadger_1["default"].notify("Error saving quiz: " + error, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
+                    if (error.name === "ValidationError") {
+                        res.status(400).send({ message: error.message });
+                        return;
+                    }
                     res.send(error);
                 });
                 return [2 /*return*/];
@@ -296,15 +302,20 @@ var App = /** @class */ (function () {
                 customProduct = new this.customProductModel({
                     ingredients: customProductRequest.ingredients,
                     amended: customProductRequest.amended,
+                    productId: customProductRequest.productId,
                     date: this.getGmtTime()
                 });
                 customProduct.save()
                     .then(function (dbResponse) {
                     console.log("Saved custom product with id " + dbResponse.id);
-                    res.end();
+                    res.send(dbResponse);
                 })["catch"](function (error) {
                     honeybadger_1["default"].notify("Error saving product: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
-                    res.end();
+                    if (error.name === "ValidationError") {
+                        res.status(400).send({ message: error.message });
+                        return;
+                    }
+                    res.send(error);
                 });
                 return [2 /*return*/];
             });
@@ -396,15 +407,14 @@ var App = /** @class */ (function () {
     };
     App.prototype.createCompletedQuizModel = function () {
         var CompletedQuizSchema = new mongoose_1.Schema({
-            id: {
-                type: String,
-                required: false,
-                "default": mongoose_1["default"].Types.ObjectId
-            },
             date: {
                 type: Date,
                 required: false,
                 "default": Date.now
+            },
+            productId: {
+                type: Number,
+                required: true
             },
             quiz: [{
                     questionId: {
@@ -425,10 +435,9 @@ var App = /** @class */ (function () {
     };
     App.prototype.createCustomProductModel = function () {
         var CustomProductSchema = new mongoose_1.Schema({
-            id: {
-                type: String,
-                required: false,
-                "default": mongoose_1["default"].Types.ObjectId
+            productId: {
+                type: Number,
+                required: true
             },
             amended: {
                 type: Boolean,
