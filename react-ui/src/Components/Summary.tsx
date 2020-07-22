@@ -10,7 +10,7 @@ import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
 import { WordpressProduct, IIngredient, Tag } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
-import { IQuizData } from '../Interfaces/CompletedQuizDBModel';
+import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
@@ -67,12 +67,17 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
+      const tempProductId = generateTempProductId();
       setQuizToCompleted(true);
-      sendCompletedQuizQuestionsToApi()
+      saveQuizToDatabase(tempProductId)
         .then(x => {
-          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}`);
+          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}`);
         })
     });
+  }
+
+  const generateTempProductId = () => {
+    return Number(Math.random().toString().split('.')[1].slice(0,5));
   }
 
   const sendToWordpress = async () => {
@@ -90,12 +95,24 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       setApplicationError(errorResponse);
     }))
     .then((product: WordpressProduct) => {
-      if(product) {
-        sendCompletedQuizQuestionsToApi()
-          .then(x => {
+      if (product) {
+        Promise.allSettled([
+          saveProductToDatabase(product.id),
+          saveQuizToDatabase(product.id)
+        ])
+        .then(result => {
+          if(result.some(x => x.status !== "rejected")) {
             window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
-          });
-        }
+            return;
+          }
+          setApplicationError({
+            error: true,
+            code: 400,
+            message: "",
+            uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
+          })
+        })
+      }
     })
     .catch((error: IErrorResponse) => {
       setApplicationError({
@@ -107,15 +124,18 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  const returnCompletedQuizData = (): IQuizData[] => {
-    const quiz: IQuizData[] = quizQuestions.map(question => (
-      {
-        questionId: question.id,
-        question: question.question,
-        answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
-      }
-    ));
-    return quiz;
+  const returnCompletedQuizData = (productId: number): ICompletedQuizDBModel => {
+    const completedQuiz: ICompletedQuizDBModel = {
+      productId: productId,
+      quiz: quizQuestions.map(question => (
+        {
+          questionId: question.id,
+          question: question.question,
+          answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
+        })
+      )
+    };
+    return completedQuiz;
   }
 
   const returnAnswers = (answers: IAnswer[]) => {
@@ -125,14 +145,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return String(selectedAnswers[0].value);
   }
 
-  const sendCompletedQuizQuestionsToApi = () => {
+  const saveQuizToDatabase = (productId: number) => {
     return fetch('/api/save-quiz', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       cache: 'no-cache',
-      body: JSON.stringify(returnCompletedQuizData())
+      body: JSON.stringify(returnCompletedQuizData(productId))
     })
     .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
     .catch(error => {
@@ -144,7 +164,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  const createFinalProductToSaveToDatabase = () => {
+  const createFinalProductToSaveToDatabase = (productId: number) => {
     const databaseProduct: ICustomProductDBModel = {
       ingredients: sortedIngredients.map(ingredient => {
         return {
@@ -152,13 +172,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           id: ingredient.id
         }
       }),
-      amended: false
+      amended: false,
+      productId: productId
     };
     return databaseProduct;
   }
 
-  const saveProductToDatabase = () => {
-    track({
+  const saveProductToDatabase = (productId: number) => {
+    return track({
       distinct_id: uniqueId,
       event_type: "Quiz completed",
       ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
@@ -170,9 +191,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           'Content-Type': 'application/json',
         },
         cache: 'no-cache',
-        body: JSON.stringify(createFinalProductToSaveToDatabase())
+        body: JSON.stringify(createFinalProductToSaveToDatabase(productId))
       })
-      .finally(() => sendToWordpress())
     });
   }
 
@@ -318,7 +338,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                 </SummaryIngredientWrap>
                 <StyledHR></StyledHR>
                 <StyledSummaryButton addMargin onClick={amendIngredients}>Change</StyledSummaryButton>
-                <StyledSummaryButton addMargin onClick={saveProductToDatabase}>Buy now</StyledSummaryButton>
+                <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
               </React.Fragment>
           }
         </SummaryGrid>
