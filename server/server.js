@@ -276,7 +276,6 @@ var App = /** @class */ (function () {
                     productId: uiRequest.productId,
                     date: this.getGmtTime()
                 });
-                console.log(completedQuiz);
                 completedQuiz.save()
                     .then(function (dbResponse) {
                     console.log("Saved completed quiz with id " + dbResponse.id);
