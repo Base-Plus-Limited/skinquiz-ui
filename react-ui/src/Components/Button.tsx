@@ -30,7 +30,6 @@ const StyledBackButton = styled.button`
   margin: -3px 0 0 0;
   padding: 3px 10px;
   border: solid 2px ${props => props.theme.brandColours.basePink};
-  padding: 10px 15px;
   background: none;
   outline: none;
   cursor: pointer;
@@ -43,7 +42,6 @@ const StyledSummaryButton = styled.button`
   color: ${props => props.theme.brandColours.baseDarkGreen};
   border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   margin: ${(props: ButtonProps) => props.addMargin ? "0 15px 0" : "0 auto"};
-  padding: 3px 10px;
   padding: 10px 15px;
   background: none;
   outline: none;
