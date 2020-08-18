@@ -121,7 +121,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
 const ScrollWrapper = styled.div`
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: hidden;
 `;
 
 const Quiz = styled.div`
