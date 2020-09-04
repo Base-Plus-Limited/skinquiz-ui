@@ -27,7 +27,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     rankIngredients();
   }, []);
 
-  const enum SpecialCaseProducts {
+  enum SpecialCaseProducts {
     LemonSeedOil = 697,
     TeaTreeOil = 2054,
     Niacinamide = 698,
