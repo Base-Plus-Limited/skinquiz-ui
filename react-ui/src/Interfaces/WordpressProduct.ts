@@ -117,3 +117,10 @@ interface Dimensions {
   width: string;
   height: string;
 }
+
+export enum SpecialCaseProducts {
+  LemonSeedOil = 697,
+  TeaTreeOil = 2054,
+  Niacinamide = 698,
+  VitaminC = 694 
+}

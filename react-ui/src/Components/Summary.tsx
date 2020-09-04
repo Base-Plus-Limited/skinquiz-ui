@@ -8,13 +8,14 @@ import StyledHR from './Shared/HR';
 import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
-import { WordpressProduct, IIngredient, Tag } from '../Interfaces/WordpressProduct';
+import { WordpressProduct, IIngredient } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
 import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { track } from './Shared/Analytics';
+import { ISkinConcernsAndIngredients } from '../Interfaces/SkinConcernsAndIngredients';
 
 export interface SummaryProps {
 }
@@ -25,6 +26,13 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   useEffect(() => {
     rankIngredients();
   }, []);
+
+  enum SpecialCaseProducts {
+    LemonSeedOil = 697,
+    TeaTreeOil = 2054,
+    Niacinamide = 698,
+    VitaminC = 694 
+  }
 
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
 
@@ -222,12 +230,12 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     let updatedIngredientList: IIngredient[] = ingredients;
 
     if (filteredAnswers.some(x => x.toLowerCase() === 'lemon oil'))
-      updatedIngredientList = updatedIngredientList.filter(x => x.id !== 697);
+      updatedIngredientList = updatedIngredientList.filter(x => x.id !== SpecialCaseProducts.LemonSeedOil);
 
     if (filteredAnswers.some(x => x.toLowerCase() === 'sensitive'))
       updatedIngredientList = updatedIngredientList
-        .filter(x => x.id !== 697)
-        .filter(x => x.id !== 2054);
+        .filter(x => x.id !== SpecialCaseProducts.LemonSeedOil)
+        .filter(x => x.id !== SpecialCaseProducts.TeaTreeOil);
       
 
     updatedIngredientList.forEach(ingredient => {
@@ -238,53 +246,75 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         })
       })
     })
-    updateIngredients(selectFinalIngredients(updatedIngredientList, skinConcernAnswers));
+    updateIngredients(processIngredientsForSelection(updatedIngredientList, skinConcernAnswers));
   }
 
-  const selectFinalIngredients = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
-    const categorisedIngredients: {concernOne: string, concernTwo: string, ingredientsOne: IIngredient[], ingredientsTwo: IIngredient[]} = {
-      concernOne: "",
-      concernTwo: "",
-      ingredientsOne: [],
-      ingredientsTwo: [],
-    }
-    rankedIngredients.forEach(x => {
-      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[0])) {
-        categorisedIngredients.concernOne = skinConcerns[0];
-        categorisedIngredients.ingredientsOne.push(x);
-      }
-      if (x.tags.some(t => t.name.toLowerCase() === skinConcerns[1])) {
-        categorisedIngredients.concernTwo = skinConcerns[1];
-        categorisedIngredients.ingredientsTwo.push(x);
-      }
-    });
-    
+  const processIngredientsForSelection = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+    const categorisedIngredients = populateSkinConcernsAndIngredients(rankedIngredients, skinConcerns);
     categorisedIngredients.ingredientsOne = getHighestRankedIngredients(categorisedIngredients.ingredientsOne);
     categorisedIngredients.ingredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(categorisedIngredients.ingredientsOne[0].id, categorisedIngredients.ingredientsTwo));
-
+    
     let ingredientOne: IIngredient;
     let ingredientTwo: IIngredient;
 
-    if (categorisedIngredients.ingredientsOne.length > 1) {
-      ingredientOne = categorisedIngredients.ingredientsOne[Math.floor(Math.random() * Math.floor(categorisedIngredients.ingredientsOne.length))];
-    } else {
+    categorisedIngredients.ingredientsOne.length > 1 ?
+      ingredientOne = categorisedIngredients.ingredientsOne[returnRandomIndex(categorisedIngredients.ingredientsOne)] :
       ingredientOne = categorisedIngredients.ingredientsOne[0];
-    }
 
+    categorisedIngredients.ingredientsTwo = filterSpecialCaseIngredient(ingredientOne, categorisedIngredients);
     if (categorisedIngredients.ingredientsTwo.length > 1) {
       const unselectedIngredients = categorisedIngredients.ingredientsTwo.filter(x => x.id !== ingredientOne.id);
-      ingredientTwo = unselectedIngredients[Math.floor(Math.random() * Math.floor(unselectedIngredients.length))];
+      ingredientTwo = unselectedIngredients[returnRandomIndex(unselectedIngredients)];
     } else {
       ingredientTwo = categorisedIngredients.ingredientsTwo[0];
     }
+    return selectIngredientsForSummaryScreen(rankedIngredients, ingredientOne, ingredientTwo);
+  }
 
-    rankedIngredients.forEach(x => {
-      if(x.id === ingredientTwo.id)
-        x.isSelectedForSummary = true;
-      if(x.id === ingredientOne.id)
-        x.isSelectedForSummary = true;
+  const filterSpecialCaseIngredient = (ingredientOne: IIngredient, categorisedIngredients: ISkinConcernsAndIngredients) => {
+    if ((ingredientOne.id === SpecialCaseProducts.Niacinamide))
+      categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsTwo.filter(ingredient => ingredient.id !== SpecialCaseProducts.Niacinamide)
+    if ((ingredientOne.id === SpecialCaseProducts.VitaminC))
+      categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsTwo.filter(ingredient => ingredient.id !== SpecialCaseProducts.VitaminC)
+    return categorisedIngredients.ingredientsTwo;
+    }
+
+  const returnRandomIndex = (ingredients: IIngredient[]) => {
+    return Math.floor(Math.random() * Math.floor(ingredients.length));
+  }
+
+  const selectIngredientsForSummaryScreen = (rankedIngredients: IIngredient[], ingredientOne: IIngredient, ingredientTwo: IIngredient) => {
+    return rankedIngredients.map(ingredient => {
+      if (ingredient.id === ingredientOne.id)
+        ingredient.isSelectedForSummary = ingredient.id === ingredientOne.id;
+      if (ingredient.id === ingredientTwo.id)
+        ingredient.isSelectedForSummary = ingredient.id === ingredientTwo.id;
+      return ingredient;
     });
-    return rankedIngredients;
+  }
+
+  const populateSkinConcernsAndIngredients = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+    const categorisedIngredients: ISkinConcernsAndIngredients = {
+      concernOne: "",
+      ingredientsOne: [],
+      concernTwo: "",
+      ingredientsTwo: []
+    };
+    rankedIngredients.forEach(ingredient => {
+      if (doTagsMatchSkinConcern(ingredient, skinConcerns[0])) {
+        categorisedIngredients.concernOne = skinConcerns[0];
+        categorisedIngredients.ingredientsOne.push(ingredient);
+      }
+      if (doTagsMatchSkinConcern(ingredient, skinConcerns[1])) {
+        categorisedIngredients.concernTwo = skinConcerns[1];
+        categorisedIngredients.ingredientsTwo.push(ingredient);
+      }
+    });
+    return categorisedIngredients;
+  }
+
+  const doTagsMatchSkinConcern = (ingredient: IIngredient, skinConcern: string) => {
+    return ingredient.tags.some(tag => tag.name.toLowerCase() === skinConcern);
   }
 
   const removeIngredientIfInSecondList = (id: number, ingredientListTwo: IIngredient[]) => {
@@ -292,8 +322,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   } 
 
   const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
-    const highestNum = Math.max(...ingredients.map(x => x.rank));
-    return ingredients.filter(x => x.rank === highestNum);
+    const highestRank = Math.max(...ingredients.map(x => x.rank));
+    return ingredients.filter(x => x.rank === highestRank);
   }
 
   return (
