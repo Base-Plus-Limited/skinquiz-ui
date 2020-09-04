@@ -8,7 +8,7 @@ import StyledHR from './Shared/HR';
 import StyledSubHeading from './Shared/SubHeading';
 import StyledImage from './Shared/Image';
 import plusIcon from './../Assets/plus.jpg';
-import { WordpressProduct, IIngredient, Tag, SpecialCaseProducts } from '../Interfaces/WordpressProduct';
+import { WordpressProduct, IIngredient } from '../Interfaces/WordpressProduct';
 import { IAnswer } from '../Interfaces/QuizQuestion';
 import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
@@ -26,6 +26,13 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   useEffect(() => {
     rankIngredients();
   }, []);
+
+  const enum SpecialCaseProducts {
+    LemonSeedOil = 697,
+    TeaTreeOil = 2054,
+    Niacinamide = 698,
+    VitaminC = 694 
+  }
 
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
 
