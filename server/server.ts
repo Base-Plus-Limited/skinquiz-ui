@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import bodyParser, { json } from 'body-parser';
+import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
@@ -7,7 +7,7 @@ import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/Word
 import { IAnalyticsEvent } from './../react-ui/src/Interfaces/Analytics';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { IHoneyBadgerErrorTypes } from './../react-ui/src/Interfaces/ErrorTypes';
-import { ICompletedQuizDBModel, IQuizData } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
+import { ICompletedQuizDBModel } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
 import ICustomProductDBModel from './../react-ui/src/Interfaces/CustomProduct';
 import { ICompletedQuiz } from './../react-ui/src/Interfaces/CompletedQuiz';
 import * as request from 'superagent';
@@ -16,9 +16,14 @@ import { resolve, join } from 'path';
 import fs from 'fs';
 import os from 'os';
 import mongoose, { Document, Schema, model } from 'mongoose';
-import { MongoError } from 'mongodb';
 import honeybadger from 'honeybadger';
 dotenv.config();
+
+const enum QuestionType {
+  Fragrance = 3870,
+  SkinCondition = 1443,
+  Skintone = 716
+}
 
 class App {
   public express: Application;
@@ -295,13 +300,13 @@ class App {
       id: question.id,
       answered: false,
       prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
-      isSkintoneQuestion: question.id === 716 && true, // skintone question
-      isSkinConditionQuestion: question.id === 1443 && true, // skintone condition question
+      isSkintoneQuestion: question.id === QuestionType.Skintone && true, 
+      isSkinConditionQuestion: question.id === QuestionType.SkinCondition && true, 
       customAnswer: "",
       displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
       isMobilePanelOpen: false,
       isInputVisible: false,
-      isFullScreen: false,
+      isFullScreen: question.id === QuestionType.Fragrance && true,
       totalAnswersSelected: 0,
       question: entities.decode(question.title.rendered),
       answers: answerArr.map((answer, index) => {
