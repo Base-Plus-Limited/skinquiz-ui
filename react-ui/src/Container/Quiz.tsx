@@ -89,6 +89,8 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         return 4;
       case 9:
         return 5;
+      case 10:
+        return 6;
       default:
         return 0;
     }
