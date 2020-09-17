@@ -11,10 +11,10 @@ const StyledH1: React.SFC<H1Props> = ({text}) => (
 
 const H1 = styled.h1`
   font-family: ${props => props.theme.bodyFont};
-  color: ${props => props.theme.brandColours.baseLightGreen};
+  color: ${props => props.theme.brandColours.baseDefaultGreen};
   margin-bottom: 10px;
   font-size: 36pt;
-  line-height: 0.9;
+  line-height: 1.1em;
 `
 
  
