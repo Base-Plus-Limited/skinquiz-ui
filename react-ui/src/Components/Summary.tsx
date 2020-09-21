@@ -71,7 +71,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const amendIngredients = async () => {
     track({
       distinct_id: uniqueId,
-      event_type: "Quiz completed",
+      event_type: "Quiz completed - Amend",
       ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
@@ -189,7 +189,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const saveProductToDatabase = (productId: number) => {
     return track({
       distinct_id: uniqueId,
-      event_type: "Quiz completed",
+      event_type: "Quiz completed - Buy Now",
       ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: false
     }).then(() => {
