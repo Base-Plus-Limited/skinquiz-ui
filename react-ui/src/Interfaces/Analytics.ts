@@ -6,4 +6,4 @@ export interface IAnalyticsEvent {
   amendSelected?: boolean;
 }
 
-export type EventType = "Name entered" | "Quiz started" | "Quiz completed" | "Amend selected" | "Buy now selected" | "Question answered" | "Back selected";
+export type EventType = "Name entered" | "Quiz started" | "Quiz completed - Amend" | "Quiz completed - Buy Now" | "Question answered" | "Back selected";
