@@ -560,6 +560,9 @@ const QuestionWrapper = styled.div`
   margin: auto;
   position: relative;
   grid-template-rows: repeat(2, 260px);
+  .selectedAnswer {
+    border: solid 1px ${props => props.theme.brandColours.basePink};
+  }
 `;
 
 export default StyledQuestion;
