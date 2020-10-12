@@ -276,7 +276,6 @@ var App = /** @class */ (function () {
                     productId: uiRequest.productId,
                     date: this.getGmtTime()
                 });
-                console.log(completedQuiz);
                 completedQuiz.save()
                     .then(function (dbResponse) {
                     console.log("Saved completed quiz with id " + dbResponse.id);
@@ -369,13 +368,13 @@ var App = /** @class */ (function () {
             id: question.id,
             answered: false,
             prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
-            isSkintoneQuestion: question.id === 716 && true,
-            isSkinConditionQuestion: question.id === 1443 && true,
+            isSkintoneQuestion: question.id === 716 /* Skintone */ && true,
+            isSkinConditionQuestion: question.id === 1443 /* SkinCondition */ && true,
             customAnswer: "",
             displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
             isMobilePanelOpen: false,
             isInputVisible: false,
-            isFullScreen: false,
+            isFullScreen: question.id === 3870 /* Fragrance */ && true,
             totalAnswersSelected: 0,
             question: entities.decode(question.title.rendered),
             answers: answerArr.map(function (answer, index) {

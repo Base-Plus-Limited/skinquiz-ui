@@ -5,7 +5,6 @@ import StyledQuestion from '../Components/Question';
 import { QuizContext } from '../QuizContext';
 import { IIngredient } from '../Interfaces/WordpressProduct';
 import StyledSummary from '../Components/Summary';
-import StyledFooter from '../Components/Footer';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
@@ -21,8 +20,6 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, saveBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
 
   useEffect(() => {
-    // const abortController = new AbortController();
-    // const signal = abortController.signal;
     fetch('/api/questions')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
@@ -49,10 +46,6 @@ const StyledQuiz: React.FC<QuizProps> = () => {
           message: error.message
         })
       });
-
-      // return function cleanup() {
-      //   abortController.abort();
-      // }
   }, []);
 
   const formattedQuiz = () => {
@@ -102,28 +95,26 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   updateCount(questionsAnswered.length)
 
-  return ( 
-    hasApplicationErrored.error ? 
+  return (
+    hasApplicationErrored.error ?
       <StyledErrorScreen message={getErrorMessage(hasApplicationErrored)}></StyledErrorScreen>
-    : <React.Fragment>
-      <ScrollWrapper>
-        <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
-          {
-            formattedQuiz()[0].length ?
-            formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
-            <LoadingAnimation/>
-          }
-          {(quizQuestions.length && (questionsAnswered.length === quizQuestions.length)) && <StyledSummary></StyledSummary>}
-        </Quiz>
-      </ScrollWrapper>
-      <StyledFooter></StyledFooter>
-    </React.Fragment>
-   );
+      : <React.Fragment>
+        <ScrollWrapper>
+          <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
+            {
+              formattedQuiz()[0].length ?
+                formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
+                <LoadingAnimation />
+            }
+            {(quizQuestions.length && (questionsAnswered.length === quizQuestions.length)) && <StyledSummary></StyledSummary>}
+          </Quiz>
+        </ScrollWrapper>
+      </React.Fragment>
+  );
 }
 
 const ScrollWrapper = styled.div`
   overflow-x: hidden;
-  overflow-y: hidden;
 `;
 
 const Quiz = styled.div`
