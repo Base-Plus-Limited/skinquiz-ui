@@ -25,7 +25,7 @@ interface PanelProps {
 
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, ingredients, updateIngredients, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, uniqueId } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, uniqueId } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     if(answeredQuestion.isMobilePanelOpen && answeredQuestion.id !== 706)
@@ -79,11 +79,10 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
   const areTwoSkinConcernAnswersSelected = (question: IQuizQuestion) => {
     question.totalAnswersSelected = question.answers.filter(answer => answer.selected).length;
-    if(question.totalAnswersSelected === 2) {
+    if(question.totalAnswersSelected === 2) 
       toggleAnswersDisabilityIfNotSelected(question);
-    } else {
+    else
       resetAnswersDisability(question);
-    }
     return question.totalAnswersSelected === 2;
   }
 
@@ -280,7 +279,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
           indexSpecificMargin = { margin: `0 0 0 0`, display: "block" }
           break;
       }
-      return indexSpecificMargin;
+    return indexSpecificMargin;
   }
 
   const toggleAnswersPanel = (question: IQuizQuestion) => {
@@ -363,7 +362,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                     </StyledSkintoneAnswer>
                                   })
                                 }
-                                <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                               </Panel>
                             </MobileAnswersWrapper>
                             :
@@ -376,7 +374,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                       <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                                     ))
                                   }
-                                  <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                                 </Panel>
                               </MobileAnswersWrapper>
                               :
@@ -413,7 +410,6 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                 </StyledSkintoneAnswer>
                               })
                             }
-                            <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                           </Panel>
                         </MobileAnswersWrapper>
                         :
@@ -421,12 +417,12 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                           <MobileAnswersWrapper>
                             <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                             <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
+                            <span className="closePanel" onClick={() => toggleAnswersPanel(question)}>X</span>
                               {
                                 question.answers.map((answer, index) => (
                                   <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                                 ))
                               }
-                              <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                             </Panel>
                           </MobileAnswersWrapper>
                           :
@@ -445,6 +441,11 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
 
 const MobileAnswersWrapper = styled.div`
+  .closePanel {
+    justify-self: end;
+    padding: 20px 4px 20px 0;
+    display: none;
+  }
   @media screen and (min-width: 768px) {
     button {
       display: none;

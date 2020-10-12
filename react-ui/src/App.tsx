@@ -7,6 +7,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import StyledHeader from './Components/Header';
 import { QuizProvider } from './QuizContext';
 import DownloadData from './Container/DownloadData';
+import StyledProgressBar from './Components/ProgressBar';
 
 const App: React.FC = () => {
 
@@ -16,6 +17,7 @@ const App: React.FC = () => {
         <AppWrapper>
           <QuizProvider>
             <StyledHeader></StyledHeader>
+            <StyledProgressBar></StyledProgressBar>
             <BrowserRouter>
               <Switch>
                 <Route path="/" exact component={StyledWelcome} />
@@ -33,7 +35,11 @@ const AppWrapper = styled.div`
   display: grid;
   height: 100vh;
   width: 100vw;
-  grid-template-rows: 77px auto 58px;
+  grid-template-rows: 60px 3px 1fr;
+  .center-align {
+    justify-content: center;
+    padding: 0;
+  }
 `
 
 export default App;
