@@ -362,6 +362,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                     </StyledSkintoneAnswer>
                                   })
                                 }
+                                <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                               </Panel>
                             </MobileAnswersWrapper>
                             :
@@ -374,6 +375,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                       <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                                     ))
                                   }
+                                  <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                                 </Panel>
                               </MobileAnswersWrapper>
                               :
@@ -410,6 +412,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                 </StyledSkintoneAnswer>
                               })
                             }
+                            <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                           </Panel>
                         </MobileAnswersWrapper>
                         :
@@ -423,6 +426,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                                   <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
                                 ))
                               }
+                              <span className="panelBackground" onClick={() => toggleAnswersPanel(question)}></span>
                             </Panel>
                           </MobileAnswersWrapper>
                           :
