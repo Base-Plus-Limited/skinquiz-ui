@@ -354,7 +354,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                         {
                           question.isSkintoneQuestion ?
                             <MobileAnswersWrapper>
-                              <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                              <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                               <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                                 {
                                   question.answers.map((answer: IAnswer, index: number) => {
@@ -367,7 +367,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                             :
                             question.displayAnswersAsADropdownOnMobile ?
                               <MobileAnswersWrapper>
-                                <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                                <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                                 <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                                 <span className="closePanel" onClick={() => toggleAnswersPanel(question)}>X</span>
                                   {
@@ -403,7 +403,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                     {
                       question.isSkintoneQuestion ?
                         <MobileAnswersWrapper>
-                          <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                          <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                           <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                           <span className="closePanel skintoneClose" onClick={() => toggleAnswersPanel(question)}>X</span>
                             {
@@ -417,7 +417,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                         :
                         question.displayAnswersAsADropdownOnMobile ?
                           <MobileAnswersWrapper>
-                            <StyledButton AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
+                            <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                             <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                             <span className="closePanel" onClick={() => toggleAnswersPanel(question)}>X</span>
                               {
@@ -443,6 +443,19 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
 
 
 const MobileAnswersWrapper = styled.div`
+  .hasEntity {
+    position: relative;   
+    padding: 10px 28px; 
+    text-indent: -13px;
+  }
+  .hasEntity::before {
+    content: '▼';
+    position: absolute;
+    right: 12px;
+    font-size: 6pt;
+    top: 13px;
+    color: ${props => props.theme.brandColours.baseDarkGreen};
+  }
   .closePanel {
     justify-self: end;
     padding: 30px 4px 20px 0;

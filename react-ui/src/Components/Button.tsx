@@ -6,10 +6,11 @@ export interface ButtonProps {
   onClickHandler?: (() => void) | undefined;
   addMargin?: boolean;
   AnswerSelectedOnMobile?: boolean;
+  entity?: string;
 }
 
-const StyledButton: React.FC<ButtonProps> = ({ children, onClickHandler, addMargin, AnswerSelectedOnMobile }: ButtonProps) => {
-  return <Button style={{ border: AnswerSelectedOnMobile ? "solid 1px #C06F78" : "solid 1px #003E38" }} addMargin={addMargin} onClick={onClickHandler}>{children}</Button>
+const StyledButton: React.FC<ButtonProps> = ({ entity, children, onClickHandler, addMargin, AnswerSelectedOnMobile }: ButtonProps) => {
+  return <Button className={entity ? "hasEntity" : ""} style={{ border: AnswerSelectedOnMobile ? "solid 1px #C06F78" : "solid 1px #003E38" }} addMargin={addMargin} onClick={onClickHandler}>{children}</Button>
 }
 
 const Button = styled.button`
@@ -19,10 +20,12 @@ const Button = styled.button`
   padding: 10px 15px;
   background: none;
   outline: none;
+  font-size: 9pt
   cursor: pointer;
   text-transform: uppercase;
   font-family: ${props => props.theme.subHeadingFont};
   font-weight: 600;
+  position: relative;
 `;
 
 const StyledBackButton = styled.button`
