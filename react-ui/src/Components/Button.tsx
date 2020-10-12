@@ -30,6 +30,7 @@ const StyledBackButton = styled.button`
   margin: -3px 0 0 0;
   padding: 3px 10px;
   border: solid 2px ${props => props.theme.brandColours.basePink};
+  border: none;
   background: none;
   outline: none;
   cursor: pointer;

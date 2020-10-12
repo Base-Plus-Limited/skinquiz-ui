@@ -1,24 +1,21 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import logo from './../Assets/base_light_green.png';
-import StyledLink from './Shared/Link';
-import StyledImage from './Shared/Image';
-import { StyledBackButton } from './Button';
 import { QuizContext } from '../QuizContext';
-import { track } from './Shared/Analytics';
 import { IAnswer } from '../Interfaces/QuizQuestion';
+import { track } from './Shared/Analytics';
 
-export interface HeaderProps {
+export interface ProgressBarProps {
 }
- 
-const StyledHeader: React.FC<HeaderProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, uniqueId } = useContext(QuizContext);
+export interface SharedProgressBarProps {
+  isQuizCompleted: boolean;
+}
 
-  const areAllQuestionsAnswered = () => {
-    return quizQuestions.filter(x => x.answered).length === quizQuestions.length;
-  }
+const StyledProgressBar: React.FC<ProgressBarProps> = () => {
 
+  const { updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, uniqueId } = useContext(QuizContext);
+
+  
   const removeLastQuestionAnswered = () => {
     if(questionsAnswered[questionsAnswered.length - 1].id === 1443) // skin condition question
       resetSkinCondition();
@@ -52,27 +49,20 @@ const StyledHeader: React.FC<HeaderProps> = () => {
     updateIngredients([...derankedIngredients])
   }
 
-  return <Header className={`${(questionsAnswered.length < 2) || (areAllQuestionsAnswered()) ? "center-align" : "" }`}>
-    <StyledLink href={"/"}>
-      <StyledImage src={logo} alt={"base plus"}></StyledImage>
-    </StyledLink>
-    {
-        (progressCount > 1) && (areAllQuestionsAnswered() === false)  ?
-        <StyledBackButton onClick={removeLastQuestionAnswered}>back</StyledBackButton>
-        : ''
-      }
-  </Header>
+  const areAllQuestionsAnswered = () => {
+    return quizQuestions.filter(x => x.answered).length === quizQuestions.length;
+  }
 
+  return (
+    <ProgressBar style={{width: questionsAnswered.length + "0%" }}>
+    </ProgressBar>
+  );
 }
 
-const Header = styled.header`
-  border-bottom: solid 2px ${props => props.theme.brandColours.baseLightGreen};
-  display: flex;
-  justify-content: space-between;    align-items: center;
-  padding: 0 20px;
-  img{
-    width: 80px;
-  }
-`;
+const ProgressBar = styled.div`
+  transition: all ease 0.45s;
+  background: ${props => props.theme.brandColours.baseDefaultGreen};
+`
+  
 
-export default StyledHeader;
+export default StyledProgressBar;
