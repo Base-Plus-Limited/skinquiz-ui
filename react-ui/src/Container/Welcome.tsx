@@ -95,9 +95,6 @@ const Welcome = styled.div`
   grid-template-rows: 1fr;
   align-items: center;
   padding: 0 20px;
-  @media only screen and (min-width: 768px) {
-    height: 88.5vh;
-  }
   @media only screen and (min-width: 980px) {
     padding: 0;
   }
