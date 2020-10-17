@@ -457,14 +457,12 @@ const MobileAnswersWrapper = styled.div`
     color: ${props => props.theme.brandColours.baseDarkGreen};
   }
   .closePanel {
-    justify-self: end;
-    padding: 30px 4px 20px 0;
+    color: ${props => props.theme.brandColours.baseDarkGreen};
+    padding: 40px 0 30px;
   }
   .skintoneClose {
     grid-column: 1 / span 2;
-    padding: 30px 40px 20px;
-    text-align: right;
-    justify-self: auto;
+    padding: 40px 0 30px;
   }
   @media screen and (min-width: 768px) {
     button {
@@ -570,9 +568,9 @@ const QuestionWrapper = styled.div`
   width: 100vw;
   align-items: center;
   text-align: center;
-  margin: auto;
+  //margin: auto;
   position: relative;
-  grid-template-rows: repeat(2, 260px);
+  grid-template-rows: repeat(2, 50%);
   .selectedAnswer {
     border: solid 1px ${props => props.theme.brandColours.basePink};
   }
