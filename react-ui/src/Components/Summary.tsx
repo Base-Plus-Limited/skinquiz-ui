@@ -3,25 +3,27 @@ import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import { StyledSummaryButton } from './Button';
 import StyledText from './Shared/Text';
-import StyledH2 from './Shared/H2';
-import StyledHR from './Shared/HR';
-import StyledSubHeading from './Shared/SubHeading';
-import StyledImage from './Shared/Image';
-import plusIcon from './../Assets/plus.jpg';
+import productsIcon from './../Assets/products_icon.jpg';
+import leavesIcon from './../Assets/leaves_icon.jpg';
+import tubeIcon from './../Assets/tube_icon.jpg';
 import { WordpressProduct, IIngredient } from '../Interfaces/WordpressProduct';
-import { IAnswer } from '../Interfaces/QuizQuestion';
+import { IAnswer, IQuizQuestion } from '../Interfaces/QuizQuestion';
 import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { track } from './Shared/Analytics';
 import { ISkinConcernsAndIngredients } from '../Interfaces/SkinConcernsAndIngredients';
+import StyledSummaryIngredient from './SummaryIngredient';
+import StyledSummaryTitle from './SummaryTitle';
+import StyledSummaryQuestion from './SummaryQuestion';
+import SkinConditionEnums from '../SkinConditons';
 
 export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, questionsAnswered, areSummaryCTAsVisible, showSummaryCTAs } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -31,7 +33,20 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     LemonSeedOil = 697,
     TeaTreeOil = 2054,
     Niacinamide = 698,
-    VitaminC = 694 
+    VitaminC = 694
+  }
+
+  enum QuestionIds {
+    areYouAged = 683,
+    whatIsYourGender = 682,
+    whatIsYourEthnicity = 708,
+    naturalSkinTone = 716,
+    whenYouWakeUpInTheMorning = 1443,
+    skinConcernsAndConditions = 706,
+    sensitiveSkin = 715,
+    adverseReactions = 712,
+    exisitingConditions = 1659,
+    fragranceFree = 3870
   }
 
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
@@ -205,7 +220,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const limitCharacterLength = (description: string) => {
-    return description.slice(0, 73);
+    return description.slice(0, 200);
   }
 
   const rankIngredients = () => {
@@ -236,7 +251,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       updatedIngredientList = updatedIngredientList
         .filter(x => x.id !== SpecialCaseProducts.LemonSeedOil)
         .filter(x => x.id !== SpecialCaseProducts.TeaTreeOil);
-      
+
 
     updatedIngredientList.forEach(ingredient => {
       filteredAnswers.forEach(a => {
@@ -253,7 +268,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     const categorisedIngredients = populateSkinConcernsAndIngredients(rankedIngredients, skinConcerns);
     categorisedIngredients.ingredientsOne = getHighestRankedIngredients(categorisedIngredients.ingredientsOne);
     categorisedIngredients.ingredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(categorisedIngredients.ingredientsOne[0].id, categorisedIngredients.ingredientsTwo));
-    
+
     let ingredientOne: IIngredient;
     let ingredientTwo: IIngredient;
 
@@ -319,115 +334,289 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const removeIngredientIfInSecondList = (id: number, ingredientListTwo: IIngredient[]) => {
     return ingredientListTwo.filter(x => x.id !== id);
-  } 
+  }
 
   const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
     const highestRank = Math.max(...ingredients.map(x => x.rank));
     return ingredients.filter(x => x.rank === highestRank);
   }
 
+  const getQuestionAnswer = (questionId: QuestionIds) => {
+    const foundQuestion = (quizQuestions.find(question => question.id === questionId) as IQuizQuestion);
+    if (foundQuestion.customAnswer.length > 1)
+      return foundQuestion.customAnswer;
+    const selectedAnswers = foundQuestion.answers.filter(answer => answer.selected);
+    return selectedAnswers.length > 1 ?
+    getDisplayAnswer(questionId, selectedAnswers.map(answer => answer.value).join(' & ')) :
+      getDisplayAnswer(questionId, (selectedAnswers[0].value as string));
+  }
+
+  const getDisplayAnswer = (questionId: QuestionIds, answer: string) => {
+    const formattedAnswer = answer.toLowerCase().trim();
+    if ((questionId === QuestionIds.adverseReactions) && (formattedAnswer === "none"))
+      return "Nothing";
+    if ((questionId === QuestionIds.exisitingConditions) && (formattedAnswer === "none"))
+      return "No skin conditions";
+    if (questionId === QuestionIds.fragranceFree)
+      return formattedAnswer === "no" ? "Fragrance-free" : "Fragranced"
+    if (questionId === QuestionIds.skinConcernsAndConditions)
+      return capitaliseFirstLetter(formattedAnswer);
+    if (questionId === QuestionIds.whenYouWakeUpInTheMorning) {
+      const condition = SkinConditionEnums[`${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`];
+      return capitaliseFirstLetter(condition);
+    }
+    return answer;
+  }
+
+  const capitaliseFirstLetter = (answer: string) => {
+    return answer[0].toUpperCase() + answer.toLowerCase().substring(1);
+  }
+
   return (
     <React.Fragment>
-      <SummaryWrap>
-        <SummaryGrid>
-          {
-            isQuizCompleted ?
-              <div>
-                <LoadingAnimation />
-                <StyledText margin="0" text={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your bespoke product`}></StyledText>
-              </div>
-              :
-              <React.Fragment>
-                {<StyledH2 margin="7px 0 7px" text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH2>}
-                {
-                  <SummaryBaseIngredient>
-                    <StyledImage src={baseIngredient.images[0].src} alt={baseIngredient.name}></StyledImage>
-                    <div>
-                      <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={baseIngredient.name}></StyledSubHeading>
-                      <StyledText margin="4px 0 0 0" fontSize="9pt" text={limitCharacterLength(baseIngredient.short_description)}></StyledText>
-                    </div>
-                  </SummaryBaseIngredient>
-                }
-                <StyledHR></StyledHR>
-                <SummaryIngredientWrap>
-                  {
-                    sortedIngredients.map((ingredient, index) => (
-                      <React.Fragment key={index}>
-                        <SummaryIngredient key={ingredient.id}>
-                          <StyledImage src={ingredient.images[0].src} alt={ingredient.name}></StyledImage>
-                          <StyledSubHeading margin="0 0 0 0" fontSize="10pt" text={ingredient.name}></StyledSubHeading>
-                          <StyledText margin="4px 0 0 0" fontSize="9pt" text={limitCharacterLength(ingredient.short_description)}></StyledText>
-                        </SummaryIngredient>
-                        {
-                          index === 0 &&
-                          <StyledImage width={15} src={plusIcon} alt="Plus icon"></StyledImage>
-                        }
-                      </React.Fragment>
-                    ))
-                  }
-                </SummaryIngredientWrap>
-                <StyledHR></StyledHR>
-                <StyledSummaryButton addMargin onClick={amendIngredients}>Change</StyledSummaryButton>
-                <StyledSummaryButton addMargin onClick={sendToWordpress}>Buy now</StyledSummaryButton>
-              </React.Fragment>
-          }
-        </SummaryGrid>
-      </SummaryWrap>
+      {
+        isQuizCompleted ?
+        <div>
+          <LoadingAnimation />
+          <StyledText margin="0" text={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your personalised moisturiser`}></StyledText>
+        </div>
+        :
+        <SummaryWrap>
+          <SummaryMixtureWrap>
+            <StyledSummaryTitle
+              heading={"Your Recipe"}
+              imageUrl={leavesIcon}
+              subHeading={"personalised by you, formulated by us"}
+            >
+            </StyledSummaryTitle>
+            <Mixture>
+              {
+                sortedIngredients.map((ingredient) => (
+                  <React.Fragment>
+                    <StyledSummaryIngredient
+                      key={ingredient.id}
+                      name={ingredient.name}
+                      description={limitCharacterLength(ingredient.short_description)}
+                      price={ingredient.price}
+                      usedFor={["condition 1", "condition 2"]}
+                      imageUrl={ingredient.images[0].src}
+                    >
+                    </StyledSummaryIngredient>
+                    <hr />
+                  </React.Fragment>
+                ))
+              }
+              <StyledSummaryIngredient
+                key={baseIngredient.id}
+                name={baseIngredient.name}
+                description={limitCharacterLength(baseIngredient.short_description)}
+                price={baseIngredient.price}
+                usedFor={["condition 1", "condition 2"]}
+                imageUrl={baseIngredient.images[0].src}
+              >
+              </StyledSummaryIngredient>
+            </Mixture>
+            <CallToActionWrapper className={areSummaryCTAsVisible ? "slideUp" : ""}>
+              <StyledSummaryButton onClick={sendToWordpress}>
+                buy now
+              </StyledSummaryButton>
+              <StyledSummaryButton onClick={amendIngredients}>
+                change
+              </StyledSummaryButton>
+            </CallToActionWrapper>
+          </SummaryMixtureWrap>
+          <SummaryWhatWeLearntWrap>
+            <StyledSummaryTitle
+              heading={`Here’s a few things we learnt about you${userName ? ", " + userName : ""}`}
+              imageUrl={productsIcon}
+              subHeading={""}
+            >
+            </StyledSummaryTitle>
+            <QuestionsAndAnswers>
+              <StyledSummaryQuestion
+                answer={getQuestionAnswer(QuestionIds.whenYouWakeUpInTheMorning)}
+                questionText="Your skin type is:"
+              >
+              </StyledSummaryQuestion>
+              <StyledSummaryQuestion
+                answer={getQuestionAnswer(QuestionIds.fragranceFree)}
+                questionText="You would like your moisturiser:"
+              ></StyledSummaryQuestion>
+              <StyledSummaryQuestion
+                answer={getQuestionAnswer(QuestionIds.exisitingConditions)}
+                questionText="You currently experience:"
+              >
+              </StyledSummaryQuestion>
+            </QuestionsAndAnswers>
+          </SummaryWhatWeLearntWrap>
+          <USPs>
+            <p>fragrance <span>free option</span></p>
+            <div className="circle"></div>
+            <p>organic <span>ingredients</span></p>
+            <div className="circle"></div>
+            <p>curelty <span>free</span></p>
+          </USPs>
+          <SummaryWhatWeAlsoKnowWrap>
+            <StyledSummaryTitle
+              heading={"We also know that..."}
+              imageUrl={tubeIcon}
+              subHeading={""}
+            >
+            </StyledSummaryTitle>
+            <QuestionsAndAnswers>
+              <StyledSummaryQuestion
+                answer={getQuestionAnswer(QuestionIds.skinConcernsAndConditions)}
+                questionText="Your skin concerns/conditions are:"
+              >
+              </StyledSummaryQuestion>
+              <StyledSummaryQuestion
+                answer={getQuestionAnswer(QuestionIds.adverseReactions)}
+                questionText="You've had adverse reactions to:"
+              >
+              </StyledSummaryQuestion>
+            </QuestionsAndAnswers>
+          </SummaryWhatWeAlsoKnowWrap>
+        </SummaryWrap>
+      }
     </React.Fragment>
   )
 }
 
-const SummaryIngredientWrap = styled.div`
-  position: relative;
-  display: grid;
+const USPs = styled.div`
+  border-top: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
+  border-bottom: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
+  width: 100%;
+  max-width: 90%;
+  padding: 11px 0;
   align-items: center;
-  max-width: 430px;
-  grid-gap: 10px;
-  margin: 0 auto;
-  grid-template-columns: 1fr 15px 1fr;
-`
-
-const SummaryBaseIngredient = styled.div`
+  font-family: ${props => props.theme.subHeadingFont};
   display: grid;
-  margin: 0 auto;
-  align-items: center;
-  width: 190px;
-  img{
-    margin: 0 auto;
-    max-height: 110px;
+  grid-template-columns: repeat(5, auto);
+  font-size: 9pt;
+  text-transform: uppercase;
+  margin: 20px 0 40px;
+  p {
+    width: 100%;
+    margin: 0;
   }
-  p{
-    height: 30px;
-    overflow: hidden;
+  span {
+    display: block;
+  }
+  .circle {
+    background: ${props => props.theme.brandColours.baseDarkGreen};
+    height: 7px;
+    width: 7px;
+    margin: auto;
+    border-radius: 50%;
   }
   @media screen and (min-width: 768px) {
-    img{
-      grid-area: 1
+    font-size: 10pt;
+    padding: 12px 0;
+    margin: 0 auto 40px auto;
+    order: 2;
+    span {
+      display: inline-block;
     }
-    text-align: left;
-    grid-template-columns: 170px 1fr;
-    width: 380px;
+  }
+  @media screen and (min-width: 980px) {
+    max-width: 1024px;
+    p {
+      width: 343px;
+    }
   }
 `
 
-const SummaryIngredient = styled.div`
-  img{
-    width: 90px;
+const SummaryWhatWeAlsoKnowWrap = styled.div`
+  width: 100%;
+  margin-bottom: 50px;
+  max-width: 850px;
+  @media screen and (min-width: 768px) {
+    display: grid;
+    order: 4
+    grid-template-rows: auto auto;
+  }
+`
+
+const CallToActionWrapper = styled.div`
+  position: fixed;
+  bottom: 0;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  transform: translateY(100%);
+  transition: all 0.25s ease-in-out;
+  justify-content: space-between;
+  @media screen and (min-width: 768px) {
+    max-width: 375px;
+    position: static;
+    transform: translateY(0);
+    margin: 40px auto 20px;
+  }
+`
+
+const QuestionsAndAnswers = styled.div`
+  @media screen and (min-width: 768px) {
+    display: flex;
+    grid-row: 2;
+    width: 100%;
+  }
+`
+
+const SummaryWhatWeLearntWrap = styled.div`
+  width: 100%;
+  max-width: 1024px;
+  @media screen and (min-width: 768px) {
+    display: grid;
+    grid-template-rows: auto auto;
+    order: 1;
+    margin-bottom: 60px;
+  }
+`
+
+const Mixture = styled.div`
+  hr {
+    margin: 50px auto;
+    width: 100%;
+  }
+  @media screen and (min-width: 768px) {
+    grid-row: 2;
+    width: 100%;
+    display: flex;
+    hr{
+      display: none;
+    }
+  }
+`
+
+const SummaryMixtureWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-width: 1024px;
+  width: 100%;
+  margin-bottom: 60px;
+  .slideUp {
+    transform: translateY(0);
+  }
+  @media screen and (min-width: 768px) {
+    margin-bottom: 40px;
+    display: grid;
+    order: 3
+    grid-template-rows: auto auto;
   }
 `
 
 const SummaryWrap = styled.div`
-  display: grid;
+  display: flex;
+  flex-direction: column;
   width: 100vw;
   align-items: center;
   text-align: center;
-  grid-template-columns: 20px 1fr 20px;
-  grid-template-rows: 0 1fr 0;
-`
-
-const SummaryGrid = styled.div`
-  grid-template-columns: 120px 1fr 120px;
-  grid-area: 2/2;
+  padding-top: 20px;
+  hr {
+    border: none;
+    max-width: 210px;
+    border-bottom: solid 1px rgba(151,151,151,0.3);
+  }
 `
 
 export default StyledSummary;

@@ -43,16 +43,24 @@ const StyledBackButton = styled.button`
 `
 
 const StyledSummaryButton = styled.button`
-  color: ${props => props.theme.brandColours.baseDarkGreen};
-  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
+  color: #fff;
+  border: none;
   margin: ${(props: ButtonProps) => props.addMargin ? "0 15px 0" : "0 auto"};
-  padding: 10px 15px;
-  background: none;
+  padding: 20px 15px;
+  background:${props => props.theme.brandColours.baseDarkGreen};
   outline: none;
   cursor: pointer;
   text-transform: uppercase;
   font-family: ${props => props.theme.subHeadingFont};
   font-weight: 600;
+  width: 50%;
+  @media screen and (min-width: 768px) {
+    width: auto;
+    padding: 12px 55px;
+  }
+  :nth-of-type(2) {
+    border-left: solid 1px #fff;
+  }
 `
 
 export { StyledButton, StyledBackButton, StyledSummaryButton };

@@ -465,7 +465,8 @@ const MobileAnswersWrapper = styled.div`
     padding: 40px 0 30px;
   }
   @media screen and (min-width: 768px) {
-    button {
+    button,
+    .closePanel {
       display: none;
     }
     .mobileAnswersPanel {

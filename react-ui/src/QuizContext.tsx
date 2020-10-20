@@ -32,7 +32,9 @@ const state: IQuiz = {
   dashboardValues: {} as IDashboardValue,
   saveDashboardValues: (previousDashboardValue: SetStateAction<IDashboardValue>) => previousDashboardValue,
   uniqueId: "",
-  saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId
+  saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId,
+  areSummaryCTAsVisible: false,
+  showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility
 }
 
 export const QuizContext = createContext(state);
@@ -55,6 +57,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
   const [dashboardValues, saveDashboardValues] = useState<IDashboardValue>({} as IDashboardValue);
   const [uniqueId, saveUniqueId] = useState<string>("");
+  const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
 
   return (
     <QuizContext.Provider value={{
@@ -83,7 +86,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       dashboardValues,
       saveDashboardValues,
       uniqueId,
-      saveUniqueId
+      saveUniqueId,
+      areSummaryCTAsVisible,
+      showSummaryCTAs
     }}>
       {children}
     </QuizContext.Provider>
