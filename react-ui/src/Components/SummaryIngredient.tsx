@@ -15,7 +15,7 @@ const StyledSummaryIngredient: React.FC<SummaryIngredientProps> = ({ description
       <img src={imageUrl} alt=""/>
       <p className="name">{name}<span className="price">£{price}</span></p>
       <p className="desc">{description}</p>
-      <p className="usedFor"> <span>commonly used for:</span> {usedFor.join(', ')}</p>
+      {usedFor.length !== 0 && <p className="usedFor"> <span>commonly used for:</span> {usedFor.join(', ')}</p>}
     </Ingredient> 
   )
 }
@@ -47,6 +47,7 @@ const Ingredient = styled.div`
     font-family: ${props => props.theme.bodyFont};
     margin: 0 0 10px 0;
     font-size: 9pt;
+    min-height: 50px;
   }
   .usedFor {
     text-transform: uppercase;

@@ -588,6 +588,7 @@ const Mixture = styled.div`
     grid-row: 2;
     width: 100%;
     display: flex;
+    align-items: baseline;
     hr{
       display: none;
     }
