@@ -25,6 +25,10 @@ const enum QuestionType {
   Skintone = 716
 }
 
+const enum MetaData {
+  CommonlyUsedFor = "commonly_used_for"
+}
+
 class App {
   public express: Application;
   private completedQuizModel = this.createCompletedQuizModel();
@@ -224,7 +228,9 @@ class App {
       await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
+          const foundMetaData = ingredient.meta_data.find(meta => meta.key === MetaData.CommonlyUsedFor);
           ingredient.rank = 0;
+          ingredient.commonlyUsedFor = foundMetaData ? foundMetaData.value.replace(/ /g, "").split(",") : [];
           ingredient.price_html = "";
           ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
           ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
