@@ -398,7 +398,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                       name={ingredient.name}
                       description={limitCharacterLength(ingredient.short_description)}
                       price={ingredient.price}
-                      usedFor={["condition 1", "condition 2"]}
+                      usedFor={ingredient.commonlyUsedFor}
                       imageUrl={ingredient.images[0].src}
                     >
                     </StyledSummaryIngredient>
@@ -411,7 +411,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                 name={baseIngredient.name}
                 description={limitCharacterLength(baseIngredient.short_description)}
                 price={baseIngredient.price}
-                usedFor={["condition 1", "condition 2"]}
+                usedFor={baseIngredient.commonlyUsedFor}
                 imageUrl={baseIngredient.images[0].src}
               >
               </StyledSummaryIngredient>

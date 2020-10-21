@@ -53,7 +53,7 @@ const Ingredient = styled.div`
     margin: 25px 0 0 0;
     font-family: ${props => props.theme.subHeadingFont};
     color: ${props => props.theme.brandColours.baseDefaultGreen};
-    font-size: 8pt;
+    font-size: 10pt;
     span {
       display: block;
     }
