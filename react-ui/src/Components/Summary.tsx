@@ -376,10 +376,10 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     <React.Fragment>
       {
         isQuizCompleted ?
-        <div>
+        <LoadingAnimationWrapper>
           <LoadingAnimation />
           <StyledText margin="0" text={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your personalised moisturiser`}></StyledText>
-        </div>
+        </LoadingAnimationWrapper>
         :
         <SummaryWrap>
           <SummaryMixtureWrap>
@@ -482,6 +482,12 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   )
 }
 
+const LoadingAnimationWrapper = styled.div`
+  margin: auto;
+  text-align: center;
+  max-width: 90%;
+`
+
 const USPs = styled.div`
   border-top: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   border-bottom: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
@@ -504,8 +510,8 @@ const USPs = styled.div`
   }
   .circle {
     background: ${props => props.theme.brandColours.baseDarkGreen};
-    height: 7px;
-    width: 7px;
+    height: 5px;
+    width: 5px;
     margin: auto;
     border-radius: 50%;
   }
