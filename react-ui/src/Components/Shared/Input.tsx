@@ -21,7 +21,7 @@ const Input = styled.input`
   outline: none;
   background: none;
   font-size: 11pt;
-  border-radius: none;
+  border-radius: 0;
   display: block;
   margin: 0 auto 20px auto;
   font-family: ${props => props.theme.bodyFont};

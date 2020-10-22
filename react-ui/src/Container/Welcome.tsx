@@ -77,7 +77,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
         <WelcomeWrapper maxWidth>
           <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
           <StyledText text="Use our product builder to create your own bespoke moisturiser in 60 seconds"></StyledText>
-          <StyledInput logInputValue={logName} placeholderText="Tell us your name :)" type="text"></StyledInput>
+          <StyledInput logInputValue={logName} placeholderText="Tell us your name or press start" type="text"></StyledInput>
           <Route render={({ history }) => (
             <StyledButton onClickHandler={() => {
               history.push('/quiz');
@@ -95,9 +95,6 @@ const Welcome = styled.div`
   grid-template-rows: 1fr;
   align-items: center;
   padding: 0 20px;
-  @media only screen and (min-width: 768px) {
-    height: 88.5vh;
-  }
   @media only screen and (min-width: 980px) {
     padding: 0;
   }

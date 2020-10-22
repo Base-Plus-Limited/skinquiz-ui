@@ -10,7 +10,7 @@ export interface AnswerProps {
 }
  
 const StyledAnswer: React.FC<AnswerProps> = ({ selectAnswer, selected, value, isDisabled }: AnswerProps) => {
-  return <Answer style={isDisabled ? { opacity: 0.2, pointerEvents: "none" } : { cursor: "pointer" }} onClick={selectAnswer}>
+  return <Answer className={`${selected ? "selectedAnswer" : ""}`} style={isDisabled ? { opacity: 0.2, pointerEvents: "none" } : { cursor: "pointer" }} onClick={selectAnswer}>
     {selected && <Tick></Tick>}
     {value}
   </Answer>

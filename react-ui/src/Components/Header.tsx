@@ -13,10 +13,14 @@ export interface HeaderProps {
  
 const StyledHeader: React.FC<HeaderProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, uniqueId } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, uniqueId, showSummaryCTAs } = useContext(QuizContext);
 
   const areAllQuestionsAnswered = () => {
-    return quizQuestions.filter(x => x.answered).length === quizQuestions.length;
+    const allQUestionsAnswered = quizQuestions.filter(x => x.answered).length === quizQuestions.length;
+    setTimeout(() => {
+      showSummaryCTAs(allQUestionsAnswered);
+    }, 2000)
+    return allQUestionsAnswered;
   }
 
   const removeLastQuestionAnswered = () => {

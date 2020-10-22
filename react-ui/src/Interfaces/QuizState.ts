@@ -32,6 +32,8 @@ interface IQuiz {
   saveDashboardValues: Dispatch<SetStateAction<IDashboardValue>>;
   uniqueId: string;
   saveUniqueId: Dispatch<SetStateAction<string>>;
+  areSummaryCTAsVisible: boolean;
+  showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
 }
 
 export default IQuiz;

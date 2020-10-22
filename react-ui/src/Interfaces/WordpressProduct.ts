@@ -1,7 +1,8 @@
 export interface IIngredient extends WordpressProduct {
   rank: number;
-  previouslyRanked: boolean
-  isSelectedForSummary: boolean
+  previouslyRanked: boolean;
+  isSelectedForSummary: boolean;
+  commonlyUsedFor: string[];
 }
 
 export interface WordpressProduct {
@@ -69,7 +70,7 @@ export interface WordpressProduct {
   variations: any[];
   grouped_products: any[];
   menu_order: number;
-  meta_data: any[];
+  meta_data: WordpressMetaData[];
   composite_layout: string;
   composite_add_to_cart_form_location: string;
   composite_editable_in_cart: boolean;
@@ -78,6 +79,12 @@ export interface WordpressProduct {
   composite_components: any[];
   composite_scenarios: any[];
   _links: Links;
+}
+
+export interface WordpressMetaData {
+  id: number;
+  key: string;
+  value: string;
 }
 
 interface Links {
