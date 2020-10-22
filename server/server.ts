@@ -230,7 +230,7 @@ class App {
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
           const foundMetaData = ingredient.meta_data.find(meta => meta.key === MetaData.CommonlyUsedFor);
           ingredient.rank = 0;
-          ingredient.commonlyUsedFor = foundMetaData ? foundMetaData.value.replace(/ /g, "").split(",") : [];
+          ingredient.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
           ingredient.price_html = "";
           ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
           ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');

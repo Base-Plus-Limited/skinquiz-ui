@@ -219,10 +219,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  const limitCharacterLength = (description: string) => {
-    return description.slice(0, 200);
-  }
-
   const rankIngredients = () => {
 
     const skinConcernAnswers: string[] = [];
@@ -396,7 +392,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
                     <StyledSummaryIngredient
                       key={ingredient.id}
                       name={ingredient.name}
-                      description={limitCharacterLength(ingredient.short_description)}
+                      description={ingredient.short_description}
                       price={ingredient.price}
                       usedFor={ingredient.commonlyUsedFor}
                       imageUrl={ingredient.images[0].src}
@@ -409,7 +405,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               <StyledSummaryIngredient
                 key={baseIngredient.id}
                 name={baseIngredient.name}
-                description={limitCharacterLength(baseIngredient.short_description)}
+                description={baseIngredient.short_description}
                 price={baseIngredient.price}
                 usedFor={baseIngredient.commonlyUsedFor}
                 imageUrl={baseIngredient.images[0].src}

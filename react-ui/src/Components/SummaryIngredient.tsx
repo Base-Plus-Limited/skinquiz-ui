@@ -47,14 +47,15 @@ const Ingredient = styled.div`
     font-family: ${props => props.theme.bodyFont};
     margin: 0 0 10px 0;
     font-size: 9pt;
-    min-height: 50px;
+    min-height: 130px;
+    line-height: 1.4em;
   }
   .usedFor {
     text-transform: uppercase;
     margin: 25px 0 0 0;
     font-family: ${props => props.theme.subHeadingFont};
     color: ${props => props.theme.brandColours.baseDefaultGreen};
-    font-size: 10pt;
+    font-size: 9pt;
     span {
       display: block;
     }
