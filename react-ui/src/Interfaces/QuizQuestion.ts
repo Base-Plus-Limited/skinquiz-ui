@@ -20,5 +20,5 @@ export interface IAnswer {
   id: string;
   disable: boolean;
   meta: string[];
-  skinColour: string;
+  skinColours: string[];
 }

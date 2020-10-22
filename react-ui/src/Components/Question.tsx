@@ -358,7 +358,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                               <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                                 {
                                   question.answers.map((answer: IAnswer, index: number) => {
-                                    return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}>
+                                    return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColours={answer.skinColours} selectAnswer={() => selectAnswer(question, index)} key={index}>
                                     </StyledSkintoneAnswer>
                                   })
                                 }
@@ -402,13 +402,13 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                   <React.Fragment>
                     {
                       question.isSkintoneQuestion ?
-                        <MobileAnswersWrapper>
+                        <MobileAnswersWrapper className="skintoneAnswers">
                           <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                           <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
                           <span className="closePanel skintoneClose" onClick={() => toggleAnswersPanel(question)}>X</span>
                             {
                               question.answers.map((answer: IAnswer, index: number) => {
-                                return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColour={answer.skinColour} selectAnswer={() => selectAnswer(question, index)} key={index}>
+                                return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColours={answer.skinColours} selectAnswer={() => selectAnswer(question, index)} key={index}>
                                 </StyledSkintoneAnswer>
                               })
                             }
@@ -531,6 +531,14 @@ const HalfScreenQuestion = styled.div`
   font-size: 11pt;
   overflow: hidden;
   font-family: ${props => props.theme.subHeadingFont};
+  .skintoneAnswers .mobileAnswersPanel {
+    margin: 10px 0 0 0;
+  }
+  @media screen and (min-width: 768px) {
+    .skintoneAnswers .mobileAnswersPanel {
+      display: flex;
+    }
+  }
 `;
 
 const FullScreenQuestion = styled.div`
