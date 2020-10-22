@@ -44,7 +44,14 @@ class App {
     this.connectToDb();
   }
 
-  private skinTypeCodes: string[] = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+  private skinRangeColours: { [key: string]: string[] } = {
+    "0" : ["#CF9D72", "#E2B18A", "#EDBFA0", "#EECDB2", "#EEDDCC"],
+    "1" : ["#CF8A86", "#DF9A96", "#E3ADA6", "#F1BEB6", "#ECCEC9"],
+    "2" : ["#B38371", "#CE9E8A", "#E4B59C", "#F0C4AF", "#F2D7C9"],
+    "3" : ["#906D5A", "#9C7860", "#B59179", "#CFA995", "#DABCAB"],
+    "4" : ["#884C1C", "#965823", "#A86B2F", "#B27941", "#C18352"],
+    "5" : ["#4C0C00", "#581503", "#711F13", "#7A3724", "#914C3D"],
+  }
 
   private config () {
     this.express.use(express.static(resolve(__dirname, '../react-ui/build')));
@@ -321,7 +328,7 @@ class App {
           selected: false,
           disable: false,
           id: answer.trim(),
-          skinColour: question.id === 716 ? this.skinTypeCodes[index] : "",
+          skinColours: question.id === QuestionType.Skintone ? this.skinRangeColours[index] : [],
           meta: separatedMeta.map(meta => meta.trim())
         }
       })

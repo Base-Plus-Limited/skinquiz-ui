@@ -41,7 +41,7 @@ const SkintoneText = styled.p`
 `
 
 const SkintoneSquare = styled.div`
-  width: 10px;
+  width: 16px;
   height: 50px;
   margin: 0 auto 10px;
   display: inline-block;
