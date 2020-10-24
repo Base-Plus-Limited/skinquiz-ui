@@ -60,7 +60,7 @@ const SkintoneAnswer = styled.div`
   font-weight: 600;
   span {
     right: auto;
-    margin-left: 40px;
+    margin-left: 69px;
   }
   @media screen and (min-width: 768px) {
     margin: 4px;
