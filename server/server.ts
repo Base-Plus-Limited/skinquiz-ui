@@ -23,7 +23,8 @@ const enum QuestionType {
   Fragrance = 3870,
   SkinCondition = 1443,
   SerumSkinCondition = 5366,
-  Skintone = 716
+  Skintone = 716,
+  SerumSkintone = 5365
 }
 
 const enum MetaData {
@@ -358,7 +359,7 @@ class App {
       id: question.id,
       answered: false,
       prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
-      isSkintoneQuestion: question.id === QuestionType.Skintone && true, 
+      isSkintoneQuestion: (question.id === QuestionType.Skintone || question.id === QuestionType.SerumSkintone) ? true : false, 
       isSkinConditionQuestion: (question.id === QuestionType.SerumSkinCondition || question.id === QuestionType.SkinCondition) ? true : false, 
       customAnswer: "",
       displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
