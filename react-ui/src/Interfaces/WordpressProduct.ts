@@ -1,5 +1,6 @@
 export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
+  isSelectedForSummary: boolean;
 }
 
 export interface IIngredient extends WordpressProduct {
