@@ -374,7 +374,7 @@ class App {
           selected: false,
           disable: false,
           id: answer.trim(),
-          skinColours: question.id === QuestionType.Skintone ? this.skinRangeColours[index] : [],
+          skinColours: (question.id === QuestionType.SerumSkintone || question.id === QuestionType.Skintone) ? this.skinRangeColours[index] : [],
           meta: separatedMeta.map(meta => meta.trim())
         }
       })
