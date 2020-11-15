@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
-import { IIngredient, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IIngredient, ISerum, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IAnalyticsEvent } from './../react-ui/src/Interfaces/Analytics';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { IHoneyBadgerErrorTypes } from './../react-ui/src/Interfaces/ErrorTypes';
@@ -266,6 +266,29 @@ class App {
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
+        .catch((error) => {
+          if(error instanceof TypeError) {
+            honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
+            res.status(500).end();
+            return;
+          }
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`);
+          res.status(error.status).send(this.handleError(error));
+        }) 
+    });
+
+    /*************************
+     *  GET ALL SERUMS / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+     *************************/
+    router.get('/serums', async (req, res) => {
+      await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=93&type=simple`)
+        .then(res => res.body)
+        .then((serums: ISerum[]) => serums.map(serum => {
+          const foundMetaData = serum.meta_data.find(meta => meta.key === MetaData.CommonlyUsedFor);
+          serum.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
+          return serum;
+        }))
+        .then((serums: ISerum[]) => res.send(serums))
         .catch((error) => {
           if(error instanceof TypeError) {
             honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);

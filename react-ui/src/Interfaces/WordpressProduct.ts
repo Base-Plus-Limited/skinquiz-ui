@@ -1,3 +1,7 @@
+export interface ISerum extends WordpressProduct {
+  commonlyUsedFor: string[];
+}
+
 export interface IIngredient extends WordpressProduct {
   rank: number;
   previouslyRanked: boolean;
