@@ -22,6 +22,7 @@ dotenv.config();
 const enum QuestionType {
   Fragrance = 3870,
   SkinCondition = 1443,
+  SerumSkinCondition = 5366,
   Skintone = 716
 }
 
@@ -286,6 +287,7 @@ class App {
         .then((serums: ISerum[]) => serums.map(serum => {
           const foundMetaData = serum.meta_data.find(meta => meta.key === MetaData.CommonlyUsedFor);
           serum.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
+          serum.isSelectedForSummary = false;
           return serum;
         }))
         .then((serums: ISerum[]) => res.send(serums))
@@ -357,7 +359,7 @@ class App {
       answered: false,
       prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
       isSkintoneQuestion: question.id === QuestionType.Skintone && true, 
-      isSkinConditionQuestion: question.id === QuestionType.SkinCondition && true, 
+      isSkinConditionQuestion: (question.id === QuestionType.SerumSkinCondition || question.id === QuestionType.SkinCondition) ? true : false, 
       customAnswer: "",
       displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
       isMobilePanelOpen: false,
