@@ -450,7 +450,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
             <div className="circle"></div>
             <p>organic <span>ingredients</span></p>
             <div className="circle"></div>
-            <p>curelty <span>free</span></p>
+            <p>cruelty <span>free</span></p>
           </USPs>
           <SummaryWhatWeAlsoKnowWrap>
             <StyledSummaryTitle
