@@ -354,7 +354,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     if ((questionId === QuestionIds.exisitingConditions) && (formattedAnswer === "none"))
       return "No skin conditions";
     if (questionId === QuestionIds.fragranceFree)
-      return formattedAnswer === "no" ? "Fragrance-free" : "Fragranced"
+      return formattedAnswer === "yes" ? "Fragrance-free" : "Fragranced"
     if (questionId === QuestionIds.skinConcernsAndConditions)
       return capitaliseFirstLetter(formattedAnswer);
     if (questionId === QuestionIds.whenYouWakeUpInTheMorning) {
@@ -450,7 +450,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
             <div className="circle"></div>
             <p>organic <span>ingredients</span></p>
             <div className="circle"></div>
-            <p>curelty <span>free</span></p>
+            <p>cruelty <span>free</span></p>
           </USPs>
           <SummaryWhatWeAlsoKnowWrap>
             <StyledSummaryTitle
