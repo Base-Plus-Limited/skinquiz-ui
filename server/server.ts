@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
-import { IIngredient, ISerum, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IIngredient, ISerum, WordpressMetaData, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IAnalyticsEvent } from './../react-ui/src/Interfaces/Analytics';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { IHoneyBadgerErrorTypes } from './../react-ui/src/Interfaces/ErrorTypes';
@@ -331,6 +331,26 @@ class App {
           }
           res.send(error);
         })
+    });
+
+    /*************************
+     *  UPDATE SERUM META DATA WITH QUIZ ID / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+     *************************/
+    router.post('/update-serum-meta-data', bodyParser.json(), async (req, res) => {
+      const { selectedSerumId, quizIdsMeta }: { selectedSerumId: number, quizIdsMeta: WordpressMetaData } = req.body;
+      if ((selectedSerumId === undefined) || (quizIdsMeta === undefined)) {
+        honeybadger.notify("One of the parameters 'selectedSerumId' or 'quizIds' is undefined", IHoneyBadgerErrorTypes.APIREQUEST);
+        res.status(400).send({ message: "selectedSerumId or quizIds is undefined" });
+        return;
+      }
+      await request.patch(`${process.env.BASE_API_URL}/wc/v3/products/${selectedSerumId}?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
+        .send({ meta_data: [quizIdsMeta] })
+        .then(response => response.body)
+        .then((updatedSerum: WordpressProduct) => res.send(updatedSerum))
+        .catch((error) => {
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
+          res.status(error.status).send(this.handleError(error));
+        }) 
     });
 
     /*************************
