@@ -32,6 +32,10 @@ const enum MetaData {
   CommonlyUsedFor = "commonly_used_for"
 }
 
+const enum FreeGiftSerum {
+  Id = 6039
+}
+
 class App {
   public express: Application;
   private completedQuizModel = this.createCompletedQuizModel();
@@ -273,7 +277,7 @@ class App {
           serum.isSelectedForSummary = false;
           return serum;
         }))
-        .then((serums: ISerum[]) => res.send(serums))
+        .then((serums: ISerum[]) => res.send(serums.filter(serum => serum.id !== FreeGiftSerum.Id)))
         .catch((error) => {
           if(error instanceof TypeError) {
             honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
