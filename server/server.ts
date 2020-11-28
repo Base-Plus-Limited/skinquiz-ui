@@ -41,7 +41,8 @@ class App {
   private completedQuizModel = this.createCompletedQuizModel();
   private customProductModel = this.createCustomProductModel();
   private completedSerumQuizModel = this.createCompletedSerumQuizModel();
-  private mixPanelClient = mixpanel.init(`${process.env.MIXPANEL_ID}`);
+  private mixPanelClient = mixpanel.init(`${process.env.MOISTURISER_MIXPANEL_ID}`);
+  private serumMixPanelClient = mixpanel.init(`${process.env.SERUM_MIXPANEL_ID}`);
   private newFileName = "";
 
   constructor () {
@@ -357,6 +358,26 @@ class App {
         }) 
     });
 
+    /*************************
+     *  LOG SERUM ANALYTICS
+     *************************/
+    router.post('/serum-analytics', (req, res) => {
+      const data: IAnalyticsEvent = req.body;
+      const {distinct_id, question_id, event_type } = data;
+      this.serumMixPanelClient.track(event_type, {
+        distinct_id,
+        question_id
+      }, (response) => {
+        if(response instanceof Error) {
+          res.send(response);
+          honeybadger.notify(`Error logging analytics: ${response.message}`, IHoneyBadgerErrorTypes.ANALYTICS)
+          return;
+        }
+        res.send(response);
+        console.log(`Logged analytics event ${data.event_type}`);
+      })
+    });
+    
     /*************************
      *  WILDCARD
      *************************/
