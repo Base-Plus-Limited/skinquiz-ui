@@ -3,12 +3,13 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import { Html5Entities } from 'html-entities';
 import { IWordpressQuestion } from './../react-ui/src/Interfaces/WordpressQuestion';
-import { IIngredient, ISerum, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
+import { IIngredient, ISerum, WordpressMetaData, WordpressProduct } from './../react-ui/src/Interfaces/WordpressProduct';
 import { IAnalyticsEvent } from './../react-ui/src/Interfaces/Analytics';
 import { IQuizQuestion } from './../react-ui/src/Interfaces/QuizQuestion';
 import { IHoneyBadgerErrorTypes } from './../react-ui/src/Interfaces/ErrorTypes';
 import { ICompletedQuizDBModel } from './../react-ui/src/Interfaces/CompletedQuizDBModel';
 import ICustomProductDBModel from './../react-ui/src/Interfaces/CustomProduct';
+import ISerumQuizDBModel from './../react-ui/src/Interfaces/SerumQuizDBModel';
 import { ICompletedQuiz } from './../react-ui/src/Interfaces/CompletedQuiz';
 import * as request from 'superagent';
 import * as mixpanel from 'mixpanel';
@@ -31,11 +32,17 @@ const enum MetaData {
   CommonlyUsedFor = "commonly_used_for"
 }
 
+const enum FreeGiftSerum {
+  Id = 6039
+}
+
 class App {
   public express: Application;
   private completedQuizModel = this.createCompletedQuizModel();
   private customProductModel = this.createCustomProductModel();
-  private mixPanelClient = mixpanel.init(`${process.env.MIXPANEL_ID}`);
+  private completedSerumQuizModel = this.createCompletedSerumQuizModel();
+  private mixPanelClient = mixpanel.init(`${process.env.MOISTURISER_MIXPANEL_ID}`);
+  private serumMixPanelClient = mixpanel.init(`${process.env.SERUM_MIXPANEL_ID}`);
   private newFileName = "";
 
   constructor () {
@@ -106,26 +113,6 @@ class App {
      *************************/
     router.get('/questions', async (req, res) => {
       await request.get(`${process.env.BASE_API_URL}/wp/v2/diagnostic_tool`)
-        .then(res => res.body)
-        .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
-        .then(quiz => res.send(quiz))
-        .catch((error) => {
-          if(error instanceof TypeError) {
-            honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
-            res.status(500).end();
-            return;
-          }
-          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
-          res.status(error.status).send(this.handleError(error));
-        }) 
-    });
-
-
-    /*************************
-     *  GET ALL SERUM QUESTIONS / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
-     *************************/
-    router.get('/serum-quiz', async (req, res) => {
-      await request.get(`${process.env.BASE_API_URL}/wp/v2/serum_quiz`)
         .then(res => res.body)
         .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
         .then(quiz => res.send(quiz))
@@ -291,7 +278,7 @@ class App {
           serum.isSelectedForSummary = false;
           return serum;
         }))
-        .then((serums: ISerum[]) => res.send(serums))
+        .then((serums: ISerum[]) => res.send(serums.filter(serum => serum.id !== FreeGiftSerum.Id)))
         .catch((error) => {
           if(error instanceof TypeError) {
             honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
@@ -303,6 +290,94 @@ class App {
         }) 
     });
 
+    /*************************
+     *  GET ALL SERUM QUESTIONS / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+     *************************/
+    router.get('/serum-quiz', async (req, res) => {
+      await request.get(`${process.env.BASE_API_URL}/wp/v2/serum_quiz`)
+        .then(res => res.body)
+        .then((questions: IWordpressQuestion[]) => questions.map(question => this.returnQuizQuestion(question)))
+        .then(quiz => res.send(quiz))
+        .catch((error) => {
+          if(error instanceof TypeError) {
+            honeybadger.notify(`${error.name}: ${error.message}`, IHoneyBadgerErrorTypes.CODE);
+            res.status(500).end();
+            return;
+          }
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
+          res.status(error.status).send(this.handleError(error));
+        }) 
+    });
+
+    /*************************
+     *  SAVE SERUM QUIZ TO DB / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+     *************************/
+    router.post('/save-serum-quiz', bodyParser.json(), async (req, res) => {
+      const serumRequest: ISerumQuizDBModel = req.body;
+      const serumData = new this.completedSerumQuizModel({
+        selectedSerum: serumRequest.selectedSerum,
+        selectedSerumId: serumRequest.selectedSerumId,
+        recommendedSerum: serumRequest.recommendedSerum,
+        recommendedSerumId: serumRequest.recommendedSerumId,
+        quiz: serumRequest.quiz,
+        quizId: serumRequest.quizId,
+        date: this.getGmtTime()
+      });
+      serumData.save()
+        .then(dbResponse => {
+          console.log(`Saved serum data with id ${dbResponse.id}`);
+          res.send(dbResponse);
+        })
+        .catch(error => {
+          honeybadger.notify(`Error saving product: ${error.message}`, IHoneyBadgerErrorTypes.DATABASE);
+          if (error.name === "ValidationError") {
+            res.status(400).send({message:error.message});
+            return;
+          }
+          res.send(error);
+        })
+    });
+
+    /*************************
+     *  UPDATE SERUM META DATA WITH QUIZ ID / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+     *************************/
+    router.post('/update-serum-meta-data', bodyParser.json(), async (req, res) => {
+      const { selectedSerumId, quizIdsMeta }: { selectedSerumId: number, quizIdsMeta: WordpressMetaData } = req.body;
+      if ((selectedSerumId === undefined) || (quizIdsMeta === undefined)) {
+        honeybadger.notify("One of the parameters 'selectedSerumId' or 'quizIds' is undefined", IHoneyBadgerErrorTypes.APIREQUEST);
+        res.status(400).send({ message: "selectedSerumId or quizIds is undefined" });
+        return;
+      }
+      await request.patch(`${process.env.BASE_API_URL}/wc/v3/products/${selectedSerumId}?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}`)
+        .send({ meta_data: [quizIdsMeta] })
+        .then(response => response.body)
+        .then((updatedSerum: WordpressProduct) => res.send(updatedSerum))
+        .catch((error) => {
+          honeybadger.notify(`Error ${this.handleError(error).code}, ${this.handleError(error).message}`, IHoneyBadgerErrorTypes.APIREQUEST);
+          res.status(error.status).send(this.handleError(error));
+        }) 
+    });
+
+    /*************************
+     *  LOG SERUM ANALYTICS
+     *************************/
+    router.post('/serum-analytics', (req, res) => {
+      const data: IAnalyticsEvent = req.body;
+      const {distinct_id, question_id, event_type } = data;
+      this.serumMixPanelClient.track(event_type, {
+        distinct_id,
+        question_id
+      }, (response) => {
+        if(response instanceof Error) {
+          res.send(response);
+          honeybadger.notify(`Error logging analytics: ${response.message}`, IHoneyBadgerErrorTypes.ANALYTICS)
+          return;
+        }
+        res.send(response);
+        console.log(`Logged analytics event ${data.event_type}`);
+      })
+    });
+    
     /*************************
      *  WILDCARD
      *************************/
@@ -425,6 +500,51 @@ class App {
       }]
     })
     return model<ICompletedQuizDBModel & Document>('completed-quizzes', CompletedQuizSchema);
+  }
+
+  private createCompletedSerumQuizModel() {
+    const SerumQuizSchema = new Schema({
+      quizId: {
+        type: Number,
+        required: true
+      },
+      date: {
+        type: Date,
+        required: false,
+        default: Date.now
+      },
+      selectedSerum: {
+        type: String,
+        required: true
+      },
+      selectedSerumId: {
+        type: Number,
+        required: true
+      },
+      recommendedSerum: {
+        type: String,
+        required: true
+      },
+      recommendedSerumId: {
+        type: Number,
+        required: true
+      },
+      quiz: [{
+        questionId: {
+          type: Number,
+          required: true
+        },
+        answer: {
+          type: String,
+          required: true
+        },
+        question: {
+          type: String,
+          required: true
+        }
+      }]
+    })
+    return model<ISerumQuizDBModel & Document>('completed-serum-quizzes', SerumQuizSchema);
   }
 
   private createCustomProductModel() {
