@@ -273,9 +273,10 @@ class App {
       await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=93&type=simple`)
         .then(res => res.body)
         .then((serums: ISerum[]) => serums.map(serum => {
-          const foundMetaData = serum.meta_data.find(meta => meta.key === MetaData.CommonlyUsedFor);
-          serum.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
+          serum.commonlyUsedFor = [];
           serum.isSelectedForSummary = false;
+          serum.short_description = serum.short_description.replace(/<[^>]*>?/gm, '');
+          serum.description = serum.description.replace(/<[^>]*>?/gm, '');
           return serum;
         }))
         .then((serums: ISerum[]) => res.send(serums.filter(serum => serum.id !== FreeGiftSerum.Id)))
