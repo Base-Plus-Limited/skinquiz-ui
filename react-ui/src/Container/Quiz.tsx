@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
 import { QuizContext } from '../QuizContext';
-import { IIngredient } from '../Interfaces/WordpressProduct';
+import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
 import StyledSummary from '../Components/Summary';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
-import { IErrorResponse } from '../Interfaces/ErrorResponse';
 
 
 interface QuizProps {
@@ -17,7 +16,7 @@ interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, saveBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
+  const { saveSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, saveBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/api/questions')
@@ -46,6 +45,19 @@ const StyledQuiz: React.FC<QuizProps> = () => {
           message: error.message
         })
       });
+
+
+    fetch('/api/serums')
+      .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
+      .then((serums: ISerum[]) => saveSerums(serums))
+      .catch((error) => {
+        setApplicationError({
+          error: true,
+          code: error.status,
+          message: error.message
+        })
+      });
+
   }, []);
 
   const formattedQuiz = () => {
@@ -62,7 +74,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   const setWhetherQuestionShouldDisplayFullScreen = (questions: IQuizQuestion[][]) => {
     questions.forEach(questions => {
-      if(questions.length !== 2)
+      if (questions.length !== 2)
         questions.map(x => x.isFullScreen = true)
     })
   }
@@ -89,7 +101,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
     }
   }
 
-  const getErrorMessage = (error: IErrorResponse) => {
+  const getErrorMessage = () => {
     return `${hasApplicationErrored.uiMessage && hasApplicationErrored.uiMessage.length > 0 ? `${hasApplicationErrored.uiMessage}` : "We're unable to load the quiz at the moment, please try again later"}`
   }
 
@@ -97,14 +109,14 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
   return (
     hasApplicationErrored.error ?
-      <StyledErrorScreen message={getErrorMessage(hasApplicationErrored)}></StyledErrorScreen>
+      <StyledErrorScreen message={getErrorMessage()}></StyledErrorScreen>
       : <React.Fragment>
         <ScrollWrapper>
           <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
             {
               formattedQuiz()[0].length ?
                 formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
-                <LoadingAnimation />
+                <LoadingAnimation loadingText="" />
             }
             {(quizQuestions.length && (questionsAnswered.length === quizQuestions.length)) && <StyledSummary></StyledSummary>}
           </Quiz>
@@ -125,5 +137,5 @@ const Quiz = styled.div`
   height: 100%;
   margin-left: ${(props: QuizProps) => `-${props.marginValue}00vw`}
 `;
- 
+
 export default StyledQuiz;

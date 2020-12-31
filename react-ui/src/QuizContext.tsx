@@ -1,7 +1,7 @@
 import React, { createContext, SetStateAction, useState } from 'react';
 import { IQuizQuestion } from './Interfaces/QuizQuestion';
 import IQuiz from './Interfaces/QuizState';
-import { IIngredient } from './Interfaces/WordpressProduct';
+import { IIngredient, ISerum } from './Interfaces/WordpressProduct';
 import { ISkinCondition } from './Interfaces/SkinCondition';
 import { IErrorResponse } from './Interfaces/ErrorResponse';
 import { IDashboardValue } from './Interfaces/DashboardValue';
@@ -34,7 +34,11 @@ const state: IQuiz = {
   uniqueId: "",
   saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId,
   areSummaryCTAsVisible: false,
-  showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility
+  showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility,
+  serums: [],
+  saveSerums: (perviousSerums: SetStateAction<ISerum[]>) => perviousSerums,
+  isLoading: false,
+  toggleLoading: (previousLoading: SetStateAction<boolean>) => previousLoading
 }
 
 export const QuizContext = createContext(state);
@@ -58,6 +62,8 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [dashboardValues, saveDashboardValues] = useState<IDashboardValue>({} as IDashboardValue);
   const [uniqueId, saveUniqueId] = useState<string>("");
   const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
+  const [serums, saveSerums] = useState<ISerum[]>([]);
+  const [isLoading, toggleLoading] = useState<boolean>(false);
 
   return (
     <QuizContext.Provider value={{
@@ -88,7 +94,11 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       uniqueId,
       saveUniqueId,
       areSummaryCTAsVisible,
-      showSummaryCTAs
+      showSummaryCTAs,
+      serums,
+      saveSerums,
+      isLoading,
+      toggleLoading
     }}>
       {children}
     </QuizContext.Provider>

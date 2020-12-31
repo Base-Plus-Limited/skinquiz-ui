@@ -44,6 +44,9 @@ const Heading = styled.div`
   }
   hr {
     margin: 15px auto 50px;
+    border: none;
+    max-width: 210px;
+    border-bottom: solid 1px rgba(151,151,151,0.3);
   }
 `
  

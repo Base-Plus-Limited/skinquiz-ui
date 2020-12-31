@@ -21,8 +21,7 @@ const App: React.FC = () => {
             <BrowserRouter>
               <Switch>
                 <Route path="/" exact component={StyledWelcome} />
-                <Route path="/moisturiser" component={StyledQuiz} />
-                <Route path="/serum" component={StyledQuiz} />
+                <Route path="/quiz" component={StyledQuiz} />
                 <Route path="/download-data" component={DownloadData} />
               </Switch>
             </BrowserRouter>

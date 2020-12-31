@@ -1,6 +1,6 @@
 import { IQuizQuestion } from "./QuizQuestion";
 import { Dispatch, SetStateAction } from 'react';
-import { IIngredient } from "./WordpressProduct";
+import { IIngredient, ISerum } from "./WordpressProduct";
 import { ISkinCondition } from "./SkinCondition";
 import { IErrorResponse } from "./ErrorResponse";
 import { IDashboardValue } from "./DashboardValue";
@@ -34,6 +34,10 @@ interface IQuiz {
   saveUniqueId: Dispatch<SetStateAction<string>>;
   areSummaryCTAsVisible: boolean;
   showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
+  serums: ISerum[];
+  saveSerums: Dispatch<SetStateAction<ISerum[]>>;
+  isLoading: boolean;
+  toggleLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 export default IQuiz;

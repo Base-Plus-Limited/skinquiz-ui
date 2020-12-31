@@ -4,10 +4,11 @@ import styled from 'styled-components';
 export interface H2Props {
   text: string;
   margin?: string;
+  isUpsellHeading?: boolean;
 }
  
-const StyledH2: React.SFC<H2Props> = ({text, margin}) => (
-  <H2 style={{margin: margin && "7px 0 27px"}}>{text}</H2>
+const StyledH2: React.SFC<H2Props> = ({text, margin, isUpsellHeading}) => (
+  <H2 className={isUpsellHeading ? "upsellHeading" : ""} style={{margin: margin && "7px 0 27px"}}>{text}</H2>
 )
 
 const H2 = styled.h2`
