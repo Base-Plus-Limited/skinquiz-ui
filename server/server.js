@@ -83,9 +83,18 @@ var App = /** @class */ (function () {
         var _this = this;
         this.completedQuizModel = this.createCompletedQuizModel();
         this.customProductModel = this.createCustomProductModel();
-        this.mixPanelClient = mixpanel.init("" + process.env.MIXPANEL_ID);
+        this.completedSerumQuizModel = this.createCompletedSerumQuizModel();
+        this.mixPanelClient = mixpanel.init("" + process.env.MOISTURISER_MIXPANEL_ID);
+        this.serumMixPanelClient = mixpanel.init("" + process.env.SERUM_MIXPANEL_ID);
         this.newFileName = "";
-        this.skinTypeCodes = ["#F1EAE1", "#F6E4E3", "#F0D4CA", "#E2AE8D", "#9E633C", "#5E3C2B"];
+        this.skinRangeColours = {
+            "0": ["#CF9D72", "#E2B18A", "#EDBFA0", "#EECDB2", "#EEDDCC"],
+            "1": ["#CF8A86", "#DF9A96", "#E3ADA6", "#F1BEB6", "#ECCEC9"],
+            "2": ["#B38371", "#CE9E8A", "#E4B59C", "#F0C4AF", "#F2D7C9"],
+            "3": ["#906D5A", "#9C7860", "#B59179", "#CFA995", "#DABCAB"],
+            "4": ["#884C1C", "#965823", "#A86B2F", "#B27941", "#C18352"],
+            "5": ["#4C0C00", "#581503", "#711F13", "#7A3724", "#914C3D"]
+        };
         this.generateRandomString = function () {
             return Math.random().toString().split('.')[1].slice(0, 5);
         };
@@ -174,7 +183,7 @@ var App = /** @class */ (function () {
             });
         }); });
         /*************************
-         *  GET ALL QUESTIONS
+         *  GET ALL MOISTURISER QUESTIONS
          *************************/
         router.get('/questions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var _this = this;
@@ -329,7 +338,9 @@ var App = /** @class */ (function () {
                     case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET + "&category=35&type=simple&per_page=30")
                             .then(function (res) { return res.body; })
                             .then(function (ingredients) { return ingredients.map(function (ingredient) {
+                            var foundMetaData = ingredient.meta_data.find(function (meta) { return meta.key === "commonly_used_for" /* CommonlyUsedFor */; });
                             ingredient.rank = 0;
+                            ingredient.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
                             ingredient.price_html = "";
                             ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
                             ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
@@ -353,6 +364,140 @@ var App = /** @class */ (function () {
             });
         }); });
         /*************************
+         *  GET ALL SERUMS / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+         *************************/
+        router.get('/serums', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET + "&category=93&type=simple")
+                            .then(function (res) { return res.body; })
+                            .then(function (serums) { return serums.map(function (serum) {
+                            serum.commonlyUsedFor = [];
+                            serum.isSelectedForSummary = false;
+                            serum.short_description = serum.short_description.replace(/<[^>]*>?/gm, '');
+                            serum.description = serum.description.replace(/<[^>]*>?/gm, '');
+                            return serum;
+                        }); })
+                            .then(function (serums) { return res.send(serums.filter(function (serum) { return serum.id !== 6039 /* Id */; })); })["catch"](function (error) {
+                            if (error instanceof TypeError) {
+                                honeybadger_1["default"].notify(error.name + ": " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.CODE);
+                                res.status(500).end();
+                                return;
+                            }
+                            honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message);
+                            res.status(error.status).send(_this.handleError(error));
+                        })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        /*************************
+         *  GET ALL SERUM QUESTIONS / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+         *************************/
+        router.get('/serum-quiz', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wp/v2/serum_quiz")
+                            .then(function (res) { return res.body; })
+                            .then(function (questions) { return questions.map(function (question) { return _this.returnQuizQuestion(question); }); })
+                            .then(function (quiz) { return res.send(quiz); })["catch"](function (error) {
+                            if (error instanceof TypeError) {
+                                honeybadger_1["default"].notify(error.name + ": " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.CODE);
+                                res.status(500).end();
+                                return;
+                            }
+                            honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message, ErrorTypes_1.IHoneyBadgerErrorTypes.APIREQUEST);
+                            res.status(error.status).send(_this.handleError(error));
+                        })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        /*************************
+         *  SAVE SERUM QUIZ TO DB / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+         *************************/
+        router.post('/save-serum-quiz', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var serumRequest, serumData;
+            return __generator(this, function (_a) {
+                serumRequest = req.body;
+                serumData = new this.completedSerumQuizModel({
+                    selectedSerum: serumRequest.selectedSerum,
+                    selectedSerumId: serumRequest.selectedSerumId,
+                    recommendedSerum: serumRequest.recommendedSerum,
+                    recommendedSerumId: serumRequest.recommendedSerumId,
+                    quiz: serumRequest.quiz,
+                    quizId: serumRequest.quizId,
+                    date: this.getGmtTime()
+                });
+                serumData.save()
+                    .then(function (dbResponse) {
+                    console.log("Saved serum data with id " + dbResponse.id);
+                    res.send(dbResponse);
+                })["catch"](function (error) {
+                    honeybadger_1["default"].notify("Error saving product: " + error.message, ErrorTypes_1.IHoneyBadgerErrorTypes.DATABASE);
+                    if (error.name === "ValidationError") {
+                        res.status(400).send({ message: error.message });
+                        return;
+                    }
+                    res.send(error);
+                });
+                return [2 /*return*/];
+            });
+        }); });
+        /*************************
+         *  UPDATE SERUM META DATA WITH QUIZ ID / TEMP, THIS SHOULD BE ON IT'S OWN SERVER
+         *************************/
+        router.post('/update-serum-meta-data', body_parser_1["default"].json(), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _a, selectedSerumId, quizIdsMeta;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = req.body, selectedSerumId = _a.selectedSerumId, quizIdsMeta = _a.quizIdsMeta;
+                        if ((selectedSerumId === undefined) || (quizIdsMeta === undefined)) {
+                            honeybadger_1["default"].notify("One of the parameters 'selectedSerumId' or 'quizIds' is undefined", ErrorTypes_1.IHoneyBadgerErrorTypes.APIREQUEST);
+                            res.status(400).send({ message: "selectedSerumId or quizIds is undefined" });
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, request.patch(process.env.BASE_API_URL + "/wc/v3/products/" + selectedSerumId + "?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET)
+                                .send({ meta_data: [quizIdsMeta] })
+                                .then(function (response) { return response.body; })
+                                .then(function (updatedSerum) { return res.send(updatedSerum); })["catch"](function (error) {
+                                honeybadger_1["default"].notify("Error " + _this.handleError(error).code + ", " + _this.handleError(error).message, ErrorTypes_1.IHoneyBadgerErrorTypes.APIREQUEST);
+                                res.status(error.status).send(_this.handleError(error));
+                            })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        /*************************
+         *  LOG SERUM ANALYTICS
+         *************************/
+        router.post('/serum-analytics', function (req, res) {
+            var data = req.body;
+            var distinct_id = data.distinct_id, question_id = data.question_id, event_type = data.event_type;
+            _this.serumMixPanelClient.track(event_type, {
+                distinct_id: distinct_id,
+                question_id: question_id
+            }, function (response) {
+                if (response instanceof Error) {
+                    res.send(response);
+                    honeybadger_1["default"].notify("Error logging analytics: " + response.message, ErrorTypes_1.IHoneyBadgerErrorTypes.ANALYTICS);
+                    return;
+                }
+                res.send(response);
+                console.log("Logged analytics event " + data.event_type);
+            });
+        });
+        /*************************
          *  WILDCARD
          *************************/
         router.get('*', function (req, res) {
@@ -368,8 +513,8 @@ var App = /** @class */ (function () {
             id: question.id,
             answered: false,
             prompt: question.prompt.includes("|") ? question.prompt.split("|") : question.prompt,
-            isSkintoneQuestion: question.id === 716 /* Skintone */ && true,
-            isSkinConditionQuestion: question.id === 1443 /* SkinCondition */ && true,
+            isSkintoneQuestion: (question.id === 716 /* Skintone */ || question.id === 5365 /* SerumSkintone */) ? true : false,
+            isSkinConditionQuestion: (question.id === 5366 /* SerumSkinCondition */ || question.id === 1443 /* SkinCondition */) ? true : false,
             customAnswer: "",
             displayAnswersAsADropdownOnMobile: answerArr.length > 5 && true,
             isMobilePanelOpen: false,
@@ -383,7 +528,7 @@ var App = /** @class */ (function () {
                     selected: false,
                     disable: false,
                     id: answer.trim(),
-                    skinColour: question.id === 716 ? _this.skinTypeCodes[index] : "",
+                    skinColours: (question.id === 5365 /* SerumSkintone */ || question.id === 716 /* Skintone */) ? _this.skinRangeColours[index] : [],
                     meta: separatedMeta.map(function (meta) { return meta.trim(); })
                 };
             })
@@ -431,6 +576,50 @@ var App = /** @class */ (function () {
                 }]
         });
         return mongoose_1.model('completed-quizzes', CompletedQuizSchema);
+    };
+    App.prototype.createCompletedSerumQuizModel = function () {
+        var SerumQuizSchema = new mongoose_1.Schema({
+            quizId: {
+                type: Number,
+                required: true
+            },
+            date: {
+                type: Date,
+                required: false,
+                "default": Date.now
+            },
+            selectedSerum: {
+                type: String,
+                required: true
+            },
+            selectedSerumId: {
+                type: Number,
+                required: true
+            },
+            recommendedSerum: {
+                type: String,
+                required: true
+            },
+            recommendedSerumId: {
+                type: Number,
+                required: true
+            },
+            quiz: [{
+                    questionId: {
+                        type: Number,
+                        required: true
+                    },
+                    answer: {
+                        type: String,
+                        required: true
+                    },
+                    question: {
+                        type: String,
+                        required: true
+                    }
+                }]
+        });
+        return mongoose_1.model('completed-serum-quizzes', SerumQuizSchema);
     };
     App.prototype.createCustomProductModel = function () {
         var CustomProductSchema = new mongoose_1.Schema({
