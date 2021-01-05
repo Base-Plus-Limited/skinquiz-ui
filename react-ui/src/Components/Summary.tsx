@@ -53,8 +53,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const getProductName = (): string => {
     if(userName)
-      return `${userName}'s Bespoke Product`;
-    return `Your Bespoke Product`;
+      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name})`;
+    return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name})`;
   }
 
   const getTotalPrice = () => {
@@ -125,7 +125,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         ])
         .then(result => {
           if(result.some(x => x.status !== "rejected")) {
-            window.location.assign(`https://baseplus.co.uk/cart?add-to-cart=${product.id}`)
+            window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}`)
             return;
           }
           setApplicationError({
