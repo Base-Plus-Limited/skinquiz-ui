@@ -94,7 +94,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       setQuizToCompleted(true);
       saveQuizToDatabase(tempProductId)
         .then(x => {
-          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}`);
+          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
         })
     });
   }
@@ -125,7 +125,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
         ])
         .then(result => {
           if(result.some(x => x.status !== "rejected")) {
-            window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}`)
+            window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
             return;
           }
           setApplicationError({
