@@ -57,7 +57,7 @@ const StyledHeader: React.FC<HeaderProps> = () => {
   }
 
   return <Header className={`${(questionsAnswered.length < 2) || (areAllQuestionsAnswered()) ? "center-align" : "" }`}>
-    <StyledLink href={"/"}>
+    <StyledLink href={"https://baseplus.co.uk/?utm_source=skin-quiz-logo&utm_medium=web&utm_campaign=back-to-main-site"}>
       <StyledImage src={logo} alt={"base plus"}></StyledImage>
     </StyledLink>
     {
