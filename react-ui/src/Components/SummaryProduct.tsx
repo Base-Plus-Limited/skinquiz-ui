@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
+
 import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
+import { QuizContext } from '../QuizContext';
 
 export interface SummaryProductProps {
   product: ISerum | IIngredient;
@@ -10,15 +12,49 @@ export interface SummaryProductProps {
 
 const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture, totalPrice }: SummaryProductProps) => {
 
+  const { cartData, updateCartData } = useContext(QuizContext);
+
+  const toggleProductAdd = () => {
+    const { name, id } = product;
+    if (cartData.some(d => d.id === id)) {
+      updateCartData(cartData.filter(d => d.id !== id));
+      return;
+    }
+    let price = "";
+    const lowerCaseName = name.toLowerCase();
+    let productName;
+    let additionalInfo;
+    if (lowerCaseName.includes("good skin")) {
+      productName = `${name.split(" ")[0]} ${name.split(" ")[1]} ${name.split(" ")[2]}`;
+      additionalInfo = `with ${name.split(" - ")[1]}`;
+      price = product.price;
+    } else {
+      productName = name;
+      additionalInfo = `with ${mixture}`;
+      price = String(totalPrice);
+    }
+    updateCartData([...cartData, ...[{
+      productName, 
+      additionalInfo, 
+      price,
+      id
+    }]]);
+  }
+
   return (
     <Product>
-      <img src={product.images[0].src} alt="" width={
-        product.hasOwnProperty("isSelectedForUpsell") ?
-          80
-          :
-          200
+      <img 
+        onClick={toggleProductAdd}
+        src={product.images[0].src} alt="" width={
+          product.hasOwnProperty("isSelectedForUpsell") ?
+            80
+            :
+            200
       } />
-      <p className="name">{product.name}</p>
+      <p 
+        onClick={toggleProductAdd}
+        className="name"
+      >{product.name}</p>
       <p className="desc">{
         product.hasOwnProperty("isSelectedForUpsell") ?
           product.short_description
@@ -33,10 +69,22 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture,
       }
       <hr></hr>
       <ReadMoreText>Read more about {mixture ? mixture : product.name.split("- ")[1]}</ReadMoreText>
-      <AddToRoutineButton>
-        <span>add to routine</span>
-        <span>+ £{totalPrice ? totalPrice : product.price}</span>
-      </AddToRoutineButton>
+      {
+        cartData.some(d => d.id === product.id) ?
+          <RemoveFromRoutineButton
+            onClick={toggleProductAdd}
+          >
+            <span>added</span>
+            <span>remove</span>
+          </RemoveFromRoutineButton> 
+          :
+          <AddToRoutineButton
+            onClick={toggleProductAdd}
+          >
+            <span>add to routine</span>
+            <span>+ £{totalPrice ? totalPrice : product.price}</span>
+          </AddToRoutineButton>
+      }
     </Product>
   )
 }
@@ -46,11 +94,37 @@ const ReadMoreText = styled.p`
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-size: 9.5pt;
   font-weight: 600;
+  line-height: 1.4em;
   cursor: pointer;
+`
+
+const RemoveFromRoutineButton = styled.p`
+  border: solid 1px ${props => props.theme.brandColours.baseDefaultGreen};
+  text-transform: uppercase;
+  font-family: ${props => props.theme.subHeadingFont};
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  span{
+    display: inline-block;
+    padding: 10px 12px;
+    &:first-child {
+      background: ${props => props.theme.brandColours.baseDefaultGreen};
+      color: #fff;
+      width: 20%;
+    }
+    &:last-child {
+      color: ${props => props.theme.brandColours.baseDefaultGreen};
+      width: 80%;
+      text-align: right;
+      cursor: pointer;
+    }
+  }
 `
 
 const AddToRoutineButton = styled.p`
   background: ${props => props.theme.brandColours.baseDarkGreen};
+  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   text-transform: uppercase;
   font-family: ${props => props.theme.subHeadingFont};
   padding: 10px 12px;
@@ -69,10 +143,12 @@ const Product = styled.div`
   img{
     margin: 0 auto 10px;
     display: block;
+    cursor: pointer;
   }
   .name {
     text-transform: uppercase;
     font-size: 10pt;
+    cursor: pointer;
     margin: 0 0 5px;
     border-left: ${props => props.theme.brandColours.baseDarkGreen};
     font-family: ${props => props.theme.subHeadingFont};

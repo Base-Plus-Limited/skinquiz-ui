@@ -5,8 +5,11 @@ import { IIngredient, ISerum } from './Interfaces/WordpressProduct';
 import { ISkinCondition } from './Interfaces/SkinCondition';
 import { IErrorResponse } from './Interfaces/ErrorResponse';
 import { IDashboardValue } from './Interfaces/DashboardValue';
+import { IRowData } from './Interfaces/RowData';
 
 const state: IQuiz = {
+  cartData: [],
+  updateCartData: (previousCartData: SetStateAction<IRowData[]>) => previousCartData,
   progressCount: 0,
   updateCount: (previousCount: SetStateAction<number>) => previousCount,
   quizQuestions: [],
@@ -48,6 +51,7 @@ interface QuizProviderProps {
  
 export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
 
+  const [cartData, updateCartData] = useState<IRowData[]>([]);
   const [progressCount, updateCount] = useState<number>(0);
   const [quizQuestions, updateQuizQuestions] = useState<IQuizQuestion[]>([]);
   const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
@@ -67,6 +71,8 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
 
   return (
     <QuizContext.Provider value={{
+      cartData,
+      updateCartData,
       progressCount,
       updateCount,
       quizQuestions,

@@ -4,8 +4,11 @@ import { IIngredient, ISerum } from "./WordpressProduct";
 import { ISkinCondition } from "./SkinCondition";
 import { IErrorResponse } from "./ErrorResponse";
 import { IDashboardValue } from "./DashboardValue";
+import { IRowData } from "./RowData";
 
 interface IQuiz {
+  cartData: IRowData[];
+  updateCartData: Dispatch<SetStateAction<IRowData[]>>;
   progressCount: number;
   updateCount: Dispatch<SetStateAction<number>>;
   quizQuestions: IQuizQuestion[];

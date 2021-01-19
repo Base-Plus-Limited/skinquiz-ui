@@ -38,7 +38,7 @@ const Heading = styled.div`
     margin: 0 0 7px 0;
   }
   p{
-    font-family: ${props => props.theme.subHeadingFont};
+    font-family: ${props => props.theme.bodyFont};
     font-size: 10pt;
     font-weight: normal;
   }

@@ -1,10 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
-import { StyledSummaryButton } from './Button';
 import StyledText from './Shared/Text';
 import productsIcon from './../Assets/products_icon.jpg';
-import leavesIcon from './../Assets/leaves_icon.jpg';
 import tubeIcon from './../Assets/tube_icon.jpg';
 import { WordpressProduct, IIngredient, ISerum } from '../Interfaces/WordpressProduct';
 import { IAnswer, IQuizQuestion } from '../Interfaces/QuizQuestion';
@@ -20,12 +18,14 @@ import StyledSummaryQuestion from './SummaryQuestion';
 import SkinConditionEnums from '../SkinConditons';
 import StyledSummaryProduct from './SummaryProduct';
 import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
+import SummaryCart from './SummaryCart';
+import { IRowData } from '../Interfaces/RowData';
 
 export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, saveBaseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, serums, questionsAnswered, areSummaryCTAsVisible, showSummaryCTAs } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, serums, questionsAnswered } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -448,7 +448,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           />
         :
         <SummaryWrap>
-          <SummaryMixtureWrap>
+          <SummaryProducts>
             <StyledSummaryTitle
               heading={`${userName ? ` ${userName}'s personalised products` : 'Your personalised products'}`}
               imageUrl={productsIcon}
@@ -467,27 +467,28 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               >
               </StyledSummaryProduct>
             </ProductsWrap>
-            {/* <CallToActionWrapper className={areSummaryCTAsVisible ? "slideUp" : ""}>
-              <StyledSummaryButton onClick={sendToWordpress}>
-                buy now
-              </StyledSummaryButton>
-              <StyledSummaryButton onClick={amendIngredients}>
-                change
-              </StyledSummaryButton>
-            </CallToActionWrapper> */}
-          </SummaryMixtureWrap>
-          {/* <USPs>
-            <p>fragrance <span>free option</span></p>
-            <div className="circle"></div>
-            <p>organic <span>ingredients</span></p>
-            <div className="circle"></div>
-            <p>cruelty <span>free</span></p>
-          </USPs> */}
+          </SummaryProducts>
+          <Spacer></Spacer>
+          <SummaryCart
+            userName={userName}
+          >
+          </SummaryCart>
         </SummaryWrap>
       }
     </React.Fragment>
   )
 }
+
+const Spacer = styled.div`
+  display: none;
+  width:0;
+  border-right: solid 1px rgba(191,191,191,.6);
+  height: 70%;
+  margin: auto 0; 
+  @media screen and (min-width: 768px) {
+    display: block;
+  }
+`
 
 const CallToActionWrapper = styled.div`
   position: fixed;
@@ -514,33 +515,32 @@ const SummaryWhatWeLearntWrap = styled.div`
     display: grid;
     grid-template-rows: auto auto;
     order: 1;
-    margin-bottom: 60px;
   }
 `
 
 const ProductsWrap = styled.div`
   @media screen and (min-width: 768px) {
-    grid-row: 2;
-    width: 100%;
-    display: flex;
-    align-items: baseline;
+    display: grid;
+    grid-template-columns: 260px 260px;
+    align-items: end;
+    justify-content: space-evenly;
+    gap: 20px;
+  }
+  @media screen and (min-width: 980px) {
+    gap: 0;
   }
 `
 
-const SummaryMixtureWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-width: 1024px;
-  width: 100%;
-  margin-bottom: 60px;
-  .slideUp {
-    transform: translateY(0);
-  }
-  @media screen and (min-width: 768px) {
-    margin-bottom: 40px;
-    display: grid;
-    order: 3
-    grid-template-rows: auto auto;
+const SummaryProducts = styled.div`
+  // display: flex;
+  // flex-direction: column;
+  // max-width: 1024px;
+  // width: 100%;
+  // .slideUp {
+  //   transform: translateY(0);
+  // }
+  @media screen and (min-width: 980px) {
+
   }
 `
 
@@ -551,6 +551,15 @@ const SummaryWrap = styled.div`
   align-items: center;
   text-align: center;
   padding-top: 20px;
+  @media screen and (min-width: 980px) {
+    padding-top: 0;
+    display: grid;
+    grid-template-columns: 65% auto 26%;
+    width: 930px;
+    margin: 0 auto;
+    align-items: start;
+    gap: 4%;
+  }
 `
 
 export default StyledSummary;
