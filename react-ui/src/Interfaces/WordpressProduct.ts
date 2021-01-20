@@ -1,6 +1,9 @@
+export type NewProductType = "grouped" | "simple";
+
 export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
   isSelectedForSummary: boolean;
+  isSelectedForUpsell: boolean;
 }
 
 export interface IIngredient extends WordpressProduct {

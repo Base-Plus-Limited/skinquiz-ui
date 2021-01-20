@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
+
 import logo from './../Assets/base_light_green.png';
 import StyledLink from './Shared/Link';
 import StyledImage from './Shared/Image';
@@ -7,6 +8,7 @@ import { StyledBackButton } from './Button';
 import { QuizContext } from '../QuizContext';
 import { track } from './Shared/Analytics';
 import { IAnswer } from '../Interfaces/QuizQuestion';
+import { QuestionIds } from '../Interfaces/WordpressQuestion';
 
 export interface HeaderProps {
 }
@@ -24,9 +26,9 @@ const StyledHeader: React.FC<HeaderProps> = () => {
   }
 
   const removeLastQuestionAnswered = () => {
-    if(questionsAnswered[questionsAnswered.length - 1].id === 1443) // skin condition question
+    if(questionsAnswered[questionsAnswered.length - 1].id === QuestionIds.whenYouWakeUpInTheMorning)
       resetSkinCondition();
-    if(questionsAnswered[questionsAnswered.length - 1].id === 706) // skin concern question
+    if(questionsAnswered[questionsAnswered.length - 1].id === QuestionIds.skinConcernsAndConditions)
       resetSkinConcernAnswers(questionsAnswered[questionsAnswered.length - 1].answers);
     questionsAnswered[questionsAnswered.length - 1].answers.forEach(answer => answer.selected = false);
     questionsAnswered[questionsAnswered.length - 1].answered = false;
@@ -61,7 +63,7 @@ const StyledHeader: React.FC<HeaderProps> = () => {
       <StyledImage src={logo} alt={"base plus"}></StyledImage>
     </StyledLink>
     {
-        (progressCount > 1) && (areAllQuestionsAnswered() === false)  ?
+        (progressCount > 1) && (!areAllQuestionsAnswered())  ?
         <StyledBackButton onClick={removeLastQuestionAnswered}>back</StyledBackButton>
         : ''
       }
