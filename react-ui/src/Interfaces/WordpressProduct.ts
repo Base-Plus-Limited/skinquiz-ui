@@ -3,14 +3,17 @@ export type NewProductType = "grouped" | "simple";
 export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
   isSelectedForSummary: boolean;
+  isDescriptionOpen: boolean;
   isSelectedForUpsell: boolean;
 }
 
 export interface IIngredient extends WordpressProduct {
   rank: number;
+  isDescriptionOpen: boolean;
   previouslyRanked: boolean;
   isSelectedForSummary: boolean;
   commonlyUsedFor: string[];
+  totalMoisturiserPrice: string;
 }
 
 export interface WordpressProduct {

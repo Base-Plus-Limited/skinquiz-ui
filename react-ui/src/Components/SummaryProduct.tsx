@@ -6,13 +6,18 @@ import { QuizContext } from '../QuizContext';
 
 export interface SummaryProductProps {
   product: ISerum | IIngredient;
-  mixture?: String;
-  totalPrice?: string;
+  ingredients?: IIngredient[];
 }
 
-const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture, totalPrice }: SummaryProductProps) => {
+const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients }: SummaryProductProps) => {
 
-  const { cartData, updateCartData } = useContext(QuizContext);
+  const { cartData, updateCartData, serums, updateSerums, updateBaseIngredient } = useContext(QuizContext);
+
+  enum ProductTypeId {
+    Moisturiser = 1474
+  }
+
+  const formatIngredientNames = () => isProductAMoisturiser() && (ingredients as IIngredient[]).map(i => i.name).join(" & ");
 
   const toggleProductAdd = () => {
     const { name, id } = product;
@@ -30,8 +35,8 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture,
       price = product.price;
     } else {
       productName = name;
-      additionalInfo = `with ${mixture}`;
-      price = String(totalPrice);
+      additionalInfo = `with ${formatIngredientNames()}`;
+      price = String(product.price);
     }
     updateCartData([...cartData, ...[{
       productName, 
@@ -41,8 +46,33 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture,
     }]]);
   }
 
+  const toggleDescriptionVisibility = () => {
+    product.isDescriptionOpen = !product.isDescriptionOpen;
+    if (isProductAMoisturiser()) {
+      const ingredientCopy: IIngredient = JSON.parse(JSON.stringify(product));
+      updateBaseIngredient(ingredientCopy)
+    } else {
+      updateSerums([...serums, (product as ISerum)])
+    }
+  };
+
+  const toggleIngredientDescriptions = () => {
+    return (ingredients as IIngredient[])[0].short_description;
+  }
+
+  const isProductAMoisturiser = () => product.id === ProductTypeId.Moisturiser;
+
   return (
     <Product>
+      <FullDescriptionPanel className={product.isDescriptionOpen ? "resetTransform" : ""}>
+        <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
+        <Description>
+          {
+            product.short_description
+          }
+        </Description>
+        <ToggleIngredientDescriptionButton>View x</ToggleIngredientDescriptionButton>
+      </FullDescriptionPanel>
       <img 
         onClick={toggleProductAdd}
         src={product.images[0].src} alt="" width={
@@ -62,14 +92,15 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture,
           "Personalised with:"
       }</p>
       {
-        mixture &&
+        ingredients &&
         <p className="mixture">
-          {mixture}
+          {formatIngredientNames()}
         </p>
       }
       <hr></hr>
-      <ReadMoreText>Read more about {mixture ? mixture : product.name.split("- ")[1]}</ReadMoreText>
+      <ReadMoreText onClick={toggleDescriptionVisibility}>Read more about {ingredients ? formatIngredientNames() : product.name.split("- ")[1]}</ReadMoreText>
       {
+        // ADD IN ABILITY TO CHANGE INGREDIENTS FOR MOISTURISER
         cartData.some(d => d.id === product.id) ?
           <RemoveFromRoutineButton
             onClick={toggleProductAdd}
@@ -82,12 +113,57 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture,
             onClick={toggleProductAdd}
           >
             <span>add to routine</span>
-            <span>+ £{totalPrice ? totalPrice : product.price}</span>
+            <span>+ £{product.price}</span>
           </AddToRoutineButton>
       }
     </Product>
   )
 }
+
+const ToggleIngredientDescriptionButton = styled.p`
+  padding: 7px 0;
+  margin: 0;
+  width: 100%;
+  position: absolute;
+  font-family: ${props => props.theme.subHeadingFont};
+  bottom: 0;
+  background: ${props => props.theme.brandColours.baseDefaultGreen};
+  color: #fff;
+`
+
+const Description = styled.p`
+  width: 80%;
+  margin: 0 auto;
+  padding: 0;
+  font-size: 10pt;
+  line-height: 1.4em;
+`
+
+const CloseDescriptionButton = styled.span`
+  position: absolute;
+  top: 15px;
+  font-size: 12pt;
+  cursor: pointer;
+  right: 15px;
+  font-weight: 600;
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-family: ${props => props.theme.subHeadingFont};
+`
+const FullDescriptionPanel = styled.div`
+  width: 100%;
+  height: calc(100% - 50px);
+  font-family: ${props => props.theme.bodyFont};
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-size: 9.5pt;
+  text-align: center;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  transition: all 0.55s ease-in-out;
+  transform: translateX(100%);
+  position: absolute;
+  top: 0;
+`
 
 const ReadMoreText = styled.p`
   font-family: ${props => props.theme.bodyFont};
@@ -96,6 +172,7 @@ const ReadMoreText = styled.p`
   font-weight: 600;
   line-height: 1.4em;
   cursor: pointer;
+  margin: 0;
 `
 
 const RemoveFromRoutineButton = styled.p`
@@ -140,6 +217,11 @@ const Product = styled.div`
   margin: 0 auto 60px;
   max-width: 260px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
+  .resetTransform {
+    transform: translateX(0);
+  }
   img{
     margin: 0 auto 10px;
     display: block;

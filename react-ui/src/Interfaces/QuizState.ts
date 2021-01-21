@@ -24,7 +24,7 @@ interface IQuiz {
   userName: string;
   updateUserName: Dispatch<SetStateAction<string>>;
   baseIngredient: IIngredient;
-  saveBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
+  updateBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
   setQuizToCompleted: Dispatch<SetStateAction<boolean>>;
   isQuizCompleted: boolean;
   isAnswersPanelVisible: boolean;
@@ -38,7 +38,7 @@ interface IQuiz {
   areSummaryCTAsVisible: boolean;
   showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
   serums: ISerum[];
-  saveSerums: Dispatch<SetStateAction<ISerum[]>>;
+  updateSerums: Dispatch<SetStateAction<ISerum[]>>;
   isLoading: boolean;
   toggleLoading: Dispatch<SetStateAction<boolean>>;
 }

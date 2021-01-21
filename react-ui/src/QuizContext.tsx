@@ -25,7 +25,7 @@ const state: IQuiz = {
   userName: "",
   updateUserName: (previousUserName: SetStateAction<string>) => previousUserName,
   baseIngredient: {} as IIngredient,
-  saveBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
+  updateBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
   isQuizCompleted: false,
   setQuizToCompleted: (previousCompletedQuizState: SetStateAction<boolean>) => previousCompletedQuizState,
   isAnswersPanelVisible: false,
@@ -39,7 +39,7 @@ const state: IQuiz = {
   areSummaryCTAsVisible: false,
   showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility,
   serums: [],
-  saveSerums: (perviousSerums: SetStateAction<ISerum[]>) => perviousSerums,
+  updateSerums: (perviousSerums: SetStateAction<ISerum[]>) => perviousSerums,
   isLoading: false,
   toggleLoading: (previousLoading: SetStateAction<boolean>) => previousLoading
 }
@@ -59,14 +59,14 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [questionInputAnswer, updateQuestionInputAnswer] = useState<string>("");
   const [selectedSkinConditions, updateSelectedSkinConditions] = useState<ISkinCondition[]>([]);
   const [userName, updateUserName] = useState<string>("");
-  const [baseIngredient, saveBaseIngredient] = useState<IIngredient>({} as IIngredient);
+  const [baseIngredient, updateBaseIngredient] = useState<IIngredient>({} as IIngredient);
   const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
   const [dashboardValues, saveDashboardValues] = useState<IDashboardValue>({} as IDashboardValue);
   const [uniqueId, saveUniqueId] = useState<string>("");
   const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
-  const [serums, saveSerums] = useState<ISerum[]>([]);
+  const [serums, updateSerums] = useState<ISerum[]>([]);
   const [isLoading, toggleLoading] = useState<boolean>(false);
 
   return (
@@ -88,7 +88,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       userName,
       updateUserName,
       baseIngredient,
-      saveBaseIngredient,
+      updateBaseIngredient,
       isQuizCompleted,
       setQuizToCompleted,
       isAnswersPanelVisible,
@@ -102,7 +102,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       areSummaryCTAsVisible,
       showSummaryCTAs,
       serums,
-      saveSerums,
+      updateSerums,
       isLoading,
       toggleLoading
     }}>

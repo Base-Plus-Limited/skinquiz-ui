@@ -25,7 +25,7 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, serums, questionsAnswered } = useContext(QuizContext);
+  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, serums, questionsAnswered, updateBaseIngredient } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -71,7 +71,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return {
       name: getProductName(),
       type: 'simple',
-      regular_price: getMoisturier().price,
+      regular_price: baseIngredient.price,
       purchase_note: `Your custom mixture will include ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
       description: '',
       short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
@@ -377,6 +377,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const getSelectedSerum = () => {
+    updateMoisturiserPrice();
     const skinConcernsAnswer = questionsAnswered
       .filter(x => x.id === QuestionIds.skinConcernsAndConditions)
       .map(a => a.answers.filter(x => x.selected))[0];
@@ -430,13 +431,12 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       .some(x => x.value.includes("Yes") || x.value.includes("Sometimes"));
   }
 
-  const getMoisturier = () => {
-    const totalMoisturiserPrice = sortedIngredients
+  const updateMoisturiserPrice = () => {
+    baseIngredient.price = String(sortedIngredients
       .filter(x => x.isSelectedForSummary)
       .map(x => Number(x.price))
-      .reduce((a, c) => a + c, Number(baseIngredient.regular_price))
-    baseIngredient.price = `${totalMoisturiserPrice}`;
-    return baseIngredient;
+      .reduce((a, c) => a + c, Number(baseIngredient.regular_price)))
+    updateBaseIngredient(baseIngredient);
   }
 
   return (
@@ -461,9 +461,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               >
               </StyledSummaryProduct>
               <StyledSummaryProduct
-                product={getMoisturier()}
-                mixture={sortedIngredients.map(i => i.name).join(" & ")}
-                totalPrice={getMoisturier().price}
+                product={baseIngredient}
+                ingredients={sortedIngredients}
               >
               </StyledSummaryProduct>
             </ProductsWrap>
@@ -554,7 +553,7 @@ const SummaryWrap = styled.div`
   @media screen and (min-width: 980px) {
     padding-top: 0;
     display: grid;
-    grid-template-columns: 65% auto 26%;
+    grid-template-columns: 60% auto 31%;
     width: 930px;
     margin: 0 auto;
     align-items: start;
