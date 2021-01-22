@@ -53,30 +53,16 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       cache: 'no-cache',
       body: JSON.stringify(getNewProduct())
     })
-    .then(res => res.ok ? res.json() : res.json().then((errorResponse: IErrorResponse) => {
-      errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
-      setApplicationError(errorResponse);
-    }))
-    .then((product: WordpressProduct) => {
-      if (product) {
-        Promise.allSettled([
-          //saveProductToDatabase(product.id, "Quiz completed - Bundle Added To Cart"),
-          saveQuizToDatabase(product.id, setApplicationError, quizQuestions)
-        ])
-        .then(result => {
-          if(result.some(x => x.status !== "rejected")) {
-            window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
-            return;
-          }
-          setApplicationError({
-            error: true,
-            code: 400,
-            message: "",
-            uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
-          })
+    .then(res => {
+      if(res.ok)
+        return res.json();
+      res.json()
+        .then((errorResponse: IErrorResponse) => {
+          errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
+          setApplicationError(errorResponse);
         })
-      }
-    })
+    }) 
+    .then((product: WordpressProduct) => product)
     .catch((error: IErrorResponse) => {
       setApplicationError({
         error: true,
@@ -84,6 +70,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
         message: error.message,
         uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
       })
+      return undefined;
     });
   }
 
@@ -154,6 +141,36 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     
   }
 
+  const addMoisturiser = () => {
+    sendToWordpress()
+      .then(product => {
+        if (product) {
+          const analyticsEvent: IAnalyticsEvent = {
+            event_type: "Quiz completed - Moisturiser Added To Cart",
+            distinct_id: uniqueId,
+            moisturiserId: product.id,
+            ingredients: sortedIngredients.map(x => x.name).join(" & ")
+          }
+          Promise.allSettled([
+            saveProductToDatabase(product.id, analyticsEvent, "moisturiser"),
+            saveQuizToDatabase(product.id, setApplicationError, quizQuestions)
+          ])
+          .then(result => {
+            if(result.some(x => x.status !== "rejected")) {
+              window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
+              return;
+            }
+            setApplicationError({
+              error: true,
+              code: 400,
+              message: "",
+              uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
+            })
+          })
+        }
+      })
+  }
+
   const addSerum = () => {
     const serumId = cartData[0].id;
     const analyticsEvent: IAnalyticsEvent = {
@@ -185,7 +202,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     } else if(cartData.some(x => x.productType === "serum")) {
       addSerum();
     } else {
-      // add moisturiser
+      addMoisturiser();
     }
   }
 

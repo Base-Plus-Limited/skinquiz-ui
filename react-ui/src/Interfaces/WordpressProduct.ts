@@ -1,4 +1,4 @@
-export type NewProductType = "grouped" | "simple";
+export type ProductType = "serum" | "moisturiser";
 
 export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
