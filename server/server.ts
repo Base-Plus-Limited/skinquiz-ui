@@ -217,13 +217,14 @@ class App {
     router.post('/save-product', bodyParser.json(), async (req, res) => {
       const customProductRequest: ICustomProductDBModel = req.body;
       const customProduct = new this.customProductModel({
-        ingredients: customProductRequest.ingredients,
+        recommendedVariation: customProductRequest.recommendedVariation,
         amended: customProductRequest.amended,
         productId: customProductRequest.productId,
+        newVariation: customProductRequest.newVariation,
         date: this.getGmtTime()
       });
       customProduct.save()
-        .then(dbResponse => {
+      .then(dbResponse => {
           console.log(`Saved custom product with id ${dbResponse.id}`);
           res.send(dbResponse);
         })
@@ -567,16 +568,14 @@ class App {
         required: false,
         default: Date.now
       },
-      ingredients: [{
-        id: {
-          type: Number,
-          required: true
-        },
-        name: {
-          type: String,
-          required: true
-        }
-      }]
+      newVariation: {
+        type: Object,
+        required: false
+      },
+      recommendedVariation: {
+        type: Object,
+        required: true
+      },
     })
     return model<ICustomProductDBModel & Document>('custom-products', CustomProductSchema);
   }

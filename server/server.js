@@ -308,13 +308,16 @@ var App = /** @class */ (function () {
             return __generator(this, function (_a) {
                 customProductRequest = req.body;
                 customProduct = new this.customProductModel({
-                    ingredients: customProductRequest.ingredients,
+                    recommendedVariation: customProductRequest.recommendedVariation,
                     amended: customProductRequest.amended,
                     productId: customProductRequest.productId,
+                    newVariation: customProductRequest.newVariation,
                     date: this.getGmtTime()
                 });
+                console.log(customProduct);
                 customProduct.save()
                     .then(function (dbResponse) {
+                    console.log(dbResponse);
                     console.log("Saved custom product with id " + dbResponse.id);
                     res.send(dbResponse);
                 })["catch"](function (error) {
@@ -640,16 +643,14 @@ var App = /** @class */ (function () {
                 required: false,
                 "default": Date.now
             },
-            ingredients: [{
-                    id: {
-                        type: Number,
-                        required: true
-                    },
-                    name: {
-                        type: String,
-                        required: true
-                    }
-                }]
+            newVariation: {
+                type: Object,
+                required: false
+            },
+            recommendedVariation: {
+                type: Object,
+                required: true
+            }
         });
         return mongoose_1.model('custom-products', CustomProductSchema);
     };
