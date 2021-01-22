@@ -288,7 +288,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     if ((ingredientOne.id === SpecialCaseProducts.VitaminC))
       categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsTwo.filter(ingredient => ingredient.id !== SpecialCaseProducts.VitaminC)
     return categorisedIngredients.ingredientsTwo;
-    }
+  }
 
   const returnRandomIndex = (ingredients: IIngredient[]) => {
     return Math.floor(Math.random() * Math.floor(ingredients.length));
@@ -335,33 +335,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
     const highestRank = Math.max(...ingredients.map(x => x.rank));
     return ingredients.filter(x => x.rank === highestRank);
-  }
-
-  const getQuestionAnswer = (questionId: QuestionIds) => {
-    const foundQuestion = (quizQuestions.find(question => question.id === questionId) as IQuizQuestion);
-    if (foundQuestion.customAnswer.length > 1)
-      return foundQuestion.customAnswer;
-    const selectedAnswers = foundQuestion.answers.filter(answer => answer.selected);
-    return selectedAnswers.length > 1 ?
-    getDisplayAnswer(questionId, selectedAnswers.map(answer => answer.value).join(' & ')) :
-      getDisplayAnswer(questionId, (selectedAnswers[0].value as string));
-  }
-
-  const getDisplayAnswer = (questionId: QuestionIds, answer: string) => {
-    const formattedAnswer = answer.toLowerCase().trim();
-    if ((questionId === QuestionIds.adverseReactions) && (formattedAnswer === "none"))
-      return "Nothing";
-    if ((questionId === QuestionIds.exisitingConditions) && (formattedAnswer === "none"))
-      return "No skin conditions";
-    if (questionId === QuestionIds.fragranceFree)
-      return formattedAnswer === "yes" ? "Fragrance-free" : "Fragranced"
-    if (questionId === QuestionIds.skinConcernsAndConditions)
-      return capitaliseFirstLetter(formattedAnswer);
-    if (questionId === QuestionIds.whenYouWakeUpInTheMorning) {
-      const condition = SkinConditionEnums[`${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`];
-      return capitaliseFirstLetter(condition);
-    }
-    return answer;
   }
 
   const capitaliseFirstLetter = (answer: string) => {
@@ -489,41 +462,20 @@ const Spacer = styled.div`
   }
 `
 
-const CallToActionWrapper = styled.div`
-  position: fixed;
-  bottom: 0;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  transform: translateY(100%);
-  transition: all 0.25s ease-in-out;
-  justify-content: space-between;
-  @media screen and (min-width: 768px) {
-    max-width: 375px;
-    position: static;
-    transform: translateY(0);
-    margin: 40px auto 20px;
-  }
-`
-
-
-const SummaryWhatWeLearntWrap = styled.div`
-  width: 100%;
-  max-width: 1024px;
-  @media screen and (min-width: 768px) {
-    display: grid;
-    grid-template-rows: auto auto;
-    order: 1;
-  }
-`
 
 const ProductsWrap = styled.div`
+  .moisturiserDescriptionPanel {
+    height: calc(100% - 99px);
+  }
   @media screen and (min-width: 768px) {
     display: grid;
     grid-template-columns: 260px 260px;
     align-items: end;
     justify-content: space-evenly;
     gap: 20px;
+    .moisturiser {
+      margin: 0px auto -30px;
+    }
   }
   @media screen and (min-width: 980px) {
     gap: 0;

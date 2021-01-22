@@ -78,8 +78,8 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   }
 
   return (
-    <Product>
-      <FullDescriptionPanel className={product.isDescriptionPanelOpen ? "resetTransform" : ""}>
+    <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
+      <FullDescriptionPanel className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
         <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
         <Description>
           {
@@ -129,21 +129,30 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       <hr></hr>
       <ReadMoreText onClick={toggleDescriptionVisibility}>Read more about {isProductAMoisturiser() ? formatIngredientNames() : product.name.split("- ")[1]}</ReadMoreText>
       {
-        // ADD IN ABILITY TO CHANGE INGREDIENTS FOR MOISTURISER
         cartData.some(d => d.id === product.id) ?
-          <RemoveFromRoutineButton
+          (<RemoveFromRoutineButton
             onClick={toggleProductAddToCart}
           >
             <span>added</span>
             <span>remove</span>
-          </RemoveFromRoutineButton>
+          </RemoveFromRoutineButton>)
           :
-          <AddToRoutineButton
-            onClick={toggleProductAddToCart}
-          >
-            <span>add to routine</span>
-            <span>+ £{product.price}</span>
-          </AddToRoutineButton>
+          (
+            <React.Fragment>
+              <AddToRoutineButton
+                onClick={toggleProductAddToCart}
+              >
+                <span>add to routine</span>
+                <span>+ £{product.price}</span>
+              </AddToRoutineButton>
+            </React.Fragment>
+          )
+      }
+      {
+        isProductAMoisturiser() &&
+          <ChangeIngredientButton>
+            <span>Change ingredients</span>
+          </ChangeIngredientButton>
       }
     </Product>
   )
@@ -186,6 +195,7 @@ const CloseDescriptionButton = styled.span`
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-family: ${props => props.theme.subHeadingFont};
 `
+
 const FullDescriptionPanel = styled.div`
   width: 100%;
   height: calc(100% - 50px);
@@ -234,6 +244,18 @@ const RemoveFromRoutineButton = styled.p`
       cursor: pointer;
     }
   }
+`
+
+const ChangeIngredientButton = styled.p`
+  background: #fff;
+  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
+  text-transform: uppercase;
+  font-family: ${props => props.theme.subHeadingFont};
+  padding: 10px 12px;
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-size: 9pt;
+  cursor: pointer;
+  text-align: center;
 `
 
 const AddToRoutineButton = styled.p`
