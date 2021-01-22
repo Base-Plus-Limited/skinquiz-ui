@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
+import { IRowData } from '../Interfaces/RowData';
 
 import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
 import { QuizContext } from '../QuizContext';
@@ -7,9 +8,10 @@ import { QuizContext } from '../QuizContext';
 export interface SummaryProductProps {
   product: ISerum | IIngredient;
   ingredients?: IIngredient[];
+  clickHandler?: () => void;
 }
 
-const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients }: SummaryProductProps) => {
+const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients, clickHandler }: SummaryProductProps) => {
 
   const { cartData, updateCartData, serums, updateSerums, updateIngredients, updateBaseIngredient } = useContext(QuizContext);
 
@@ -48,12 +50,16 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       additionalInfo = `with ${formatIngredientNames()}`;
       price = String(product.price);
     }
-    updateCartData([...cartData, ...[{
+
+    const rowData: IRowData[] = [{
       productName,
       additionalInfo,
       price,
-      id
-    }]]);
+      id,
+      productType: isProductAMoisturiser() ? "moisturiser" : "serum"
+    }]
+
+    updateCartData([...cartData, ...rowData]);
   }
 
   const toggleDescriptionVisibility = () => {
@@ -160,7 +166,9 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       }
       {
         isProductAMoisturiser() &&
-          <ChangeIngredientButton>
+          <ChangeIngredientButton
+            onClick={clickHandler}
+          >
             <span>Change ingredients</span>
           </ChangeIngredientButton>
       }

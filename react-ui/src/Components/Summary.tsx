@@ -19,7 +19,8 @@ import SkinConditionEnums from '../SkinConditons';
 import StyledSummaryProduct from './SummaryProduct';
 import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
 import SummaryCart from './SummaryCart';
-import { IRowData } from '../Interfaces/RowData';
+import { saveQuizToDatabase } from './Shared/QuizHelpers';
+import { SerumType } from '../Interfaces/SerumTypes';
 
 export interface SummaryProps {
 }
@@ -52,41 +53,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     fragranceFree = 3870
   }
 
-  enum SerumType {
-    Allantoin = 5824,
-    VitaminC = 5823,
-    Emulsion = 5822,
-    Pineapple = 5821
-  }
-
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
-
-  const getProductName = (): string => {
-    if(userName)
-      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name})`;
-    return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name})`;
-  }
-
-  const getNewProduct = () => {
-    return {
-      name: getProductName(),
-      type: 'simple',
-      regular_price: baseIngredient.price,
-      purchase_note: `Your custom mixture will include ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
-      description: '',
-      short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
-      categories: [
-        {
-          id: 21
-        }
-      ],
-      images: [
-        {
-          src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
-        }
-      ]
-    }
-  }
 
   const amendIngredients = async () => {
     track({
@@ -96,130 +63,13 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       amendSelected: true
     }).then(() => {
       const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
-      setQuizToCompleted(true);
-      saveQuizToDatabase(tempProductId)
+      saveQuizToDatabase(tempProductId, setApplicationError, quizQuestions)
         .then(x => {
           window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
         })
     });
   }
-
-  const sendToWordpress = async () => {
-    setQuizToCompleted(true);
-    return fetch('/api/new-product', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(getNewProduct())
-    })
-    .then(res => res.ok ? res.json() : res.json().then((errorResponse: IErrorResponse) => {
-      errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
-      setApplicationError(errorResponse);
-    }))
-    .then((product: WordpressProduct) => {
-      if (product) {
-        Promise.allSettled([
-          saveProductToDatabase(product.id),
-          saveQuizToDatabase(product.id)
-        ])
-        .then(result => {
-          if(result.some(x => x.status !== "rejected")) {
-            window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
-            return;
-          }
-          setApplicationError({
-            error: true,
-            code: 400,
-            message: "",
-            uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
-          })
-        })
-      }
-    })
-    .catch((error: IErrorResponse) => {
-      setApplicationError({
-        error: true,
-        code: error.code,
-        message: error.message,
-        uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
-      })
-    });
-  }
-
-  const returnCompletedQuizData = (productId: number): ICompletedQuizDBModel => {
-    const completedQuiz: ICompletedQuizDBModel = {
-      productId: productId,
-      quiz: quizQuestions.map(question => (
-        {
-          questionId: question.id,
-          question: question.question,
-          answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
-        })
-      )
-    };
-    return completedQuiz;
-  }
-
-  const returnAnswers = (answers: IAnswer[]) => {
-    const selectedAnswers = answers.filter(answer => answer.selected);
-    if (selectedAnswers.length === 2)
-      return selectedAnswers.map(x => x.value).join(" & ");
-    return String(selectedAnswers[0].value);
-  }
-
-  const saveQuizToDatabase = (productId: number) => {
-    return fetch('/api/save-quiz', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(returnCompletedQuizData(productId))
-    })
-    .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-    .catch(error => {
-      setApplicationError({
-        error: true,
-        code: error.status,
-        message: error.message
-      })
-    });
-  }
-
-  const createFinalProductToSaveToDatabase = (productId: number) => {
-    const databaseProduct: ICustomProductDBModel = {
-      ingredients: sortedIngredients.map(ingredient => {
-        return {
-          name: ingredient.name,
-          id: ingredient.id
-        }
-      }),
-      amended: false,
-      productId: productId
-    };
-    return databaseProduct;
-  }
-
-  const saveProductToDatabase = (productId: number) => {
-    return track({
-      distinct_id: uniqueId,
-      event_type: "Quiz completed - Buy Now",
-      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
-      amendSelected: false
-    }).then(() => {
-      return fetch('/api/save-product', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-cache',
-        body: JSON.stringify(createFinalProductToSaveToDatabase(productId))
-      })
-    });
-  }
-
+  
   const rankIngredients = () => {
     const skinConcernAnswers: string[] = [];
     const answers = quizQuestions.map(q => {
@@ -337,10 +187,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return ingredients.filter(x => x.rank === highestRank);
   }
 
-  const capitaliseFirstLetter = (answer: string) => {
-    return answer[0].toUpperCase() + answer.toLowerCase().substring(1);
-  }
-
   const findSerumAndSelectForUpsell = (serumType: SerumType) => {
     return serums
       .filter(x => {
@@ -450,6 +296,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               <StyledSummaryProduct
                 product={baseIngredient}
                 ingredients={sortedIngredients}
+                clickHandler={amendIngredients}
               >
               </StyledSummaryProduct>
             </ProductsWrap>
@@ -457,6 +304,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           <Spacer></Spacer>
           <SummaryCart
             userName={userName}
+            sortedIngredients={sortedIngredients}
           >
           </SummaryCart>
         </SummaryWrap>
