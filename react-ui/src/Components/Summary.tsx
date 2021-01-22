@@ -360,48 +360,54 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
     if (isAcneAnswerSelected())
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.FeelsDry))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.FeelsDry))
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.ScarringAndBlemishes))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.ScarringAndBlemishes))
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.UnevenAndPigmentation))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.UnevenAndPigmentation))
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
 
 
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.LooksDry, SkinConditonAnswers.FeelsDry))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.LooksDry, SkinConditonAnswers.FeelsDry))
       return findSerumAndSelectForUpsell(SerumType.Emulsion);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.LooksDry, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.LooksDry, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.Emulsion);
 
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.UnevenAndPigmentation, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.UnevenAndPigmentation, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.UnevenAndPigmentation))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.UnevenAndPigmentation))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
 
     return findSerumAndSelectForUpsell(SerumType.Allantoin);
   }
 
-  const areAnswersSelected = (answer: IAnswer, answerIdOne: string, answerIdTwo: string) => {
-    return ((answer.value as String).toLowerCase().includes(answerIdOne)) &&
-      ((answer.value as String).toLowerCase().includes(answerIdTwo));
+  const areAnswersSelected = (answer: IAnswer[], answerIdOne: string, answerIdTwo: string) => {
+    const foundAnswers = [];
+    answer.forEach(a => {
+      if (((a.value as String).toLowerCase() === answerIdOne))
+        foundAnswers.push(a.value)
+      if (((a.value as String).toLowerCase() === answerIdTwo))
+        foundAnswers.push(a.value)
+    })
+    return foundAnswers.length === 2;
   }
 
   const isAcneAnswerSelected = () => {
     return questionsAnswered
       .filter(x => x.id === QuestionIds.skinConcernsAndConditions)
       .map(question => question.answers.filter(x => x.selected))[0]
-      .some(x => x.value.includes("acne"))
+      .some(x => formatAnswersToLowercase(x.value).includes("acne"))
   }
 
   const isSensitiveSkinAnswerSelected = () => {
     return questionsAnswered
       .filter(x => x.id === QuestionIds.sensitiveSkin)
       .map(question => question.answers.filter(x => x.selected))[0]
-      .some(x => x.value.includes("Yes") || x.value.includes("Sometimes"));
+      .some(x => formatAnswersToLowercase(x.value).includes("yes") || formatAnswersToLowercase(x.value).includes("sometimes"));
   }
 
   const updateMoisturiserPrice = () => {
@@ -411,6 +417,14 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       .reduce((a, c) => a + c, Number(baseIngredient.regular_price)))
     updateBaseIngredient(baseIngredient);
   }
+
+  const formatAnswersToLowercase = (answers: string | string[]) => {
+    if (Array.isArray(answers)) {
+      return (answers as string[]).map(x => x.toLowerCase());
+    } else {
+      return (answers as string).toLowerCase();
+    }
+  } 
 
   return (
     <React.Fragment>

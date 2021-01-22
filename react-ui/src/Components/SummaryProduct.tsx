@@ -84,10 +84,20 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
         <Description>
           {
             !isProductAMoisturiser() ?
-              product.short_description :
               <React.Fragment>
                 <span>
-                  { visibleIngredient.length > 0 && visibleIngredient[0].name }
+                  { 
+                    product.name.split("- ")[1]
+                  }
+                </span>
+                { product.short_description } 
+              </React.Fragment> 
+              :
+              <React.Fragment>
+                <span>
+                  { 
+                    visibleIngredient.length > 0 && visibleIngredient[0].name
+                  }
                 </span>
                 { visibleIngredient.length > 0 && visibleIngredient[0].short_description }
               </React.Fragment>
@@ -116,7 +126,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       >{product.name}</p>
       <p className="desc">{
         product.hasOwnProperty("isSelectedForUpsell") ?
-          product.short_description
+          product.short_description.substring(0, 100)+"..."
           :
           "Personalised with:"
       }</p>
@@ -167,6 +177,7 @@ const ToggleIngredientDescriptionButton = styled.p`
   bottom: 0;
   background: ${props => props.theme.brandColours.baseDefaultGreen};
   color: #fff;
+  cursor: pointer;
 `
 
 const Description = styled.p`
