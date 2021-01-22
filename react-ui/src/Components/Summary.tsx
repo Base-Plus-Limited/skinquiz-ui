@@ -531,16 +531,6 @@ const ProductsWrap = styled.div`
 `
 
 const SummaryProducts = styled.div`
-  // display: flex;
-  // flex-direction: column;
-  // max-width: 1024px;
-  // width: 100%;
-  // .slideUp {
-  //   transform: translateY(0);
-  // }
-  @media screen and (min-width: 980px) {
-
-  }
 `
 
 const SummaryWrap = styled.div`

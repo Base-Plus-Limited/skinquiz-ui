@@ -3,13 +3,14 @@ export type NewProductType = "grouped" | "simple";
 export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
   isSelectedForSummary: boolean;
-  isDescriptionOpen: boolean;
+  isDescriptionPanelOpen: boolean;
   isSelectedForUpsell: boolean;
 }
 
 export interface IIngredient extends WordpressProduct {
   rank: number;
-  isDescriptionOpen: boolean;
+  isDescriptionPanelOpen: boolean;
+  showDescription: boolean;
   previouslyRanked: boolean;
   isSelectedForSummary: boolean;
   commonlyUsedFor: string[];
@@ -140,5 +141,5 @@ export enum SpecialCaseProducts {
   LemonSeedOil = 697,
   TeaTreeOil = 2054,
   Niacinamide = 698,
-  VitaminC = 694 
+  VitaminC = 694
 }

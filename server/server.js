@@ -346,6 +346,8 @@ var App = /** @class */ (function () {
                             ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
                             ingredient.previouslyRanked = false;
                             ingredient.isSelectedForSummary = false;
+                            ingredient.isDescriptionPanelOpen = false;
+                            ingredient.showDescription = false;
                             return ingredient;
                         }); })
                             .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) {
@@ -377,6 +379,7 @@ var App = /** @class */ (function () {
                             serum.isSelectedForSummary = false;
                             serum.short_description = serum.short_description.replace(/<[^>]*>?/gm, '');
                             serum.description = serum.description.replace(/<[^>]*>?/gm, '');
+                            serum.isDescriptionPanelOpen = false;
                             return serum;
                         }); })
                             .then(function (serums) { return res.send(serums.filter(function (serum) { return serum.id !== 6039 /* Id */; })); })["catch"](function (error) {

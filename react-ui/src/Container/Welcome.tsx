@@ -47,7 +47,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
           message: error.message
         })
       });
-  }, [setApplicationError]);
+  }, []);
 
 
   const logQuizStarted = () => {

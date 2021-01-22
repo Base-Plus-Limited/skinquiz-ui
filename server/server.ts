@@ -252,7 +252,8 @@ class App {
           ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
           ingredient.previouslyRanked = false;
           ingredient.isSelectedForSummary = false;
-          ingredient.isDescriptionOpen = false;
+          ingredient.isDescriptionPanelOpen = false;
+          ingredient.showDescription = false;
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
@@ -278,7 +279,7 @@ class App {
           serum.isSelectedForSummary = false;
           serum.short_description = serum.short_description.replace(/<[^>]*>?/gm, '');
           serum.description = serum.description.replace(/<[^>]*>?/gm, '');
-          serum.isDescriptionOpen = false;
+          serum.isDescriptionPanelOpen = false;
           return serum;
         }))
         .then((serums: ISerum[]) => res.send(serums.filter(serum => serum.id !== FreeGiftSerum.Id)))
