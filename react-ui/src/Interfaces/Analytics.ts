@@ -2,7 +2,7 @@ export interface IAnalyticsEvent {
   distinct_id: string; 
   event_type: EventType;
   question_id?: number;
-  ingredients?: string;
+  variation?: string;
   serumId?: number;
   moisturiserId?: number;
   amendSelected?: boolean;

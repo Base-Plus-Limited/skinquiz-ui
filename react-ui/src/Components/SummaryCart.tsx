@@ -1,12 +1,10 @@
 import React, { useContext } from 'react';
 import styled from "styled-components";
-import { EventType, IAnalyticsEvent } from '../Interfaces/Analytics';
-import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
+import { IAnalyticsEvent } from '../Interfaces/Analytics';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import { IRowData } from '../Interfaces/RowData';
-import { SerumType } from '../Interfaces/SerumTypes';
-import { IIngredient, ISerum, ProductType, WordpressProduct } from '../Interfaces/WordpressProduct';
+import { IIngredient, ProductType, WordpressProduct } from '../Interfaces/WordpressProduct';
 
 import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';

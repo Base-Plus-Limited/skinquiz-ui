@@ -11,7 +11,7 @@ export const track = async (event: IAnalyticsEvent) => {
       event_type: event.event_type,
       distinct_id: event.distinct_id,
       question_id: event.question_id,
-      ingredients: event.ingredients,
+      variation: event.variation,
       serumId: event.serumId
     })
   }).then()
