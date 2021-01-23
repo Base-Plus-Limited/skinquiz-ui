@@ -4,8 +4,9 @@ import { EventType, IAnalyticsEvent } from '../Interfaces/Analytics';
 import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
+import { IRowData } from '../Interfaces/RowData';
 import { SerumType } from '../Interfaces/SerumTypes';
-import { IIngredient, ProductType, WordpressProduct } from '../Interfaces/WordpressProduct';
+import { IIngredient, ISerum, ProductType, WordpressProduct } from '../Interfaces/WordpressProduct';
 
 import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';
@@ -23,7 +24,7 @@ export interface SummaryCartProps {
 
 const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngredients }) => {
 
-  const { uniqueId, cartData, setApplicationError, quizQuestions, baseIngredient } = useContext(QuizContext);
+  const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient } = useContext(QuizContext);
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -120,14 +121,18 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const returnVariation = (type: ProductType) => {
     if (type === "moisturiser") {
-      return sortedIngredients.map(ingredient => {
-        return {
+      return sortedIngredients.map(ingredient => (
+        {
           name: ingredient.name,
           id: ingredient.id
         }
-      })
-    } else {
+      ))
+    } else if(type === "serum") {
       return cartData[0].additionalInfo.split(" ")[1];
+    } else {
+      const mixture = sortedIngredients.map(ingredient => ingredient.name).join(" & ");
+      const serumVariation = (cartData.find(d => d.productType === "serum") as IRowData).additionalInfo.split(" ")[1];
+      return `Moisturiser: ${mixture}, Serum: ${serumVariation}`;
     }
   }
 
@@ -135,10 +140,6 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     if(userName)
       return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name})`;
     return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name})`;
-  }
-
-  const addBundleToCart = () => {
-    
   }
 
   const addMoisturiser = () => {
@@ -149,7 +150,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             event_type: "Quiz completed - Moisturiser Added To Cart",
             distinct_id: uniqueId,
             moisturiserId: product.id,
-            ingredients: sortedIngredients.map(x => x.name).join(" & ")
+            variation: sortedIngredients.map(x => x.name).join(" & ")
           }
           Promise.allSettled([
             saveProductToDatabase(product.id, analyticsEvent, "moisturiser"),
@@ -196,9 +197,44 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     })
   }
 
+  const addBundle = () => {
+    sendToWordpress()
+      .then(product => {
+        if (product) {
+          const serumToAdd = cartData.find(x => x.productType === "serum");
+          const moisturiserVariation = (cartData.find(x => x.productType === "moisturiser") as IRowData).additionalInfo;
+          const analyticsEvent: IAnalyticsEvent = {
+            event_type: "Quiz completed - Bundle Added To Cart",
+            distinct_id: uniqueId,
+            moisturiserId: product.id,
+            serumId: (serumToAdd as IRowData).id,
+            variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${(serumToAdd as IRowData).additionalInfo.split(" ")[1]}`
+          }
+          const uniqueBundleId = Number(Math.random().toString().split('.')[1].slice(0, 4));
+          Promise.allSettled([
+            saveProductToDatabase(uniqueBundleId, analyticsEvent, "bundle"),
+            saveQuizToDatabase(uniqueBundleId, setApplicationError, quizQuestions)
+          ])
+          .then(result => {
+            if(result.some(x => x.status !== "rejected")) {
+              window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=6784&quantity[${product.id}]=1&quantity[${(serumToAdd as IRowData).id}]=1&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
+              return;
+            }
+            setApplicationError({
+              error: true,
+              code: 400,
+              message: "",
+              uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
+            })
+          })
+        }
+      })
+  }
+
   const addToCart = () => {
+    toggleLoading(true);
     if (cartData.length === 2) {
-      // add bundle
+      addBundle();
     } else if(cartData.some(x => x.productType === "serum")) {
       addSerum();
     } else {

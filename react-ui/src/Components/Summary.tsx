@@ -26,7 +26,7 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, serums, questionsAnswered, updateBaseIngredient } = useContext(QuizContext);
+  const { cartData, isLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -59,7 +59,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     track({
       distinct_id: uniqueId,
       event_type: "Quiz completed - Amend",
-      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      variation: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
       const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
@@ -272,12 +272,25 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     }
   } 
 
+  const getLoadingProductType = () => {
+    if (cartData.length === 1) {
+      if (cartData.some(d => d.productType === "serum"))
+        return "serum"
+      if (cartData.some(d => d.productType === "moisturiser"))
+        return "moisturiser"
+    } else if (cartData.length === 2) {
+      return "bundle"
+    } else {
+      return ""
+    }
+  }
+
   return (
     <React.Fragment>
       {
-        !isQuizCompleted ?
+        ((!isQuizCompleted) || (isLoading)) ?
           <LoadingAnimation
-            loadingText={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your personalised products`}
+            loadingText={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your personalised ${getLoadingProductType()}`}
           />
         :
         <SummaryWrap>
