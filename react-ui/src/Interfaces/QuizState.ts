@@ -41,6 +41,8 @@ interface IQuiz {
   updateSerums: Dispatch<SetStateAction<ISerum[]>>;
   isLoading: boolean;
   toggleLoading: Dispatch<SetStateAction<boolean>>;
+  isAmendSelected: boolean;
+  toggleAmendSelected: Dispatch<SetStateAction<boolean>>;
 }
 
 export default IQuiz;

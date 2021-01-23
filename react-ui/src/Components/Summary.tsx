@@ -26,7 +26,7 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { cartData, isLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient } = useContext(QuizContext);
+  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -56,16 +56,23 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
 
   const amendIngredients = async () => {
+    toggleLoading(true);
+    toggleAmendSelected(true);
+    const foundSerum = cartData.find(d => d.productType === "serum");
     track({
       distinct_id: uniqueId,
-      event_type: "Quiz completed - Amend",
+      event_type: "Quiz completed - Change Ingredients",
       variation: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
       const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
       saveQuizToDatabase(tempProductId, setApplicationError, quizQuestions)
-        .then(x => {
-          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+        .then(_ => {
+          if (foundSerum) {
+            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+          } else {
+            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+          }
         })
     });
   }
@@ -273,6 +280,9 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   } 
 
   const getLoadingProductType = () => {
+    if (isAmendSelected) {
+      return "product"
+    }
     if (cartData.length === 1) {
       if (cartData.some(d => d.productType === "serum"))
         return "serum"
@@ -281,7 +291,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     } else if (cartData.length === 2) {
       return "bundle"
     } else {
-      return ""
+      return "moisturiser"
     }
   }
 
@@ -309,7 +319,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               <StyledSummaryProduct
                 product={baseIngredient}
                 ingredients={sortedIngredients}
-                clickHandler={amendIngredients}
+                onAmend={amendIngredients}
               >
               </StyledSummaryProduct>
             </ProductsWrap>

@@ -8,10 +8,10 @@ import { QuizContext } from '../QuizContext';
 export interface SummaryProductProps {
   product: ISerum | IIngredient;
   ingredients?: IIngredient[];
-  clickHandler?: () => void;
+  onAmend?: () => void;
 }
 
-const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients, clickHandler }: SummaryProductProps) => {
+const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients, onAmend }: SummaryProductProps) => {
 
   const { cartData, updateCartData, serums, updateSerums, updateIngredients, updateBaseIngredient } = useContext(QuizContext);
 
@@ -167,7 +167,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       {
         isProductAMoisturiser() &&
           <ChangeIngredientButton
-            onClick={clickHandler}
+            onClick={onAmend}
           >
             <span>Change ingredients</span>
           </ChangeIngredientButton>

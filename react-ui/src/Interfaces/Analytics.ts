@@ -8,4 +8,4 @@ export interface IAnalyticsEvent {
   amendSelected?: boolean;
 }
 
-export type EventType = "Name entered" | "Quiz started" | "Quiz completed - Amend" | "Quiz completed - Moisturiser Added To Cart" | "Question answered" | "Back selected" | "Quiz completed - Serum Added To Cart" | "Quiz completed - Bundle Added To Cart";
+export type EventType = "Name entered" | "Quiz started" | "Quiz completed - Change Ingredients" | "Quiz completed - Moisturiser Added To Cart" | "Question answered" | "Back selected" | "Quiz completed - Serum Added To Cart" | "Quiz completed - Bundle Added To Cart";

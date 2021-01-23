@@ -41,7 +41,9 @@ const state: IQuiz = {
   serums: [],
   updateSerums: (perviousSerums: SetStateAction<ISerum[]>) => perviousSerums,
   isLoading: false,
-  toggleLoading: (previousLoading: SetStateAction<boolean>) => previousLoading
+  toggleLoading: (previousLoading: SetStateAction<boolean>) => previousLoading,
+  isAmendSelected: false,
+  toggleAmendSelected: (previousAmendState: SetStateAction<boolean>) => previousAmendState
 }
 
 export const QuizContext = createContext(state);
@@ -68,6 +70,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
   const [serums, updateSerums] = useState<ISerum[]>([]);
   const [isLoading, toggleLoading] = useState<boolean>(false);
+  const [isAmendSelected, toggleAmendSelected] = useState<boolean>(false);
 
   return (
     <QuizContext.Provider value={{
@@ -104,7 +107,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       serums,
       updateSerums,
       isLoading,
-      toggleLoading
+      toggleLoading,
+      isAmendSelected,
+      toggleAmendSelected
     }}>
       {children}
     </QuizContext.Provider>
