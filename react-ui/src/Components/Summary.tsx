@@ -140,6 +140,10 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const filterSpecialCaseIngredient = (ingredientOne: IIngredient, categorisedIngredients: ISkinConcernsAndIngredients) => {
+    if ((ingredientOne.id === SpecialCaseProducts.Niacinamide) && (categorisedIngredients.ingredientsTwo.length === 1) && (categorisedIngredients.ingredientsOne.length !== 1)) {
+      categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsOne.filter(x => x.id !== SpecialCaseProducts.Niacinamide);
+      return categorisedIngredients.ingredientsTwo;
+    }
     if ((ingredientOne.id === SpecialCaseProducts.Niacinamide))
       categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsTwo.filter(ingredient => ingredient.id !== SpecialCaseProducts.Niacinamide)
     if ((ingredientOne.id === SpecialCaseProducts.VitaminC))
