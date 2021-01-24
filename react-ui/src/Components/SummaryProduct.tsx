@@ -1,20 +1,37 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
+import { IRowData } from '../Interfaces/RowData';
 
 import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
 import { QuizContext } from '../QuizContext';
 
 export interface SummaryProductProps {
   product: ISerum | IIngredient;
-  mixture?: String;
-  totalPrice?: string;
+  ingredients?: IIngredient[];
+  onAmend?: () => void;
 }
 
-const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture, totalPrice }: SummaryProductProps) => {
+const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients, onAmend }: SummaryProductProps) => {
 
-  const { cartData, updateCartData } = useContext(QuizContext);
+  const { cartData, updateCartData, serums, updateSerums, updateIngredients, updateBaseIngredient } = useContext(QuizContext);
 
-  const toggleProductAdd = () => {
+  enum ProductTypeId {
+    Moisturiser = 1474
+  }
+
+  const visibleIngredient = (ingredients && ingredients.length > 0) ? ingredients.filter(x => x.showDescription) : [];
+
+  useEffect(() => {
+    if (ingredients) {
+      ingredients.forEach((x, i) => {
+        x.showDescription = i === 0;
+      })
+    }
+  }, []);
+
+  const formatIngredientNames = () => isProductAMoisturiser() && (ingredients as IIngredient[]).map(i => i.name).join(" & ");
+
+  const toggleProductAddToCart = () => {
     const { name, id } = product;
     if (cartData.some(d => d.id === id)) {
       updateCartData(cartData.filter(d => d.id !== id));
@@ -30,64 +47,189 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, mixture,
       price = product.price;
     } else {
       productName = name;
-      additionalInfo = `with ${mixture}`;
-      price = String(totalPrice);
+      additionalInfo = `with ${formatIngredientNames()}`;
+      price = String(product.price);
     }
-    updateCartData([...cartData, ...[{
-      productName, 
-      additionalInfo, 
+
+    const rowData: IRowData[] = [{
+      productName,
+      additionalInfo,
       price,
-      id
-    }]]);
+      id,
+      productType: isProductAMoisturiser() ? "moisturiser" : "serum"
+    }]
+
+    updateCartData([...cartData, ...rowData]);
+  }
+
+  const toggleDescriptionVisibility = () => {
+    product.isDescriptionPanelOpen = !product.isDescriptionPanelOpen;
+    if (isProductAMoisturiser()) {
+      const ingredientCopy: IIngredient = JSON.parse(JSON.stringify(product));
+      updateBaseIngredient(ingredientCopy);
+    } else {
+      updateSerums([...serums, (product as ISerum)])
+    }
+  };
+
+  const isProductAMoisturiser = () => product.id === ProductTypeId.Moisturiser;
+
+
+  const toggleActiveDescription = () => {
+    updateIngredients((ingredients as IIngredient[]).map(x => {
+      x.showDescription = !x.showDescription;
+      return x;
+    }));
+    
   }
 
   return (
-    <Product>
-      <img 
-        onClick={toggleProductAdd}
+    <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
+      <FullDescriptionPanel className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
+        <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
+        <Description>
+          {
+            !isProductAMoisturiser() ?
+              <React.Fragment>
+                <span>
+                  { 
+                    product.name.split("- ")[1]
+                  }
+                </span>
+                { product.short_description } 
+              </React.Fragment> 
+              :
+              <React.Fragment>
+                <span>
+                  { 
+                    visibleIngredient.length > 0 && visibleIngredient[0].name
+                  }
+                </span>
+                { visibleIngredient.length > 0 && visibleIngredient[0].short_description }
+              </React.Fragment>
+          }
+        </Description>
+        {
+          isProductAMoisturiser() &&
+          <ToggleIngredientDescriptionButton
+            onClick={toggleActiveDescription}
+          >View {
+              ((ingredients as IIngredient[]).find(x => !x.showDescription) as IIngredient).name
+            }</ToggleIngredientDescriptionButton>
+        }
+      </FullDescriptionPanel>
+      <img
+        onClick={toggleProductAddToCart}
         src={product.images[0].src} alt="" width={
           product.hasOwnProperty("isSelectedForUpsell") ?
             80
             :
             200
-      } />
-      <p 
-        onClick={toggleProductAdd}
+        } />
+      <p
+        onClick={toggleProductAddToCart}
         className="name"
       >{product.name}</p>
       <p className="desc">{
         product.hasOwnProperty("isSelectedForUpsell") ?
-          product.short_description
+          product.short_description.substring(0, 100)+"..."
           :
           "Personalised with:"
       }</p>
       {
-        mixture &&
+        ingredients &&
         <p className="mixture">
-          {mixture}
+          {formatIngredientNames()}
         </p>
       }
       <hr></hr>
-      <ReadMoreText>Read more about {mixture ? mixture : product.name.split("- ")[1]}</ReadMoreText>
+      <ReadMoreText onClick={toggleDescriptionVisibility}>Read more about {isProductAMoisturiser() ? formatIngredientNames() : product.name.split("- ")[1]}</ReadMoreText>
       {
         cartData.some(d => d.id === product.id) ?
-          <RemoveFromRoutineButton
-            onClick={toggleProductAdd}
+          (<RemoveFromRoutineButton
+            onClick={toggleProductAddToCart}
           >
             <span>added</span>
             <span>remove</span>
-          </RemoveFromRoutineButton> 
+          </RemoveFromRoutineButton>)
           :
-          <AddToRoutineButton
-            onClick={toggleProductAdd}
+          (
+            <React.Fragment>
+              <AddToRoutineButton
+                onClick={toggleProductAddToCart}
+              >
+                <span>add to routine</span>
+                <span>+ £{product.price}</span>
+              </AddToRoutineButton>
+            </React.Fragment>
+          )
+      }
+      {
+        isProductAMoisturiser() &&
+          <ChangeIngredientButton
+            onClick={onAmend}
           >
-            <span>add to routine</span>
-            <span>+ £{totalPrice ? totalPrice : product.price}</span>
-          </AddToRoutineButton>
+            <span>Change ingredients</span>
+          </ChangeIngredientButton>
       }
     </Product>
   )
 }
+
+const ToggleIngredientDescriptionButton = styled.p`
+  padding: 7px 0;
+  margin: 0;
+  width: 100%;
+  position: absolute;
+  font-family: ${props => props.theme.subHeadingFont};
+  bottom: 0;
+  background: ${props => props.theme.brandColours.baseDefaultGreen};
+  color: #fff;
+  cursor: pointer;
+`
+
+const Description = styled.p`
+  width: 80%;
+  margin: 0 auto;
+  padding: 0;
+  font-size: 9pt;
+  line-height: 1.4em;
+  span {
+    display: block;
+    font-family: ${props => props.theme.subHeadingFont};
+    color: ${props => props.theme.brandColours.baseDefaultGreen};
+    text-transform: uppercase;
+    font-size: 10pt;
+    margin-bottom: 3px;
+  }
+`
+
+const CloseDescriptionButton = styled.span`
+  position: absolute;
+  top: 15px;
+  font-size: 12pt;
+  cursor: pointer;
+  right: 15px;
+  font-weight: 600;
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-family: ${props => props.theme.subHeadingFont};
+`
+
+const FullDescriptionPanel = styled.div`
+  width: 100%;
+  height: calc(100% - 50px);
+  font-family: ${props => props.theme.bodyFont};
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-size: 9.5pt;
+  text-align: center;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  transition: all 0.55s ease-in-out;
+  transform: translateX(100%);
+  position: absolute;
+  top: 0;
+`
 
 const ReadMoreText = styled.p`
   font-family: ${props => props.theme.bodyFont};
@@ -96,6 +238,7 @@ const ReadMoreText = styled.p`
   font-weight: 600;
   line-height: 1.4em;
   cursor: pointer;
+  margin: 0;
 `
 
 const RemoveFromRoutineButton = styled.p`
@@ -122,6 +265,18 @@ const RemoveFromRoutineButton = styled.p`
   }
 `
 
+const ChangeIngredientButton = styled.p`
+  background: #fff;
+  border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
+  text-transform: uppercase;
+  font-family: ${props => props.theme.subHeadingFont};
+  padding: 10px 12px;
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-size: 9pt;
+  cursor: pointer;
+  text-align: center;
+`
+
 const AddToRoutineButton = styled.p`
   background: ${props => props.theme.brandColours.baseDarkGreen};
   border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
@@ -140,6 +295,11 @@ const Product = styled.div`
   margin: 0 auto 60px;
   max-width: 260px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
+  .resetTransform {
+    transform: translateX(0);
+  }
   img{
     margin: 0 auto 10px;
     display: block;

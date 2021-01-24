@@ -16,7 +16,7 @@ interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { saveSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, saveBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
+  const { updateSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, updateBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
 
   useEffect(() => {
     fetch('/api/questions')
@@ -35,7 +35,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       .then((ingredients: IIngredient[]) => {
         const filteredIngredients = ingredients.filter(ingredient => ingredient.id !== 1474);
         const baseIngredient = (ingredients.find(ingredient => ingredient.id === 1474) as IIngredient);
-        saveBaseIngredient(baseIngredient);
+        updateBaseIngredient(baseIngredient);
         updateIngredients(filteredIngredients);
       })
       .catch((error) => {
@@ -49,7 +49,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
 
     fetch('/api/serums')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-      .then((serums: ISerum[]) => saveSerums(serums))
+      .then((serums: ISerum[]) => updateSerums(serums))
       .catch((error) => {
         setApplicationError({
           error: true,

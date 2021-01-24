@@ -19,13 +19,14 @@ import SkinConditionEnums from '../SkinConditons';
 import StyledSummaryProduct from './SummaryProduct';
 import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
 import SummaryCart from './SummaryCart';
-import { IRowData } from '../Interfaces/RowData';
+import { saveQuizToDatabase } from './Shared/QuizHelpers';
+import { SerumType } from '../Interfaces/SerumTypes';
 
 export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, selectedSkinConditions, serums, questionsAnswered } = useContext(QuizContext);
+  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -52,174 +53,30 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     fragranceFree = 3870
   }
 
-  enum SerumType {
-    Allantoin = 5824,
-    VitaminC = 5823,
-    Emulsion = 5822,
-    Pineapple = 5821
-  }
-
   const sortedIngredients = ingredients.filter(x => x.isSelectedForSummary);
 
-  const getProductName = (): string => {
-    if(userName)
-      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name})`;
-    return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name})`;
-  }
-
-  const getNewProduct = () => {
-    return {
-      name: getProductName(),
-      type: 'simple',
-      regular_price: getMoisturier().price,
-      purchase_note: `Your custom mixture will include ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
-      description: '',
-      short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
-      categories: [
-        {
-          id: 21
-        }
-      ],
-      images: [
-        {
-          src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
-        }
-      ]
-    }
-  }
-
   const amendIngredients = async () => {
+    toggleLoading(true);
+    toggleAmendSelected(true);
+    const foundSerum = cartData.find(d => d.productType === "serum");
     track({
       distinct_id: uniqueId,
-      event_type: "Quiz completed - Amend",
-      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      event_type: "Quiz completed - Change Ingredients",
+      variation: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
       const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
-      setQuizToCompleted(true);
-      saveQuizToDatabase(tempProductId)
-        .then(x => {
-          window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
-        })
-    });
-  }
-
-  const sendToWordpress = async () => {
-    setQuizToCompleted(true);
-    return fetch('/api/new-product', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(getNewProduct())
-    })
-    .then(res => res.ok ? res.json() : res.json().then((errorResponse: IErrorResponse) => {
-      errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
-      setApplicationError(errorResponse);
-    }))
-    .then((product: WordpressProduct) => {
-      if (product) {
-        Promise.allSettled([
-          saveProductToDatabase(product.id),
-          saveQuizToDatabase(product.id)
-        ])
-        .then(result => {
-          if(result.some(x => x.status !== "rejected")) {
-            window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
-            return;
+      saveQuizToDatabase(tempProductId, setApplicationError, quizQuestions)
+        .then(_ => {
+          if (foundSerum) {
+            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+          } else {
+            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           }
-          setApplicationError({
-            error: true,
-            code: 400,
-            message: "",
-            uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
-          })
         })
-      }
-    })
-    .catch((error: IErrorResponse) => {
-      setApplicationError({
-        error: true,
-        code: error.code,
-        message: error.message,
-        uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
-      })
     });
   }
-
-  const returnCompletedQuizData = (productId: number): ICompletedQuizDBModel => {
-    const completedQuiz: ICompletedQuizDBModel = {
-      productId: productId,
-      quiz: quizQuestions.map(question => (
-        {
-          questionId: question.id,
-          question: question.question,
-          answer: question.customAnswer ? question.customAnswer : returnAnswers(question.answers)
-        })
-      )
-    };
-    return completedQuiz;
-  }
-
-  const returnAnswers = (answers: IAnswer[]) => {
-    const selectedAnswers = answers.filter(answer => answer.selected);
-    if (selectedAnswers.length === 2)
-      return selectedAnswers.map(x => x.value).join(" & ");
-    return String(selectedAnswers[0].value);
-  }
-
-  const saveQuizToDatabase = (productId: number) => {
-    return fetch('/api/save-quiz', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-cache',
-      body: JSON.stringify(returnCompletedQuizData(productId))
-    })
-    .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-    .catch(error => {
-      setApplicationError({
-        error: true,
-        code: error.status,
-        message: error.message
-      })
-    });
-  }
-
-  const createFinalProductToSaveToDatabase = (productId: number) => {
-    const databaseProduct: ICustomProductDBModel = {
-      ingredients: sortedIngredients.map(ingredient => {
-        return {
-          name: ingredient.name,
-          id: ingredient.id
-        }
-      }),
-      amended: false,
-      productId: productId
-    };
-    return databaseProduct;
-  }
-
-  const saveProductToDatabase = (productId: number) => {
-    return track({
-      distinct_id: uniqueId,
-      event_type: "Quiz completed - Buy Now",
-      ingredients: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
-      amendSelected: false
-    }).then(() => {
-      return fetch('/api/save-product', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-cache',
-        body: JSON.stringify(createFinalProductToSaveToDatabase(productId))
-      })
-    });
-  }
-
+  
   const rankIngredients = () => {
     const skinConcernAnswers: string[] = [];
     const answers = quizQuestions.map(q => {
@@ -288,7 +145,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     if ((ingredientOne.id === SpecialCaseProducts.VitaminC))
       categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsTwo.filter(ingredient => ingredient.id !== SpecialCaseProducts.VitaminC)
     return categorisedIngredients.ingredientsTwo;
-    }
+  }
 
   const returnRandomIndex = (ingredients: IIngredient[]) => {
     return Math.floor(Math.random() * Math.floor(ingredients.length));
@@ -337,37 +194,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return ingredients.filter(x => x.rank === highestRank);
   }
 
-  const getQuestionAnswer = (questionId: QuestionIds) => {
-    const foundQuestion = (quizQuestions.find(question => question.id === questionId) as IQuizQuestion);
-    if (foundQuestion.customAnswer.length > 1)
-      return foundQuestion.customAnswer;
-    const selectedAnswers = foundQuestion.answers.filter(answer => answer.selected);
-    return selectedAnswers.length > 1 ?
-    getDisplayAnswer(questionId, selectedAnswers.map(answer => answer.value).join(' & ')) :
-      getDisplayAnswer(questionId, (selectedAnswers[0].value as string));
-  }
-
-  const getDisplayAnswer = (questionId: QuestionIds, answer: string) => {
-    const formattedAnswer = answer.toLowerCase().trim();
-    if ((questionId === QuestionIds.adverseReactions) && (formattedAnswer === "none"))
-      return "Nothing";
-    if ((questionId === QuestionIds.exisitingConditions) && (formattedAnswer === "none"))
-      return "No skin conditions";
-    if (questionId === QuestionIds.fragranceFree)
-      return formattedAnswer === "yes" ? "Fragrance-free" : "Fragranced"
-    if (questionId === QuestionIds.skinConcernsAndConditions)
-      return capitaliseFirstLetter(formattedAnswer);
-    if (questionId === QuestionIds.whenYouWakeUpInTheMorning) {
-      const condition = SkinConditionEnums[`${selectedSkinConditions[0].index}${selectedSkinConditions[1].index}`];
-      return capitaliseFirstLetter(condition);
-    }
-    return answer;
-  }
-
-  const capitaliseFirstLetter = (answer: string) => {
-    return answer[0].toUpperCase() + answer.toLowerCase().substring(1);
-  }
-
   const findSerumAndSelectForUpsell = (serumType: SerumType) => {
     return serums
       .filter(x => {
@@ -377,6 +203,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const getSelectedSerum = () => {
+    updateMoisturiserPrice();
     const skinConcernsAnswer = questionsAnswered
       .filter(x => x.id === QuestionIds.skinConcernsAndConditions)
       .map(a => a.answers.filter(x => x.selected))[0];
@@ -386,65 +213,94 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
     if (isAcneAnswerSelected())
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.FeelsDry))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.FeelsDry))
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.ScarringAndBlemishes))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.ScarringAndBlemishes))
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.UnevenAndPigmentation))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.UnevenAndPigmentation))
       return findSerumAndSelectForUpsell(SerumType.Pineapple);
 
 
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.LooksDry, SkinConditonAnswers.FeelsDry))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.LooksDry, SkinConditonAnswers.FeelsDry))
       return findSerumAndSelectForUpsell(SerumType.Emulsion);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.LooksDry, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.LooksDry, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.Emulsion);
 
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.UnevenAndPigmentation, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.UnevenAndPigmentation, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.Oily, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.Oily, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.UnevenAndPigmentation))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.UnevenAndPigmentation))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
-    if (areAnswersSelected(skinConcernsAnswer[0], SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.DullOrBrightening))
+    if (areAnswersSelected(skinConcernsAnswer, SkinConditonAnswers.ScarringAndBlemishes, SkinConditonAnswers.DullOrBrightening))
       return findSerumAndSelectForUpsell(SerumType.VitaminC);
 
     return findSerumAndSelectForUpsell(SerumType.Allantoin);
   }
 
-  const areAnswersSelected = (answer: IAnswer, answerIdOne: string, answerIdTwo: string) => {
-    return ((answer.value as String).toLowerCase().includes(answerIdOne)) &&
-      ((answer.value as String).toLowerCase().includes(answerIdTwo));
+  const areAnswersSelected = (answer: IAnswer[], answerIdOne: string, answerIdTwo: string) => {
+    const foundAnswers = [];
+    answer.forEach(a => {
+      if (((a.value as String).toLowerCase() === answerIdOne))
+        foundAnswers.push(a.value)
+      if (((a.value as String).toLowerCase() === answerIdTwo))
+        foundAnswers.push(a.value)
+    })
+    return foundAnswers.length === 2;
   }
 
   const isAcneAnswerSelected = () => {
     return questionsAnswered
       .filter(x => x.id === QuestionIds.skinConcernsAndConditions)
       .map(question => question.answers.filter(x => x.selected))[0]
-      .some(x => x.value.includes("acne"))
+      .some(x => formatAnswersToLowercase(x.value).includes("acne"))
   }
 
   const isSensitiveSkinAnswerSelected = () => {
     return questionsAnswered
       .filter(x => x.id === QuestionIds.sensitiveSkin)
       .map(question => question.answers.filter(x => x.selected))[0]
-      .some(x => x.value.includes("Yes") || x.value.includes("Sometimes"));
+      .some(x => formatAnswersToLowercase(x.value).includes("yes") || formatAnswersToLowercase(x.value).includes("sometimes"));
   }
 
-  const getMoisturier = () => {
-    const totalMoisturiserPrice = sortedIngredients
+  const updateMoisturiserPrice = () => {
+    baseIngredient.price = String(sortedIngredients
       .filter(x => x.isSelectedForSummary)
       .map(x => Number(x.price))
-      .reduce((a, c) => a + c, Number(baseIngredient.regular_price))
-    baseIngredient.price = `${totalMoisturiserPrice}`;
-    return baseIngredient;
+      .reduce((a, c) => a + c, Number(baseIngredient.regular_price)))
+    updateBaseIngredient(baseIngredient);
+  }
+
+  const formatAnswersToLowercase = (answers: string | string[]) => {
+    if (Array.isArray(answers)) {
+      return (answers as string[]).map(x => x.toLowerCase());
+    } else {
+      return (answers as string).toLowerCase();
+    }
+  } 
+
+  const getLoadingProductType = () => {
+    if (isAmendSelected) {
+      return "product"
+    }
+    if (cartData.length === 1) {
+      if (cartData.some(d => d.productType === "serum"))
+        return "serum"
+      if (cartData.some(d => d.productType === "moisturiser"))
+        return "moisturiser"
+    } else if (cartData.length === 2) {
+      return "bundle"
+    } else {
+      return "moisturiser"
+    }
   }
 
   return (
     <React.Fragment>
       {
-        !isQuizCompleted ?
+        ((!isQuizCompleted) || (isLoading)) ?
           <LoadingAnimation
-            loadingText={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your personalised products`}
+            loadingText={`Thank you${userName ? ` ${userName}` : ''}, please wait whilst we create your personalised ${getLoadingProductType()}`}
           />
         :
         <SummaryWrap>
@@ -461,9 +317,9 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               >
               </StyledSummaryProduct>
               <StyledSummaryProduct
-                product={getMoisturier()}
-                mixture={sortedIngredients.map(i => i.name).join(" & ")}
-                totalPrice={getMoisturier().price}
+                product={baseIngredient}
+                ingredients={sortedIngredients}
+                onAmend={amendIngredients}
               >
               </StyledSummaryProduct>
             </ProductsWrap>
@@ -471,6 +327,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
           <Spacer></Spacer>
           <SummaryCart
             userName={userName}
+            sortedIngredients={sortedIngredients}
           >
           </SummaryCart>
         </SummaryWrap>
@@ -490,41 +347,20 @@ const Spacer = styled.div`
   }
 `
 
-const CallToActionWrapper = styled.div`
-  position: fixed;
-  bottom: 0;
-  margin: 0 auto;
-  width: 100%;
-  display: flex;
-  transform: translateY(100%);
-  transition: all 0.25s ease-in-out;
-  justify-content: space-between;
-  @media screen and (min-width: 768px) {
-    max-width: 375px;
-    position: static;
-    transform: translateY(0);
-    margin: 40px auto 20px;
-  }
-`
-
-
-const SummaryWhatWeLearntWrap = styled.div`
-  width: 100%;
-  max-width: 1024px;
-  @media screen and (min-width: 768px) {
-    display: grid;
-    grid-template-rows: auto auto;
-    order: 1;
-  }
-`
 
 const ProductsWrap = styled.div`
+  .moisturiserDescriptionPanel {
+    height: calc(100% - 99px);
+  }
   @media screen and (min-width: 768px) {
     display: grid;
     grid-template-columns: 260px 260px;
     align-items: end;
     justify-content: space-evenly;
     gap: 20px;
+    .moisturiser {
+      margin: 0px auto -30px;
+    }
   }
   @media screen and (min-width: 980px) {
     gap: 0;
@@ -532,16 +368,6 @@ const ProductsWrap = styled.div`
 `
 
 const SummaryProducts = styled.div`
-  // display: flex;
-  // flex-direction: column;
-  // max-width: 1024px;
-  // width: 100%;
-  // .slideUp {
-  //   transform: translateY(0);
-  // }
-  @media screen and (min-width: 980px) {
-
-  }
 `
 
 const SummaryWrap = styled.div`
@@ -554,7 +380,7 @@ const SummaryWrap = styled.div`
   @media screen and (min-width: 980px) {
     padding-top: 0;
     display: grid;
-    grid-template-columns: 65% auto 26%;
+    grid-template-columns: 60% auto 31%;
     width: 930px;
     margin: 0 auto;
     align-items: start;
