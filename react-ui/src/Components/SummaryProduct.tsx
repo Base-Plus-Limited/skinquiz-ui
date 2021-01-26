@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { IRowData } from '../Interfaces/RowData';
 
-import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
+import { IIngredient, ISerum, WordpressMetaData } from '../Interfaces/WordpressProduct';
 import { QuizContext } from '../QuizContext';
 
 export interface SummaryProductProps {
@@ -63,7 +63,21 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   }
 
   const toggleDescriptionVisibility = () => {
-    product.isDescriptionPanelOpen = !product.isDescriptionPanelOpen;
+    if (product.isIngredientsPanelOpen) {
+      product.isIngredientsPanelOpen = !product.isIngredientsPanelOpen;
+    } else {
+      product.isDescriptionPanelOpen = !product.isDescriptionPanelOpen;
+    }
+    if (isProductAMoisturiser()) {
+      const ingredientCopy: IIngredient = JSON.parse(JSON.stringify(product));
+      updateBaseIngredient(ingredientCopy);
+    } else {
+      updateSerums([...serums, (product as ISerum)])
+    }
+  };
+
+  const toggleFullIngredientsVisibility = () => {
+    product.isIngredientsPanelOpen = !product.isIngredientsPanelOpen;
     if (isProductAMoisturiser()) {
       const ingredientCopy: IIngredient = JSON.parse(JSON.stringify(product));
       updateBaseIngredient(ingredientCopy);
@@ -83,9 +97,21 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     
   }
 
+  const getFullIngredients = () => {
+    return product.meta_data.find(d => d.key === "full_ingredients");
+  }
+
   return (
     <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
-      <FullDescriptionPanel className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
+      <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
+        <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
+        {
+          <Description className="fullIngredients">
+          {getFullIngredients() && (getFullIngredients() as WordpressMetaData).value }
+          </Description>
+        }
+      </FullIngredientsDescription>
+      <VariationDescription className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
         <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
         <Description>
           {
@@ -117,7 +143,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
               ((ingredients as IIngredient[]).find(x => !x.showDescription) as IIngredient).name
             }</ToggleIngredientDescriptionButton>
         }
-      </FullDescriptionPanel>
+      </VariationDescription>
       <img
         onClick={toggleProductAddToCart}
         src={product.images[0].src} alt="" width={
@@ -172,9 +198,25 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
             <span>Change ingredients</span>
           </ChangeIngredientButton>
       }
+      {
+        <FullIngredientsButton
+          onClick={toggleFullIngredientsVisibility}
+        >
+          { 
+            product.isIngredientsPanelOpen ? "close full ingredients" : "view full ingredients"
+          }
+        </FullIngredientsButton>
+      }
     </Product>
   )
 }
+
+const FullIngredientsButton = styled.small`
+  font-family: ${props => props.theme.bodyFont};
+  text-decoration: underline;
+  font-size: 9pt;
+  color: ${props => props.theme.brandColours.baseDarkGreen}
+`
 
 const ToggleIngredientDescriptionButton = styled.p`
   padding: 7px 0;
@@ -215,9 +257,25 @@ const CloseDescriptionButton = styled.span`
   font-family: ${props => props.theme.subHeadingFont};
 `
 
-const FullDescriptionPanel = styled.div`
+const FullIngredientsDescription = styled.div`
   width: 100%;
-  height: calc(100% - 50px);
+  height: calc(100% - 67px);
+  font-family: ${props => props.theme.bodyFont};
+  color: ${props => props.theme.brandColours.baseDarkGreen};
+  font-size: 9.5pt;
+  text-align: center;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  transition: all 0.55s ease-in-out;
+  transform: translateX(100%);
+  position: absolute;
+  top: 0;
+`
+
+const VariationDescription = styled.div`
+  width: 100%;
+  height: calc(100% - 67px);
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-size: 9.5pt;
@@ -343,6 +401,10 @@ const Product = styled.div`
   }
   @media screen and (min-width: 768px) { 
     margin: 0 auto 20px;
+  }
+  .fullIngredients{
+    font-size:7.5pt;
+    line-height: 1.7em;
   }
 `
 
