@@ -4,11 +4,13 @@ export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
   isSelectedForSummary: boolean;
   isDescriptionPanelOpen: boolean;
+  isIngredientsPanelOpen: boolean;
   isSelectedForUpsell: boolean;
 }
 
 export interface IIngredient extends WordpressProduct {
   rank: number;
+  isIngredientsPanelOpen: boolean;
   isDescriptionPanelOpen: boolean;
   showDescription: boolean;
   previouslyRanked: boolean;
