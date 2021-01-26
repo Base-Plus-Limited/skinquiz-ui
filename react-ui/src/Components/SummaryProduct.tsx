@@ -199,8 +199,8 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
           </ChangeIngredientButton>
       }
       {
-        !product.isDescriptionPanelOpen &&
           <FullIngredientsButton
+          className={product.isDescriptionPanelOpen ? "inactive" : ""}
             onClick={toggleFullIngredientsVisibility}
           >
             { 
@@ -216,11 +216,12 @@ const FullIngredientsButton = styled.small`
   font-family: ${props => props.theme.bodyFont};
   text-decoration: underline;
   font-size: 9pt;
+  transition: opacity ease 0.35s;
   color: ${props => props.theme.brandColours.baseDarkGreen}
 `
 
 const ToggleIngredientDescriptionButton = styled.p`
-  padding: 7px 0;
+  padding: 10px 0;
   margin: 0;
   width: 100%;
   position: absolute;
@@ -229,6 +230,9 @@ const ToggleIngredientDescriptionButton = styled.p`
   background: ${props => props.theme.brandColours.baseDefaultGreen};
   color: #fff;
   cursor: pointer;
+  @media screen and (min-width: 768px) {
+    padding: 7px 0;
+  }
 `
 
 const Description = styled.p`
@@ -406,6 +410,10 @@ const Product = styled.div`
   .fullIngredients{
     font-size:7.5pt;
     line-height: 1.7em;
+  }
+  .inactive {
+    opacity: 0;
+    pointer-events: none;
   }
 `
 
