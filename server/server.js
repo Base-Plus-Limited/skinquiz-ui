@@ -308,13 +308,16 @@ var App = /** @class */ (function () {
             return __generator(this, function (_a) {
                 customProductRequest = req.body;
                 customProduct = new this.customProductModel({
-                    ingredients: customProductRequest.ingredients,
+                    recommendedVariation: customProductRequest.recommendedVariation,
                     amended: customProductRequest.amended,
                     productId: customProductRequest.productId,
+                    newVariation: customProductRequest.newVariation,
                     date: this.getGmtTime()
                 });
+                console.log(customProduct);
                 customProduct.save()
                     .then(function (dbResponse) {
+                    console.log(dbResponse);
                     console.log("Saved custom product with id " + dbResponse.id);
                     res.send(dbResponse);
                 })["catch"](function (error) {
@@ -346,6 +349,8 @@ var App = /** @class */ (function () {
                             ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
                             ingredient.previouslyRanked = false;
                             ingredient.isSelectedForSummary = false;
+                            ingredient.isDescriptionPanelOpen = false;
+                            ingredient.showDescription = false;
                             return ingredient;
                         }); })
                             .then(function (ingredients) { return res.send(ingredients); })["catch"](function (error) {
@@ -377,6 +382,7 @@ var App = /** @class */ (function () {
                             serum.isSelectedForSummary = false;
                             serum.short_description = serum.short_description.replace(/<[^>]*>?/gm, '');
                             serum.description = serum.description.replace(/<[^>]*>?/gm, '');
+                            serum.isDescriptionPanelOpen = false;
                             return serum;
                         }); })
                             .then(function (serums) { return res.send(serums.filter(function (serum) { return serum.id !== 6039 /* Id */; })); })["catch"](function (error) {
@@ -637,16 +643,14 @@ var App = /** @class */ (function () {
                 required: false,
                 "default": Date.now
             },
-            ingredients: [{
-                    id: {
-                        type: Number,
-                        required: true
-                    },
-                    name: {
-                        type: String,
-                        required: true
-                    }
-                }]
+            newVariation: {
+                type: Object,
+                required: false
+            },
+            recommendedVariation: {
+                type: Object,
+                required: true
+            }
         });
         return mongoose_1.model('custom-products', CustomProductSchema);
     };

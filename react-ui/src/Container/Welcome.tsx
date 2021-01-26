@@ -9,6 +9,7 @@ import tubeImg from './../Assets/rotatedTube.png';
 import { QuizContext } from '../QuizContext';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import { track, generateUniqueId } from './../Components/Shared/Analytics';
+import StyledH2 from '../Components/Shared/H2';
 
 export interface WelcomeProps {
 }
@@ -23,7 +24,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
   useEffect(() => {
     fetch('/api/questions')
       .then(res => {
-        if(res.ok) {
+        if (res.ok) {
           logQuizStarted();
           return res.json();
         }
@@ -46,7 +47,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
           message: error.message
         })
       });
-  }, [setApplicationError]);
+  }, []);
 
 
   const logQuizStarted = () => {
@@ -73,7 +74,8 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
   return (
     hasApplicationErrored.error ?
       <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
-      : <Welcome>
+      :
+      <Welcome> 
         <WelcomeWrapper maxWidth>
           <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
           <StyledText text="Use our product builder to create your own bespoke moisturiser in 60 seconds"></StyledText>
@@ -82,7 +84,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
             <StyledButton onClickHandler={() => {
               history.push('/quiz');
               logNameEvent();
-            }}>Start</StyledButton>
+            }}>Create your skincare routine</StyledButton>
           )} />
         </WelcomeWrapper>
       </Welcome>
@@ -91,15 +93,11 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
 
 const Welcome = styled.div`
   display: grid;
-  background: url(${tubeImg}) no-repeat 430px -391px;
   grid-template-rows: 1fr;
   align-items: center;
   padding: 0 20px;
-  @media only screen and (min-width: 980px) {
-    padding: 0;
-  }
+  grid-template-columns: 1fr;
 `;
-
 const WelcomeWrapper = styled.div`
   width: 100%;
   text-align: center;

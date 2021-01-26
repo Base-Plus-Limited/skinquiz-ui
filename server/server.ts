@@ -170,11 +170,11 @@ class App {
      *************************/
     router.post('/analytics', (req, res) => {
       const data: IAnalyticsEvent = req.body;
-      const {distinct_id, question_id, ingredients, event_type } = data;
+      const {distinct_id, question_id, variation, event_type } = data;
       this.mixPanelClient.track(event_type, {
         distinct_id,
         question_id,
-        ingredients
+        variation
       }, (response) => {
         if(response instanceof Error) {
           res.send(response);
@@ -217,13 +217,14 @@ class App {
     router.post('/save-product', bodyParser.json(), async (req, res) => {
       const customProductRequest: ICustomProductDBModel = req.body;
       const customProduct = new this.customProductModel({
-        ingredients: customProductRequest.ingredients,
+        recommendedVariation: customProductRequest.recommendedVariation,
         amended: customProductRequest.amended,
         productId: customProductRequest.productId,
+        newVariation: customProductRequest.newVariation,
         date: this.getGmtTime()
       });
       customProduct.save()
-        .then(dbResponse => {
+      .then(dbResponse => {
           console.log(`Saved custom product with id ${dbResponse.id}`);
           res.send(dbResponse);
         })
@@ -252,6 +253,8 @@ class App {
           ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
           ingredient.previouslyRanked = false;
           ingredient.isSelectedForSummary = false;
+          ingredient.isDescriptionPanelOpen = false;
+          ingredient.showDescription = false;
           return ingredient;
         }))
         .then((ingredients: IIngredient[]) => res.send(ingredients))
@@ -277,6 +280,7 @@ class App {
           serum.isSelectedForSummary = false;
           serum.short_description = serum.short_description.replace(/<[^>]*>?/gm, '');
           serum.description = serum.description.replace(/<[^>]*>?/gm, '');
+          serum.isDescriptionPanelOpen = false;
           return serum;
         }))
         .then((serums: ISerum[]) => res.send(serums.filter(serum => serum.id !== FreeGiftSerum.Id)))
@@ -564,16 +568,14 @@ class App {
         required: false,
         default: Date.now
       },
-      ingredients: [{
-        id: {
-          type: Number,
-          required: true
-        },
-        name: {
-          type: String,
-          required: true
-        }
-      }]
+      newVariation: {
+        type: Object,
+        required: false
+      },
+      recommendedVariation: {
+        type: Object,
+        required: true
+      },
     })
     return model<ICustomProductDBModel & Document>('custom-products', CustomProductSchema);
   }

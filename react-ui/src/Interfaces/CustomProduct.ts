@@ -1,5 +1,6 @@
 export default interface ICustomProductDBModel {
-  ingredients: IIngredient[];
+  newVariation: IIngredient[] | string;
+  recommendedVariation: IIngredient[] | string;
   amended: boolean;
   productId: number;
 }

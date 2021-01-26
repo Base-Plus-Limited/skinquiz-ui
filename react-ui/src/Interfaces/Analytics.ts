@@ -2,8 +2,10 @@ export interface IAnalyticsEvent {
   distinct_id: string; 
   event_type: EventType;
   question_id?: number;
-  ingredients?: string;
+  variation?: string;
+  serumId?: number;
+  moisturiserId?: number;
   amendSelected?: boolean;
 }
 
-export type EventType = "Name entered" | "Quiz started" | "Quiz completed - Amend" | "Quiz completed - Buy Now" | "Question answered" | "Back selected";
+export type EventType = "Name entered" | "Quiz started" | "Quiz completed - Change Ingredients" | "Quiz completed - Moisturiser Added To Cart" | "Question answered" | "Back selected" | "Quiz completed - Serum Added To Cart" | "Quiz completed - Bundle Added To Cart";

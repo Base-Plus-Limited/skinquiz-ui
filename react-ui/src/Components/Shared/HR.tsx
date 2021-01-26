@@ -11,7 +11,6 @@ const StyledHR: React.SFC<HRProps> = () => (
 const HR = styled.hr`
   width: 100%;
   max-width: 260px;
-  margin: 20px auto;
   display: block;
   padding: 0;
   opacity: 0.2;

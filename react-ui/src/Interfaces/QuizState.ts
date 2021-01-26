@@ -1,11 +1,14 @@
 import { IQuizQuestion } from "./QuizQuestion";
 import { Dispatch, SetStateAction } from 'react';
-import { IIngredient } from "./WordpressProduct";
+import { IIngredient, ISerum } from "./WordpressProduct";
 import { ISkinCondition } from "./SkinCondition";
 import { IErrorResponse } from "./ErrorResponse";
 import { IDashboardValue } from "./DashboardValue";
+import { IRowData } from "./RowData";
 
 interface IQuiz {
+  cartData: IRowData[];
+  updateCartData: Dispatch<SetStateAction<IRowData[]>>;
   progressCount: number;
   updateCount: Dispatch<SetStateAction<number>>;
   quizQuestions: IQuizQuestion[];
@@ -21,7 +24,7 @@ interface IQuiz {
   userName: string;
   updateUserName: Dispatch<SetStateAction<string>>;
   baseIngredient: IIngredient;
-  saveBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
+  updateBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
   setQuizToCompleted: Dispatch<SetStateAction<boolean>>;
   isQuizCompleted: boolean;
   isAnswersPanelVisible: boolean;
@@ -34,6 +37,12 @@ interface IQuiz {
   saveUniqueId: Dispatch<SetStateAction<string>>;
   areSummaryCTAsVisible: boolean;
   showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
+  serums: ISerum[];
+  updateSerums: Dispatch<SetStateAction<ISerum[]>>;
+  isLoading: boolean;
+  toggleLoading: Dispatch<SetStateAction<boolean>>;
+  isAmendSelected: boolean;
+  toggleAmendSelected: Dispatch<SetStateAction<boolean>>;
 }
 
 export default IQuiz;

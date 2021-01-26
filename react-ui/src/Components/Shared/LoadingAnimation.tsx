@@ -1,14 +1,25 @@
 import * as React from 'react';
-import { ReactComponent as baseplus_icon } from './../../Assets/bplus_icon.svg';
 import styled, { keyframes } from 'styled-components';
 
-export interface LoadingAnimationProps {
+import { ReactComponent as baseplus_icon } from './../../Assets/bplus_icon.svg';
+import StyledText from './Text';
 
+export interface LoadingAnimationProps {
+  loadingText: string;
 }
 
-const LoadingAnimation: React.SFC<LoadingAnimationProps> = () => (
-  <StyledSVG />
+const LoadingAnimation: React.SFC<LoadingAnimationProps> = ({ loadingText }) => (
+  <LoadingAnimationWrapper>
+    <StyledSVG />
+    <StyledText margin="0" text={loadingText}></StyledText>
+  </LoadingAnimationWrapper>
 )
+
+const LoadingAnimationWrapper = styled.div`
+  margin: auto;
+  text-align: center;
+  max-width: 90%;
+`
 
 const pulse = keyframes`
   0% {

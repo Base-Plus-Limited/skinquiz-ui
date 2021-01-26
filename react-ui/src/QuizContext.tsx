@@ -1,12 +1,15 @@
 import React, { createContext, SetStateAction, useState } from 'react';
 import { IQuizQuestion } from './Interfaces/QuizQuestion';
 import IQuiz from './Interfaces/QuizState';
-import { IIngredient } from './Interfaces/WordpressProduct';
+import { IIngredient, ISerum } from './Interfaces/WordpressProduct';
 import { ISkinCondition } from './Interfaces/SkinCondition';
 import { IErrorResponse } from './Interfaces/ErrorResponse';
 import { IDashboardValue } from './Interfaces/DashboardValue';
+import { IRowData } from './Interfaces/RowData';
 
 const state: IQuiz = {
+  cartData: [],
+  updateCartData: (previousCartData: SetStateAction<IRowData[]>) => previousCartData,
   progressCount: 0,
   updateCount: (previousCount: SetStateAction<number>) => previousCount,
   quizQuestions: [],
@@ -22,7 +25,7 @@ const state: IQuiz = {
   userName: "",
   updateUserName: (previousUserName: SetStateAction<string>) => previousUserName,
   baseIngredient: {} as IIngredient,
-  saveBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
+  updateBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
   isQuizCompleted: false,
   setQuizToCompleted: (previousCompletedQuizState: SetStateAction<boolean>) => previousCompletedQuizState,
   isAnswersPanelVisible: false,
@@ -34,7 +37,13 @@ const state: IQuiz = {
   uniqueId: "",
   saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId,
   areSummaryCTAsVisible: false,
-  showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility
+  showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility,
+  serums: [],
+  updateSerums: (perviousSerums: SetStateAction<ISerum[]>) => perviousSerums,
+  isLoading: false,
+  toggleLoading: (previousLoading: SetStateAction<boolean>) => previousLoading,
+  isAmendSelected: false,
+  toggleAmendSelected: (previousAmendState: SetStateAction<boolean>) => previousAmendState
 }
 
 export const QuizContext = createContext(state);
@@ -44,6 +53,7 @@ interface QuizProviderProps {
  
 export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
 
+  const [cartData, updateCartData] = useState<IRowData[]>([]);
   const [progressCount, updateCount] = useState<number>(0);
   const [quizQuestions, updateQuizQuestions] = useState<IQuizQuestion[]>([]);
   const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
@@ -51,16 +61,21 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [questionInputAnswer, updateQuestionInputAnswer] = useState<string>("");
   const [selectedSkinConditions, updateSelectedSkinConditions] = useState<ISkinCondition[]>([]);
   const [userName, updateUserName] = useState<string>("");
-  const [baseIngredient, saveBaseIngredient] = useState<IIngredient>({} as IIngredient);
+  const [baseIngredient, updateBaseIngredient] = useState<IIngredient>({} as IIngredient);
   const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
   const [dashboardValues, saveDashboardValues] = useState<IDashboardValue>({} as IDashboardValue);
   const [uniqueId, saveUniqueId] = useState<string>("");
   const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
+  const [serums, updateSerums] = useState<ISerum[]>([]);
+  const [isLoading, toggleLoading] = useState<boolean>(false);
+  const [isAmendSelected, toggleAmendSelected] = useState<boolean>(false);
 
   return (
     <QuizContext.Provider value={{
+      cartData,
+      updateCartData,
       progressCount,
       updateCount,
       quizQuestions,
@@ -76,7 +91,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       userName,
       updateUserName,
       baseIngredient,
-      saveBaseIngredient,
+      updateBaseIngredient,
       isQuizCompleted,
       setQuizToCompleted,
       isAnswersPanelVisible,
@@ -88,7 +103,13 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       uniqueId,
       saveUniqueId,
       areSummaryCTAsVisible,
-      showSummaryCTAs
+      showSummaryCTAs,
+      serums,
+      updateSerums,
+      isLoading,
+      toggleLoading,
+      isAmendSelected,
+      toggleAmendSelected
     }}>
       {children}
     </QuizContext.Provider>

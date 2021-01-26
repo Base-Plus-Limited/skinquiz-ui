@@ -1,13 +1,22 @@
+export type ProductType = "serum" | "moisturiser" | "bundle";
+
 export interface ISerum extends WordpressProduct {
   commonlyUsedFor: string[];
   isSelectedForSummary: boolean;
+  isDescriptionPanelOpen: boolean;
+  isIngredientsPanelOpen: boolean;
+  isSelectedForUpsell: boolean;
 }
 
 export interface IIngredient extends WordpressProduct {
   rank: number;
+  isIngredientsPanelOpen: boolean;
+  isDescriptionPanelOpen: boolean;
+  showDescription: boolean;
   previouslyRanked: boolean;
   isSelectedForSummary: boolean;
   commonlyUsedFor: string[];
+  totalMoisturiserPrice: string;
 }
 
 export interface WordpressProduct {
@@ -134,5 +143,5 @@ export enum SpecialCaseProducts {
   LemonSeedOil = 697,
   TeaTreeOil = 2054,
   Niacinamide = 698,
-  VitaminC = 694 
+  VitaminC = 694
 }
