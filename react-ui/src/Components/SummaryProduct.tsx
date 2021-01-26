@@ -199,13 +199,14 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
           </ChangeIngredientButton>
       }
       {
-        <FullIngredientsButton
-          onClick={toggleFullIngredientsVisibility}
-        >
-          { 
-            product.isIngredientsPanelOpen ? "close full ingredients" : "view full ingredients"
-          }
-        </FullIngredientsButton>
+        !product.isDescriptionPanelOpen &&
+          <FullIngredientsButton
+            onClick={toggleFullIngredientsVisibility}
+          >
+            { 
+              product.isIngredientsPanelOpen ? "close full ingredients" : "view full ingredients"
+            }
+          </FullIngredientsButton>
       }
     </Product>
   )
