@@ -18,7 +18,7 @@ const Button = styled.button`
   margin: ${(props: ButtonProps) => props.addMargin ? "0 8px 0 0" : "0 auto"};
   border: solid 1px ${props => props.theme.brandColours.baseDarkGreen};
   padding: 10px 15px;
-  background: none;
+  background: #fff;
   outline: none;
   font-size: 9pt
   cursor: pointer;

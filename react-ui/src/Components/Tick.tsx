@@ -15,7 +15,7 @@ const StyledTick: React.SFC<TickProps> = ({ tickPadding }) => {
 const Tick = styled.span`
   position: absolute;
   top: -13px;
-  right: -12px;
+  right: 8px;
   background: ${props => props.theme.brandColours.basePink}
   border-radius: 50%;
   z-index: 10;

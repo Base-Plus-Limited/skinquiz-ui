@@ -5,11 +5,10 @@ import StyledInput from '../Components/Shared/Input';
 import StyledH1 from '../Components/Shared/H1';
 import StyledText from '../Components/Shared/Text';
 import { Route } from 'react-router-dom';
-import tubeImg from './../Assets/rotatedTube.png';
+import welcomeImg from './../Assets/serum_and_moisturiser.jpg';
 import { QuizContext } from '../QuizContext';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import { track, generateUniqueId } from './../Components/Shared/Analytics';
-import StyledH2 from '../Components/Shared/H2';
 
 export interface WelcomeProps {
 }
@@ -78,8 +77,8 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
       <Welcome> 
         <WelcomeWrapper maxWidth>
           <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
-          <StyledText text="Use our product builder to create your own bespoke moisturiser in 60 seconds"></StyledText>
-          <StyledInput logInputValue={logName} placeholderText="Tell us your name or press start" type="text"></StyledInput>
+          <StyledText text="Use our product builder to create your own bespoke moisturiser and serum in 60 seconds"></StyledText>
+          <StyledInput logInputValue={logName} placeholderText="Tell us your name or create your routine" type="text"></StyledInput>
           <Route render={({ history }) => (
             <StyledButton onClickHandler={() => {
               history.push('/quiz');
@@ -97,6 +96,27 @@ const Welcome = styled.div`
   align-items: center;
   padding: 0 20px;
   grid-template-columns: 1fr;
+  @media only screen and (min-width: 370px) {
+    background: #fff no-repeat bottom center/90% url(${welcomeImg});
+  }
+  @media only screen and (min-width: 400px) {
+    background: #fff no-repeat bottom center/90% url(${welcomeImg});
+  }
+  @media only screen and (min-width: 600px) {
+    background: #fff no-repeat bottom center/90% url(${welcomeImg});
+  }
+  @media only screen and (min-width: 980px) {
+    background: #fff no-repeat bottom center/70% url(${welcomeImg});
+  }
+  @media only screen and (min-width: 1270px) {
+    background: #fff no-repeat bottom center/60% url(${welcomeImg});
+  }
+  @media only screen and (min-width: 1500px) {
+    background: #fff no-repeat bottom center/50% url(${welcomeImg});
+  }
+  @media only screen and (min-width: 1800px) {
+    background: #fff no-repeat bottom center/45% url(${welcomeImg});
+  }
 `;
 const WelcomeWrapper = styled.div`
   width: 100%;
