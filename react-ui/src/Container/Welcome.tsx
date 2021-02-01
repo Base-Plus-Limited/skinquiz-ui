@@ -77,7 +77,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
       <Welcome> 
         <WelcomeWrapper maxWidth>
           <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
-          <StyledText text="Use our product builder to create your own bespoke moisturiser and serum in 60 seconds"></StyledText>
+          <StyledText text="Create your own bespoke moisturiser and serum in 60 seconds"></StyledText>
           <StyledInput logInputValue={logName} placeholderText="Tell us your name or create your routine" type="text"></StyledInput>
           <Route render={({ history }) => (
             <StyledButton onClickHandler={() => {
@@ -108,8 +108,8 @@ const Welcome = styled.div`
   @media only screen and (min-width: 980px) {
     background: #fff no-repeat bottom center/70% url(${welcomeImg});
   }
-  @media only screen and (min-width: 1270px) {
-    background: #fff no-repeat bottom center/60% url(${welcomeImg});
+  @media only screen and (min-width: 1280px) {
+    background: #fff no-repeat bottom center/28% url(${welcomeImg});
   }
   @media only screen and (min-width: 1500px) {
     background: #fff no-repeat bottom center/50% url(${welcomeImg});
