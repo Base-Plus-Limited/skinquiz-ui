@@ -32,11 +32,11 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     }
   }, []);
 
-  const ismoisturiserSizes50Ml = () => moisturiserSizes.filter(ms => ms.selected)[0].size === "50ml";
+  const isSelectedMoisturiserSize50Ml = () => moisturiserSizes.filter(ms => ms.selected)[0].size === "50ml";
 
   const getProductPrice = () => {
     if (isProductAMoisturiser()) {
-      if (ismoisturiserSizes50Ml()) {
+      if (isSelectedMoisturiserSize50Ml()) {
         return product.price;
       } else {
         return String(Number((product as IIngredient).smallerSizePrice) + Number(addIngredientsPrice()));
@@ -70,7 +70,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     } else {
       productName = name;
       additionalInfo = `with ${formatIngredientNames()}`;
-      price = getProductPrice();
+      price = isSelectedMoisturiserSize50Ml() ? String(product.price) : String(Number((product as IIngredient).smallerSizePrice) + Number(addIngredientsPrice()));
     }
 
     const rowData: IRowData[] = [{
@@ -127,16 +127,15 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     toggleSelectedMoisturiserSizes(
       moisturiserSizes.map(m => {
         m.selected = m.id === id;
+        updateCartData(
+          cartData.map(cd => {
+            if (cd.id === ProductTypeId.Moisturiser) {
+              cd.price = id === "50ml" ? String(Number(Number(product.regular_price).toFixed(0)) + addIngredientsPrice()) : String(Number((product as IIngredient).smallerSizePrice) + addIngredientsPrice())
+            }
+              return cd;
+          })
+        )
         return m;
-      })
-    );
-    updateCartData(
-      cartData.map(cd => {
-        if (cd.productName.includes("+"))
-          cd.price = ismoisturiserSizes50Ml() ?
-            String(product.price) :
-            String(getProductPrice());
-        return cd;
       })
     );
   }

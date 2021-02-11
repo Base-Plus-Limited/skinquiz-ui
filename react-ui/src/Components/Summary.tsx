@@ -68,10 +68,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
       saveQuizToDatabase(tempProductId, setApplicationError, quizQuestions)
         .then(_ => {
+          const selectedMoisturiser = getSelectedMoisturiser();
           if (foundSerum) {
-            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           } else {
-            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           }
         })
     });
@@ -267,13 +268,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       .some(x => formatAnswersToLowercase(x.value).includes("yes") || formatAnswersToLowercase(x.value).includes("sometimes"));
   }
 
-  const getSelectedMoisturiserPrice = () => {
-    const foundSize = moisturiserSizes.find(x => x.selected);
-    return foundSize && foundSize.size;
-  }
+  const getSelectedMoisturiser = () => moisturiserSizes.find(x => x.selected);
 
   const updateMoisturiserPrice = () => {
-    baseIngredient.price = getSelectedMoisturiserPrice() === "50ml" ? 
+    const selectedMoisturiser = getSelectedMoisturiser();
+    baseIngredient.price = selectedMoisturiser && selectedMoisturiser.size === "50ml" ? 
     String(sortedIngredients
       .filter(x => x.isSelectedForSummary)
       .map(x => Number(x.price))

@@ -270,7 +270,8 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 }
 
 const SummaryCartWrap = styled.div`
-  @media screen and (min-width: 768px) {
+@media screen and (min-width: 768px) {
+    max-width: 260px;
     grid-column: 3;
     padding-top: 15px;
   }

@@ -71,12 +71,14 @@ const ProductInfo = styled.p`
 `
 
 const Row = styled.div`
-  display: flex;
+  display: grid;
   border-bottom: solid 1px rgba(191,191,191,.3);
   justify-content: space-between;
   padding-bottom: 13px;
   margin-bottom: 13px;
   align-items: center;
+  gap: 20px;
+  grid-template-columns: 10px 1fr 30px;
 `
 
 
