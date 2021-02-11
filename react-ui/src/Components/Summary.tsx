@@ -26,7 +26,7 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected } = useContext(QuizContext);
+  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected, moisturiserSizes } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -267,11 +267,22 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       .some(x => formatAnswersToLowercase(x.value).includes("yes") || formatAnswersToLowercase(x.value).includes("sometimes"));
   }
 
+  const getSelectedMoisturiserPrice = () => {
+    const foundSize = moisturiserSizes.find(x => x.selected);
+    return foundSize && foundSize.size;
+  }
+
   const updateMoisturiserPrice = () => {
-    baseIngredient.price = String(sortedIngredients
+    baseIngredient.price = getSelectedMoisturiserPrice() === "50ml" ? 
+    String(sortedIngredients
       .filter(x => x.isSelectedForSummary)
       .map(x => Number(x.price))
       .reduce((a, c) => a + c, Number(baseIngredient.regular_price)))
+      :
+      String(sortedIngredients
+        .filter(x => x.isSelectedForSummary)
+        .map(x => Number(x.price))
+        .reduce((a, c) => a + c, Number(baseIngredient.smallerSizePrice)))
     updateBaseIngredient(baseIngredient);
   }
 
@@ -359,7 +370,7 @@ const ProductsWrap = styled.div`
   @media screen and (min-width: 768px) {
     display: grid;
     grid-template-columns: 260px 260px;
-    align-items: end;
+    align-items: baseline;
     justify-content: space-evenly;
     gap: 20px;
     .moisturiser {

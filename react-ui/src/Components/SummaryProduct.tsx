@@ -1,9 +1,12 @@
 import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
+import { MoisturiserSizeIds } from '../Interfaces/MoistuiserSize';
 import { IRowData } from '../Interfaces/RowData';
 
 import { IIngredient, ISerum, WordpressMetaData } from '../Interfaces/WordpressProduct';
 import { QuizContext } from '../QuizContext';
+import StyledText from './Shared/Text';
+import StyledSizeButton from './SizeButton';
 
 export interface SummaryProductProps {
   product: ISerum | IIngredient;
@@ -13,7 +16,7 @@ export interface SummaryProductProps {
 
 const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients, onAmend }: SummaryProductProps) => {
 
-  const { cartData, updateCartData, serums, updateSerums, updateIngredients, updateBaseIngredient } = useContext(QuizContext);
+  const { toggleSelectedMoisturiserSizes, moisturiserSizes, cartData, updateCartData, serums, updateSerums, updateIngredients, updateBaseIngredient } = useContext(QuizContext);
 
   enum ProductTypeId {
     Moisturiser = 1474
@@ -28,6 +31,25 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       })
     }
   }, []);
+
+  const ismoisturiserSizes50Ml = () => moisturiserSizes.filter(ms => ms.selected)[0].size === "50ml";
+
+  const getProductPrice = () => {
+    if (isProductAMoisturiser()) {
+      if (ismoisturiserSizes50Ml()) {
+        return product.price;
+      } else {
+        return String(Number((product as IIngredient).smallerSizePrice) + Number(addIngredientsPrice()));
+      }
+    }
+    return product.price;
+  }
+
+  const addIngredientsPrice = () => {
+    if (ingredients)
+      return ingredients.map(i => Number(i.price)).reduce((a, c) => a + c);
+    return 0;
+  }
 
   const formatIngredientNames = () => isProductAMoisturiser() && (ingredients as IIngredient[]).map(i => i.name).join(" & ");
 
@@ -48,7 +70,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     } else {
       productName = name;
       additionalInfo = `with ${formatIngredientNames()}`;
-      price = String(product.price);
+      price = getProductPrice();
     }
 
     const rowData: IRowData[] = [{
@@ -101,6 +123,24 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     return product.meta_data.find(d => d.key === "full_ingredients");
   }
 
+  function toggleSelectedSize(id: MoisturiserSizeIds) {
+    toggleSelectedMoisturiserSizes(
+      moisturiserSizes.map(m => {
+        m.selected = m.id === id;
+        return m;
+      })
+    );
+    updateCartData(
+      cartData.map(cd => {
+        if (cd.productName.includes("+"))
+          cd.price = ismoisturiserSizes50Ml() ?
+            String(product.price) :
+            String(getProductPrice());
+        return cd;
+      })
+    );
+  }
+
   return (
     <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
       <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
@@ -145,6 +185,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
         }
       </VariationDescription>
       <img
+        className="productImage"
         onClick={toggleProductAddToCart}
         src={product.images[0].src} alt="" width={
           product.hasOwnProperty("isSelectedForUpsell") ?
@@ -171,6 +212,19 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       <hr></hr>
       <ReadMoreText onClick={toggleDescriptionVisibility}>Read more about {isProductAMoisturiser() ? formatIngredientNames() : product.name.split("- ")[1]}</ReadMoreText>
       {
+        isProductAMoisturiser() &&
+          <SizeWrap>
+            <StyledText text="Size"></StyledText>
+            <SizeButtonWrap>
+              {
+                moisturiserSizes.map(m => {
+                  return <StyledSizeButton selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
+                })
+              }
+            </SizeButtonWrap>
+          </SizeWrap>
+      }
+      {
         cartData.some(d => d.id === product.id) ?
           (<RemoveFromRoutineButton
             onClick={toggleProductAddToCart}
@@ -185,7 +239,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
                 onClick={toggleProductAddToCart}
               >
                 <span>add to routine</span>
-                <span>+ £{product.price}</span>
+                <span>+ £{getProductPrice()}</span>
               </AddToRoutineButton>
             </React.Fragment>
           )
@@ -211,6 +265,21 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     </Product>
   )
 }
+
+const SizeWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  align-items: center;
+  p {
+    font-size: 11pt;
+    margin: 0;
+  }
+`
+
+const SizeButtonWrap = styled.div`
+  
+`
 
 const FullIngredientsButton = styled.small`
   font-family: ${props => props.theme.bodyFont};
@@ -264,7 +333,7 @@ const CloseDescriptionButton = styled.span`
 
 const FullIngredientsDescription = styled.div`
   width: 100%;
-  height: calc(100% - 67px);
+  height: calc(100% - 70px);
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-size: 9.5pt;
@@ -276,6 +345,7 @@ const FullIngredientsDescription = styled.div`
   transform: translateX(100%);
   position: absolute;
   top: 0;
+  z-index: 15;
 `
 
 const VariationDescription = styled.div`
@@ -363,7 +433,7 @@ const Product = styled.div`
   .resetTransform {
     transform: translateX(0);
   }
-  img{
+  .productImage{
     margin: 0 auto 10px;
     display: block;
     cursor: pointer;

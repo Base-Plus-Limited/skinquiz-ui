@@ -22,7 +22,7 @@ export interface SummaryCartProps {
 
 const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngredients }) => {
 
-  const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient } = useContext(QuizContext);
+  const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes } = useContext(QuizContext);
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -88,7 +88,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       ],
       images: [
         {
-          src: 'http://baseplus.co.uk/wp-content/uploads/2018/12/productImageDefault.jpg'
+          src: getSelectedSize() === "50ml" ? 'https://baseplus.co.uk/wp-content/uploads/2019/11/basetubeedited-e1590996899944.png' : "https://baseplus.co.uk/wp-content/uploads/2019/11/basetubeedited-e1590996899944.png"
         }
       ]
     }
@@ -136,9 +136,11 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const getProductName = (): string => {
     if(userName)
-      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name})`;
-    return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name})`;
+      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name}), ${getSelectedSize()}`;
+    return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name}), ${getSelectedSize()}`;
   }
+
+  const getSelectedSize = () => moisturiserSizes.filter(s => s.selected)[0].size;
 
   const addMoisturiser = () => {
     sendToWordpress()
@@ -249,7 +251,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       >
       </StyledSummaryTitle>
       <CartRows>
-        {cartData.map(data => <CartRow key={data.id} rowData={data}></CartRow>)}
+        {cartData.map(data => <CartRow key={data.id} rowData={data} size={getSelectedSize()}></CartRow>)}
         {
           cartData.length !== 0 &&
           <StyledCartTotal price={getTotalPrice()}>

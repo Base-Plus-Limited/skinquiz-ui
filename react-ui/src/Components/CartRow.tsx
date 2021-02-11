@@ -5,15 +5,16 @@ import { IRowData } from "../Interfaces/RowData";
 
 export interface CartRowProps {
   rowData: IRowData; 
+  size?: string; 
 }
  
-const StyledCartRow: React.SFC<CartRowProps> = ({rowData}) => {
+const StyledCartRow: React.SFC<CartRowProps> = ({rowData, size}) => {
 
   const getNamePart = () => {
     const splitName = rowData.productName.split(" ");
     return rowData.productName.toLowerCase().includes("serum") ?
       `${splitName[0]} ${splitName[1]} ${splitName[2]}` :
-      rowData.productName;
+      `${rowData.productName}, ${size}`;
   }
 
   return ( 
