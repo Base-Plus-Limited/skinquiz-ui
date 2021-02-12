@@ -140,6 +140,17 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     );
   }
 
+  const getProductImage = () => {
+    if (isProductAMoisturiser()) {
+      if (moisturiserSizes.filter(x => x.selected)[0].size === "50ml") {
+        return product.images[0].src;
+      }
+      return "https://baseplus.co.uk/wp-content/uploads/2021/02/base-moistuirser-small-scaled.jpg";
+    }
+    return product.images[0].src;
+  }
+
+
   return (
     <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
       <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
@@ -186,7 +197,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       <img
         className="productImage"
         onClick={toggleProductAddToCart}
-        src={product.images[0].src} alt="" width={
+        src={getProductImage()} alt="" width={
           product.hasOwnProperty("isSelectedForUpsell") ?
             80
             :
@@ -361,6 +372,7 @@ const VariationDescription = styled.div`
   transform: translateX(100%);
   position: absolute;
   top: 0;
+  z-index: 25;
 `
 
 const ReadMoreText = styled.p`
