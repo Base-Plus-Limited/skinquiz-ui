@@ -1,33 +1,48 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from "styled-components";
 
 import { IRowData } from "../Interfaces/RowData";
+import { QuizContext } from '../QuizContext';
 
 export interface CartRowProps {
   rowData: IRowData; 
+  size?: string; 
 }
  
-const StyledCartRow: React.SFC<CartRowProps> = ({rowData}) => {
+const StyledCartRow: React.SFC<CartRowProps> = ({rowData, size}) => {
+
+  const { cartData, updateCartData } = useContext(QuizContext);
 
   const getNamePart = () => {
     const splitName = rowData.productName.split(" ");
     return rowData.productName.toLowerCase().includes("serum") ?
       `${splitName[0]} ${splitName[1]} ${splitName[2]}` :
-      rowData.productName;
+      `${rowData.productName}, ${size}`;
   }
+
+  const removeFromCart = () => updateCartData(cartData.filter(x => x.id !== rowData.id));
 
   return ( 
     <Row>
+      <Remove onClick={removeFromCart}>x</Remove>
       <ProductInfo>
         <ProductInfoLine>{getNamePart()}</ProductInfoLine>
         <ProductInfoLine>{rowData.additionalInfo}</ProductInfoLine>
       </ProductInfo>
-      <Price>£{rowData.price}</Price>
+      <Price>£{Number(rowData.price).toFixed(2)}</Price>
     </Row>
    );
 }
 
-
+const Remove = styled.span`
+  font-size: 14pt;
+  font-weight: 600;
+  font-family: ${props => props.theme.subHeadingFont};
+  cursor: pointer;
+  :hover {
+    opacity: 0.6;
+  }
+`
 
 const Price = styled.span`
   font-weight: bold;
@@ -56,12 +71,14 @@ const ProductInfo = styled.p`
 `
 
 const Row = styled.div`
-  display: flex;
+  display: grid;
   border-bottom: solid 1px rgba(191,191,191,.3);
   justify-content: space-between;
   padding-bottom: 13px;
   margin-bottom: 13px;
   align-items: center;
+  gap: 20px;
+  grid-template-columns: 10px 1fr auto;
 `
 
 

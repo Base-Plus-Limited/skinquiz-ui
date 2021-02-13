@@ -12,7 +12,7 @@ const StyledCartTotal: React.SFC<CartTotalProps> = ({price}) => {
   return ( 
     <Row>
       <ProductInfoLine>Total</ProductInfoLine>
-      <Price>£{price}</Price>
+      <Price>£{price.toFixed(2)}</Price>
     </Row>
    );
 }

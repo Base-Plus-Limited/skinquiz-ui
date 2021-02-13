@@ -11,10 +11,15 @@ export interface SharedProgressBarProps {
 
 const StyledProgressBar: React.FC<ProgressBarProps> = () => {
 
-  const { questionsAnswered } = useContext(QuizContext);
+  const { questionsAnswered, quizQuestions } = useContext(QuizContext);
+
+  const getProgressBarWidth = () => {
+    const x = 100 / quizQuestions.length;
+    return x * questionsAnswered.length;
+  }
 
   return (
-    <ProgressBar style={{width: questionsAnswered.length + "0%" }}>
+    <ProgressBar style={{width: getProgressBarWidth() + "%" }}>
     </ProgressBar>
   );
 }

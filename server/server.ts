@@ -29,7 +29,7 @@ const enum QuestionType {
 }
 
 const enum MetaData {
-  CommonlyUsedFor = "commonly_used_for"
+  SmallerSizePrice = "smaller_size_price",
 }
 
 const enum FreeGiftSerum {
@@ -245,9 +245,9 @@ class App {
       await request.get(`${process.env.BASE_API_URL}/wc/v3/products?consumer_key=${process.env.WP_CONSUMER_KEY}&consumer_secret=${process.env.WP_CONSUMER_SECRET}&category=35&type=simple&per_page=30`)
         .then(res => res.body)
         .then((ingredients: IIngredient[]) => ingredients.map(ingredient => {
-          const foundMetaData = ingredient.meta_data.find(meta => meta.key === MetaData.CommonlyUsedFor);
+          const foundMetaData = ingredient.meta_data.find(meta => meta.key === MetaData.SmallerSizePrice);
           ingredient.rank = 0;
-          ingredient.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
+          ingredient.smallerSizePrice = foundMetaData ? foundMetaData.value : "";
           ingredient.price_html = "";
           ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
           ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');
