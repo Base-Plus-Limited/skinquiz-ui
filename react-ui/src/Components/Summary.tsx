@@ -1,21 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
-import StyledText from './Shared/Text';
 import productsIcon from './../Assets/products_icon.jpg';
-import tubeIcon from './../Assets/tube_icon.jpg';
-import { WordpressProduct, IIngredient, ISerum } from '../Interfaces/WordpressProduct';
+import { IIngredient } from '../Interfaces/WordpressProduct';
 import { IAnswer, IQuizQuestion } from '../Interfaces/QuizQuestion';
-import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
-import { IErrorResponse } from '../Interfaces/ErrorResponse';
-import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { track } from './Shared/Analytics';
 import { ISkinConcernsAndIngredients } from '../Interfaces/SkinConcernsAndIngredients';
-import StyledSummaryIngredient from './SummaryProduct';
 import StyledSummaryTitle from './SummaryTitle';
-import StyledSummaryQuestion from './SummaryQuestion';
-import SkinConditionEnums from '../SkinConditons';
 import StyledSummaryProduct from './SummaryProduct';
 import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
 import SummaryCart from './SummaryCart';
@@ -271,18 +263,18 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   const getSelectedMoisturiser = () => moisturiserSizes.find(x => x.selected);
 
   const updateMoisturiserPrice = () => {
+    baseIngredient.price = getPrice();
+    updateBaseIngredient(baseIngredient);
+  }
+
+  const getPrice = () => {
     const selectedMoisturiser = getSelectedMoisturiser();
-    baseIngredient.price = selectedMoisturiser && selectedMoisturiser.size === "50ml" ? 
-    String(sortedIngredients
+    const ingerdientsPrice = sortedIngredients.map(i => Number(i.price)).reduce((a, c) => a + c);
+    const minus75Percent = ingerdientsPrice * 0.75;
+    return String(sortedIngredients
       .filter(x => x.isSelectedForSummary)
       .map(x => Number(x.price))
-      .reduce((a, c) => a + c, Number(baseIngredient.regular_price)))
-      :
-      String(sortedIngredients
-        .filter(x => x.isSelectedForSummary)
-        .map(x => Number(x.price))
-        .reduce((a, c) => a + c, Number(baseIngredient.smallerSizePrice)))
-    updateBaseIngredient(baseIngredient);
+      .reduce((a, c) => a + c, Number((selectedMoisturiser && selectedMoisturiser.size) === "50ml" ? baseIngredient.regular_price : Number(baseIngredient.smallerSizePrice) - minus75Percent)))
   }
 
   const formatAnswersToLowercase = (answers: string | string[]) => {

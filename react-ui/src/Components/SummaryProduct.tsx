@@ -32,7 +32,9 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     }
   }, []);
 
-  const isSelectedMoisturiserSize50Ml = () => moisturiserSizes.filter(ms => ms.selected)[0].size === "50ml";
+  const isSelectedMoisturiserSize50Ml = () => moisturiserSizes
+    .filter(ms => ms.selected)
+    .some(s => s.size === "50ml");
 
   const getProductPrice = () => {
     if (isProductAMoisturiser()) {
@@ -46,8 +48,13 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   }
 
   const addIngredientsPrice = () => {
-    if (ingredients)
-      return ingredients.map(i => Number(i.price)).reduce((a, c) => a + c);
+    if (ingredients) {
+      const ingerdientsPrice = ingredients.map(i => Number(i.price)).reduce((a, c) => a + c);
+      if (isSelectedMoisturiserSize50Ml())
+        return ingerdientsPrice;
+      const minus75Percent = ingerdientsPrice * 0.75;
+      return ingerdientsPrice - minus75Percent;
+    }
     return 0;
   }
 
@@ -249,7 +256,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
                 onClick={toggleProductAddToCart}
               >
                 <span>add to routine</span>
-                <span>+ £{getProductPrice()}</span>
+                <span>+ £{Number(getProductPrice()).toFixed(2)}</span>
               </AddToRoutineButton>
             </React.Fragment>
           )

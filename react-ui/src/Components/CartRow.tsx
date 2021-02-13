@@ -29,7 +29,7 @@ const StyledCartRow: React.SFC<CartRowProps> = ({rowData, size}) => {
         <ProductInfoLine>{getNamePart()}</ProductInfoLine>
         <ProductInfoLine>{rowData.additionalInfo}</ProductInfoLine>
       </ProductInfo>
-      <Price>£{rowData.price}</Price>
+      <Price>£{Number(rowData.price).toFixed(2)}</Price>
     </Row>
    );
 }
@@ -78,7 +78,7 @@ const Row = styled.div`
   margin-bottom: 13px;
   align-items: center;
   gap: 20px;
-  grid-template-columns: 10px 1fr 30px;
+  grid-template-columns: 10px 1fr auto;
 `
 
 
