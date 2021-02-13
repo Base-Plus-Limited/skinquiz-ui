@@ -1,3 +1,5 @@
+import { MoisturiserSizeIds } from "./MoistuiserSize";
+
 export type ProductType = "serum" | "moisturiser" | "bundle";
 
 export interface ISerum extends WordpressProduct {
@@ -10,6 +12,8 @@ export interface ISerum extends WordpressProduct {
 
 export interface IIngredient extends WordpressProduct {
   rank: number;
+  smallerSizePrice: string;
+  selectedSize?: MoisturiserSizeIds;
   isIngredientsPanelOpen: boolean;
   isDescriptionPanelOpen: boolean;
   showDescription: boolean;

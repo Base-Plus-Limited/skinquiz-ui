@@ -258,11 +258,11 @@ var App = /** @class */ (function () {
          *************************/
         router.post('/analytics', function (req, res) {
             var data = req.body;
-            var distinct_id = data.distinct_id, question_id = data.question_id, ingredients = data.ingredients, event_type = data.event_type;
+            var distinct_id = data.distinct_id, question_id = data.question_id, variation = data.variation, event_type = data.event_type;
             _this.mixPanelClient.track(event_type, {
                 distinct_id: distinct_id,
                 question_id: question_id,
-                ingredients: ingredients
+                variation: variation
             }, function (response) {
                 if (response instanceof Error) {
                     res.send(response);
@@ -314,10 +314,8 @@ var App = /** @class */ (function () {
                     newVariation: customProductRequest.newVariation,
                     date: this.getGmtTime()
                 });
-                console.log(customProduct);
                 customProduct.save()
                     .then(function (dbResponse) {
-                    console.log(dbResponse);
                     console.log("Saved custom product with id " + dbResponse.id);
                     res.send(dbResponse);
                 })["catch"](function (error) {
@@ -341,9 +339,9 @@ var App = /** @class */ (function () {
                     case 0: return [4 /*yield*/, request.get(process.env.BASE_API_URL + "/wc/v3/products?consumer_key=" + process.env.WP_CONSUMER_KEY + "&consumer_secret=" + process.env.WP_CONSUMER_SECRET + "&category=35&type=simple&per_page=30")
                             .then(function (res) { return res.body; })
                             .then(function (ingredients) { return ingredients.map(function (ingredient) {
-                            var foundMetaData = ingredient.meta_data.find(function (meta) { return meta.key === "commonly_used_for" /* CommonlyUsedFor */; });
+                            var foundMetaData = ingredient.meta_data.find(function (meta) { return meta.key === "smaller_size_price" /* SmallerSizePrice */; });
                             ingredient.rank = 0;
-                            ingredient.commonlyUsedFor = foundMetaData ? foundMetaData.value.split(",") : [];
+                            ingredient.smallerSizePrice = foundMetaData ? foundMetaData.value : "";
                             ingredient.price_html = "";
                             ingredient.description = ingredient.description.replace(/<[^>]*>?/gm, '');
                             ingredient.short_description = ingredient.short_description.replace(/<[^>]*>?/gm, '');

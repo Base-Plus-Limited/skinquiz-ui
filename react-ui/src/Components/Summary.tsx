@@ -1,21 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
-import StyledText from './Shared/Text';
 import productsIcon from './../Assets/products_icon.jpg';
-import tubeIcon from './../Assets/tube_icon.jpg';
-import { WordpressProduct, IIngredient, ISerum } from '../Interfaces/WordpressProduct';
+import { IIngredient } from '../Interfaces/WordpressProduct';
 import { IAnswer, IQuizQuestion } from '../Interfaces/QuizQuestion';
-import { ICompletedQuizDBModel } from '../Interfaces/CompletedQuizDBModel';
 import LoadingAnimation from './Shared/LoadingAnimation';
-import { IErrorResponse } from '../Interfaces/ErrorResponse';
-import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { track } from './Shared/Analytics';
 import { ISkinConcernsAndIngredients } from '../Interfaces/SkinConcernsAndIngredients';
-import StyledSummaryIngredient from './SummaryProduct';
 import StyledSummaryTitle from './SummaryTitle';
-import StyledSummaryQuestion from './SummaryQuestion';
-import SkinConditionEnums from '../SkinConditons';
 import StyledSummaryProduct from './SummaryProduct';
 import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
 import SummaryCart from './SummaryCart';
@@ -26,7 +18,7 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected } = useContext(QuizContext);
+  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected, moisturiserSizes } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -68,10 +60,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
       saveQuizToDatabase(tempProductId, setApplicationError, quizQuestions)
         .then(_ => {
+          const selectedMoisturiser = getSelectedMoisturiser();
           if (foundSerum) {
-            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           } else {
-            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           }
         })
     });
@@ -267,12 +260,21 @@ const StyledSummary: React.FC<SummaryProps> = () => {
       .some(x => formatAnswersToLowercase(x.value).includes("yes") || formatAnswersToLowercase(x.value).includes("sometimes"));
   }
 
+  const getSelectedMoisturiser = () => moisturiserSizes.find(x => x.selected);
+
   const updateMoisturiserPrice = () => {
-    baseIngredient.price = String(sortedIngredients
+    baseIngredient.price = getPrice();
+    updateBaseIngredient(baseIngredient);
+  }
+
+  const getPrice = () => {
+    const selectedMoisturiser = getSelectedMoisturiser();
+    const ingerdientsPrice = sortedIngredients.map(i => Number(i.price)).reduce((a, c) => a + c);
+    const minus75Percent = ingerdientsPrice * 0.75;
+    return String(sortedIngredients
       .filter(x => x.isSelectedForSummary)
       .map(x => Number(x.price))
-      .reduce((a, c) => a + c, Number(baseIngredient.regular_price)))
-    updateBaseIngredient(baseIngredient);
+      .reduce((a, c) => a + c, Number((selectedMoisturiser && selectedMoisturiser.size) === "50ml" ? baseIngredient.regular_price : Number(baseIngredient.smallerSizePrice) - minus75Percent)))
   }
 
   const formatAnswersToLowercase = (answers: string | string[]) => {
@@ -359,7 +361,7 @@ const ProductsWrap = styled.div`
   @media screen and (min-width: 768px) {
     display: grid;
     grid-template-columns: 260px 260px;
-    align-items: end;
+    align-items: baseline;
     justify-content: space-evenly;
     gap: 20px;
     .moisturiser {

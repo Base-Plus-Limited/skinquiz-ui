@@ -5,6 +5,7 @@ import { ISkinCondition } from "./SkinCondition";
 import { IErrorResponse } from "./ErrorResponse";
 import { IDashboardValue } from "./DashboardValue";
 import { IRowData } from "./RowData";
+import { IMoisturiserSize } from "./MoistuiserSize";
 
 interface IQuiz {
   cartData: IRowData[];
@@ -43,6 +44,8 @@ interface IQuiz {
   toggleLoading: Dispatch<SetStateAction<boolean>>;
   isAmendSelected: boolean;
   toggleAmendSelected: Dispatch<SetStateAction<boolean>>;
+  moisturiserSizes: IMoisturiserSize[];
+  toggleSelectedMoisturiserSizes: Dispatch<SetStateAction<IMoisturiserSize[]>>;
 }
 
 export default IQuiz;
