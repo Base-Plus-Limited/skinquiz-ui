@@ -139,7 +139,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
             if (cd.id === ProductTypeId.Moisturiser) {
               cd.price = id === "50ml" ? String(Number(Number(product.regular_price).toFixed(0)) + addIngredientsPrice()) : String(Number((product as IIngredient).smallerSizePrice) + addIngredientsPrice())
             }
-              return cd;
+            return cd;
           })
         )
         return m;
