@@ -319,13 +319,13 @@ const StyledSummary: React.FC<SummaryProps> = () => {
             </StyledSummaryTitle>
             <ProductsWrap>
               <StyledSummaryProduct
-                product={getSelectedSerum()}
-              >
-              </StyledSummaryProduct>
-              <StyledSummaryProduct
                 product={baseIngredient}
                 ingredients={sortedIngredients}
                 onAmend={amendIngredients}
+              >
+              </StyledSummaryProduct>
+              <StyledSummaryProduct
+                product={getSelectedSerum()}
               >
               </StyledSummaryProduct>
             </ProductsWrap>

@@ -78,12 +78,12 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
     {
       id: "50ml",
       size: "50ml",
-      selected: true
+      selected: false
     },
     {
       id: "30ml",
       size: "30ml",
-      selected: false
+      selected: true
     }
   ]);
 
