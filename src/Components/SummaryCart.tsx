@@ -44,7 +44,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
   }
 
   const sendToWordpress = async () => {
-    return fetch('/api/new-product', {
+    return fetch('http://diagnostic-tool-staging.herokuapp.com/api/new-product', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const saveProductToDatabase = (productId: number, event: IAnalyticsEvent, productType: ProductType) => {
     return track(event).then(() => {
-      return fetch('/api/save-product', {
+      return fetch('http://diagnostic-tool-staging.herokuapp.com/api/save-product', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -5,7 +5,6 @@ import StyledInput from '../Components/Shared/Input';
 import StyledH1 from '../Components/Shared/H1';
 import StyledText from '../Components/Shared/Text';
 import { Route } from 'react-router-dom';
-import welcomeImg from './../Assets/serum_and_moisturiser.jpg';
 import { QuizContext } from '../QuizContext';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import { track, generateUniqueId } from './../Components/Shared/Analytics';
@@ -21,7 +20,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
   const { userName, updateUserName, setApplicationError, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch('/api/questions')
+    fetch('http://diagnostic-tool-staging.herokuapp.com/api/questions')
       .then(res => {
         if (res.ok) {
           logQuizStarted();
@@ -37,7 +36,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
         })
       });
 
-    fetch('/api/ingredients')
+    fetch('http://diagnostic-tool-staging.herokuapp.com/api/ingredients')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .catch((error) => {
         setApplicationError({
@@ -96,27 +95,6 @@ const Welcome = styled.div`
   align-items: center;
   padding: 0 20px;
   grid-template-columns: 1fr;
-  @media only screen and (min-width: 370px) {
-    background: #fff no-repeat bottom center/90% url(${welcomeImg});
-  }
-  @media only screen and (min-width: 400px) {
-    background: #fff no-repeat bottom center/90% url(${welcomeImg});
-  }
-  @media only screen and (min-width: 600px) {
-    background: #fff no-repeat bottom center/90% url(${welcomeImg});
-  }
-  @media only screen and (min-width: 980px) {
-    background: #fff no-repeat bottom center/70% url(${welcomeImg});
-  }
-  @media only screen and (min-width: 1280px) {
-    background: #fff no-repeat bottom center/28% url(${welcomeImg});
-  }
-  @media only screen and (min-width: 1500px) {
-    background: #fff no-repeat bottom center/50% url(${welcomeImg});
-  }
-  @media only screen and (min-width: 1800px) {
-    background: #fff no-repeat bottom center/45% url(${welcomeImg});
-  }
 `;
 const WelcomeWrapper = styled.div`
   width: 100%;

@@ -18,7 +18,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
   const { setApplicationError, hasApplicationErrored, saveDashboardValues, dashboardValues } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch('/api/completed-quiz')
+    fetch('http://diagnostic-tool-staging.herokuapp.com/api/completed-quiz')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((dashboardValues: IDashboardValue) => {
         saveDashboardValues(dashboardValues);
