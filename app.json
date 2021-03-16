@@ -1,6 +1,6 @@
 {
-  "name": "Diagnostic tool",
-  "description": "web app made of create-react-app UI + Node API",
+  "name": "Skin Quiz UI",
+  "description": "web app made with create-react-app",
   "scripts": {
   },
   "env": {
@@ -14,8 +14,5 @@
 
   ],
   "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
   ]
 }
