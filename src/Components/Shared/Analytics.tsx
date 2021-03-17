@@ -1,7 +1,7 @@
 import { IAnalyticsEvent } from "../../Interfaces/Analytics";
 
 export const track = async (event: IAnalyticsEvent) => {
-  return fetch('/api/analytics', {
+  return fetch('http://diagnostic-tool-staging.herokuapp.com/api/analytics', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
