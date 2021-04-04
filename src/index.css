@@ -8,3 +8,7 @@ body {
 button {
   border-radius: 0;
 }
+
+#root {
+  line-height: 1.6em;
+}

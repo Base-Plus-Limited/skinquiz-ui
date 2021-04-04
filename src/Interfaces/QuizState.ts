@@ -8,6 +8,8 @@ import { IRowData } from "./RowData";
 import { IMoisturiserSize } from "./MoistuiserSize";
 
 interface IQuiz {
+  isQuizVisible: boolean;
+  toggleQuizVisibility: Dispatch<SetStateAction<boolean>>;
   cartData: IRowData[];
   updateCartData: Dispatch<SetStateAction<IRowData[]>>;
   progressCount: number;

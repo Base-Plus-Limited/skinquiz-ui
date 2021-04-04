@@ -2,29 +2,17 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import theme from './theme';
 import StyledQuiz from './Container/Quiz';
-import StyledWelcome from './Container/Welcome';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import StyledHeader from './Components/Header';
 import { QuizProvider } from './QuizContext';
-import DownloadData from './Container/DownloadData';
-import StyledProgressBar from './Components/ProgressBar';
 
 const App: React.FC = () => {
-
 
   return (
     <ThemeProvider theme={theme}>
         <AppWrapper>
           <QuizProvider>
             <StyledHeader></StyledHeader>
-            <StyledProgressBar></StyledProgressBar>
-            <BrowserRouter>
-              <Switch>
-                <Route path="/" exact component={StyledWelcome} />
-                <Route path="/quiz" component={StyledQuiz} />
-                <Route path="/download-data" component={DownloadData} />
-              </Switch>
-            </BrowserRouter>
+            <StyledQuiz rows={0} marginValue={0}></StyledQuiz>
           </QuizProvider>
         </AppWrapper>
     </ThemeProvider>

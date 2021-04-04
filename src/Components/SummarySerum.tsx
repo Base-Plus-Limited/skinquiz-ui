@@ -28,6 +28,7 @@ const Serum = styled.div`
   .name {
     text-transform: uppercase;
     font-size: 9pt;
+    font-weight: 600;
     margin: 0 0 5px;
     border-left: ${props => props.theme.brandColours.baseDarkGreen};
     font-family: ${props => props.theme.subHeadingFont};

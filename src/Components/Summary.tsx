@@ -356,7 +356,7 @@ const Spacer = styled.div`
 
 const ProductsWrap = styled.div`
   .moisturiserDescriptionPanel {
-    height: calc(100% - 120px);
+    height: calc(100% - 127px);
   }
   @media screen and (min-width: 768px) {
     display: grid;

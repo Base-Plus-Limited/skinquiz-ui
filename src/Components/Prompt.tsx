@@ -16,6 +16,7 @@ const Prompt = styled.span`
   margin: ${(props: any) => props.noMargin ? "0" : "4px 0 22px"};
   font-size: 9pt;
   display: inline-block;
+  font-weight: 400;
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
 `

@@ -7,6 +7,13 @@ import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
 import StyledSummary from '../Components/Summary';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
+import StyledWelcome from './Welcome';
+import Welcome from './Welcome';
+import StyledH1 from '../Components/Shared/H1';
+import StyledText from '../Components/Shared/Text';
+import StyledInput from '../Components/Shared/Input';
+import { StyledButton } from '../Components/Button';
+import StyledProgressBar from '../Components/ProgressBar';
 
 
 interface QuizProps {
@@ -16,10 +23,10 @@ interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { updateSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, updateBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
+  const { isQuizVisible, updateSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, updateBaseIngredient, setApplicationError, hasApplicationErrored, userName } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch('http://diagnostic-tool-staging.herokuapp.com/api/questions')
+    fetch('https://diagnostic-tool-staging.herokuapp.com/api/questions')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch((error) => {
@@ -30,7 +37,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         })
       });
 
-    fetch('http://diagnostic-tool-staging.herokuapp.com/api/ingredients')
+    fetch('https://diagnostic-tool-staging.herokuapp.com/api/ingredients')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((ingredients: IIngredient[]) => {
         const filteredIngredients = ingredients.filter(ingredient => ingredient.id !== 1474);
@@ -47,7 +54,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       });
 
 
-    fetch('http://diagnostic-tool-staging.herokuapp.com/api/serums')
+    fetch('https://diagnostic-tool-staging.herokuapp.com/api/serums')
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((serums: ISerum[]) => updateSerums(serums))
       .catch((error) => {
@@ -110,18 +117,23 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   return (
     hasApplicationErrored.error ?
       <StyledErrorScreen message={getErrorMessage()}></StyledErrorScreen>
-      : <React.Fragment>
-        <ScrollWrapper>
-          <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
-            {
-              formattedQuiz()[0].length ?
-                formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
-                <LoadingAnimation loadingText="" />
-            }
-            {(quizQuestions.length && (questionsAnswered.length === quizQuestions.length)) && <StyledSummary></StyledSummary>}
-          </Quiz>
-        </ScrollWrapper>
-      </React.Fragment>
+      :
+      !isQuizVisible ?
+        <StyledWelcome></StyledWelcome>
+        :
+        <React.Fragment>
+          <StyledProgressBar></StyledProgressBar>
+          <ScrollWrapper>
+            <Quiz rows={formattedQuiz().length + 1} marginValue={returnMarginAmount()}>
+              {
+                formattedQuiz()[0].length ?
+                  formattedQuiz().map((formattedQ, index) => <StyledQuestion questions={formattedQ} key={index}></StyledQuestion>) :
+                  <LoadingAnimation loadingText="" />
+              }
+              {(quizQuestions.length && (questionsAnswered.length === quizQuestions.length)) && <StyledSummary></StyledSummary>}
+            </Quiz>
+          </ScrollWrapper>
+        </React.Fragment>
   );
 }
 

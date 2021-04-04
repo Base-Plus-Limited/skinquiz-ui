@@ -71,10 +71,11 @@ const StyledHeader: React.FC<HeaderProps> = () => {
 
 }
 
-const Header = styled.header`
+const Header = styled.div`
   border-bottom: solid 2px ${props => props.theme.brandColours.baseLightGreen};
   display: flex;
-  justify-content: space-between;    align-items: center;
+  justify-content: space-between;
+  align-items: center;
   padding: 0 20px;
   img{
     width: 80px;
