@@ -3,7 +3,7 @@ import { IErrorResponse } from "../../Interfaces/ErrorResponse";
 import { IAnswer, IQuizQuestion } from "../../Interfaces/QuizQuestion";
 
 export const saveQuizToDatabase = (productId: number, applicationErrorFunc: (value: React.SetStateAction<IErrorResponse>) => void, quizQuestions: IQuizQuestion[]) => {
-  return fetch('http://diagnostic-tool-staging.herokuapp.com/api/save-quiz', {
+  return fetch('https://diagnostic-tool-staging.herokuapp.com/api/save-quiz', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

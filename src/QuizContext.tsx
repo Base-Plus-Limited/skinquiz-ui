@@ -46,7 +46,9 @@ const state: IQuiz = {
   isAmendSelected: false,
   toggleAmendSelected: (previousAmendState: SetStateAction<boolean>) => previousAmendState,
   moisturiserSizes: [],
-  toggleSelectedMoisturiserSizes: (previousmoisturiserSizes: SetStateAction<IMoisturiserSize[]>) => previousmoisturiserSizes
+  toggleSelectedMoisturiserSizes: (previousmoisturiserSizes: SetStateAction<IMoisturiserSize[]>) => previousmoisturiserSizes,
+  toggleQuizVisibility: (previousQuizVisibility: SetStateAction<boolean>) => previousQuizVisibility,
+  isQuizVisible: false,
 }
 
 export const QuizContext = createContext(state);
@@ -74,6 +76,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [serums, updateSerums] = useState<ISerum[]>([]);
   const [isLoading, toggleLoading] = useState<boolean>(false);
   const [isAmendSelected, toggleAmendSelected] = useState<boolean>(false);
+  const [isQuizVisible, toggleQuizVisibility] = useState<boolean>(false);
   const [moisturiserSizes, toggleSelectedMoisturiserSizes] = useState<IMoisturiserSize[]>([
     {
       id: "50ml",
@@ -89,6 +92,8 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
 
   return (
     <QuizContext.Provider value={{
+      isQuizVisible,
+      toggleQuizVisibility,
       cartData,
       updateCartData,
       progressCount,

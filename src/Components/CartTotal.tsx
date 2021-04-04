@@ -33,6 +33,7 @@ const Row = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
   text-transform: uppercase;
   font-size: 13pt;
+  font-weight: 600;
   margin-bottom: 15px;
 `
 

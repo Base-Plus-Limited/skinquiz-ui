@@ -16,37 +16,8 @@ export interface WelcomeWrapperProps {
   maxWidth?: boolean;
 }
 
-const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
-  const { userName, updateUserName, setApplicationError, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
-
-  useEffect(() => {
-    fetch('http://diagnostic-tool-staging.herokuapp.com/api/questions')
-      .then(res => {
-        if (res.ok) {
-          logQuizStarted();
-          return res.json();
-        }
-        res.json().then(errorResponse => setApplicationError(errorResponse))
-      })
-      .catch((error) => {
-        setApplicationError({
-          error: true,
-          code: error.status,
-          message: error.message
-        })
-      });
-
-    fetch('http://diagnostic-tool-staging.herokuapp.com/api/ingredients')
-      .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-      .catch((error) => {
-        setApplicationError({
-          error: true,
-          code: error.status,
-          message: error.message
-        })
-      });
-  }, []);
-
+const StyledWelcome: React.SFC<WelcomeProps> = () => {
+  const { toggleQuizVisibility, userName, updateUserName, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
 
   const logQuizStarted = () => {
     const id = generateUniqueId();
@@ -67,25 +38,21 @@ const StyledWelcome: React.SFC<WelcomeProps> = (history) => {
         distinct_id: uniqueId,
         event_type: "Name entered"
       });
+    logQuizStarted();
+    toggleQuizVisibility(true);
   };
 
   return (
-    hasApplicationErrored.error ?
-      <StyledErrorScreen message="We're unable to load the quiz at the moment, please try again later"></StyledErrorScreen>
-      :
-      <Welcome> 
-        <WelcomeWrapper maxWidth>
-          <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
-          <StyledText text="Create your own bespoke moisturiser and serum in 60 seconds"></StyledText>
-          <StyledInput logInputValue={logName} placeholderText="Tell us your name or create your routine" type="text"></StyledInput>
-          <Route render={({ history }) => (
-            <StyledButton onClickHandler={() => {
-              history.push('/quiz');
-              logNameEvent();
-            }}>Create your skincare routine</StyledButton>
-          )} />
-        </WelcomeWrapper>
-      </Welcome>
+    <Welcome> 
+      <WelcomeWrapper maxWidth>
+        <StyledH1 text={`Skincare made for ${userName ? userName : 'you'}`}></StyledH1>
+        <StyledText text="Create your own bespoke moisturiser and serum in 60 seconds"></StyledText>
+        <StyledInput logInputValue={logName} placeholderText="Tell us your name or create your routine" type="text"></StyledInput>
+        <StyledButton onClickHandler={() => {
+          logNameEvent();
+        }}>Create your skincare routine</StyledButton>
+      </WelcomeWrapper>
+    </Welcome>
   );
 }
 
@@ -95,6 +62,7 @@ const Welcome = styled.div`
   align-items: center;
   padding: 0 20px;
   grid-template-columns: 1fr;
+  grid-row: 2/span 3;
 `;
 const WelcomeWrapper = styled.div`
   width: 100%;
