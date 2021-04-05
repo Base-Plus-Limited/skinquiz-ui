@@ -20,7 +20,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
   const { toggleQuizVisibility, userName, updateUserName, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
 
   const logQuizStarted = () => {
-    const id = generateUniqueId();
+    const id = generateUniqueId(12);
     track({
       distinct_id: id,
       event_type: "Quiz started"

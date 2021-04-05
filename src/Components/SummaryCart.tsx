@@ -4,13 +4,13 @@ import { IAnalyticsEvent } from '../Interfaces/Analytics';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import { IRowData } from '../Interfaces/RowData';
-import { IIngredient, ProductType, WordpressProduct } from '../Interfaces/WordpressProduct';
+import { IIngredient, ProductType, WordpressMetaData, WordpressProduct } from '../Interfaces/WordpressProduct';
 
 import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';
 import CartRow from './CartRow';
 import StyledCartTotal from './CartTotal';
-import { track } from './Shared/Analytics';
+import { generateUniqueId, track } from './Shared/Analytics';
 import { saveQuizToDatabase } from './Shared/QuizHelpers';
 import StyledSummaryButton from './SummaryButton';
 import StyledSummaryTitle from './SummaryTitle';
@@ -22,7 +22,9 @@ export interface SummaryCartProps {
 
 const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngredients }) => {
 
-  const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes } = useContext(QuizContext);
+  const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes, serums } = useContext(QuizContext);
+
+  const longUniqueId = Number(generateUniqueId(9));
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -86,6 +88,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
           id: 21
         }
       ],
+      meta_data: [generateMetaData()],
       images: [
         {
           src: getSelectedSize() === "50ml" ? 'https://baseplus.co.uk/wp-content/uploads/2019/11/basetubeedited-e1590996899944.png' : "https://baseplus.co.uk/wp-content/uploads/2021/02/base-moistuirser-small-scaled.jpg"
@@ -94,7 +97,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     }
   }
 
-  const saveProductToDatabase = (productId: number, event: IAnalyticsEvent, productType: ProductType) => {
+  const saveProductToDatabase = (event: IAnalyticsEvent, productType: ProductType) => {
     return track(event).then(() => {
       return fetch('https://diagnostic-tool-staging.herokuapp.com/api/save-product', {
         method: 'POST',
@@ -102,17 +105,31 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
           'Content-Type': 'application/json',
         },
         cache: 'no-cache',
-        body: JSON.stringify(createFinalProductToSaveToDatabase(productId, productType))
+        body: JSON.stringify(createFinalProductToSaveToDatabase(productType))
       })
     });
   }
 
-  const createFinalProductToSaveToDatabase = (productId: number, productType: ProductType) => {
+  const addUniqueIdToSerum = (id: number) => {
+    return fetch('https://skinquiz-server.herokuapp.com/api/update-serum-meta-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-cache',
+      body: JSON.stringify({ 
+        selectedSerumId: id,
+        quizIdsMeta: generateMetaData()
+      })
+    })
+  }
+
+  const createFinalProductToSaveToDatabase = (productType: ProductType) => {
     const databaseProduct: ICustomProductDBModel = {
       recommendedVariation: returnVariation(productType),
       newVariation: "",
       amended: false,
-      productId
+      productId: longUniqueId
     };
     return databaseProduct;
   }
@@ -153,8 +170,8 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             variation: sortedIngredients.map(x => x.name).join(" & ")
           }
           Promise.allSettled([
-            saveProductToDatabase(product.id, analyticsEvent, "moisturiser"),
-            saveQuizToDatabase(product.id, setApplicationError, quizQuestions)
+            saveProductToDatabase(analyticsEvent, "moisturiser"),
+            saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
           ])
           .then(result => {
             if(result.some(x => x.status !== "rejected")) {
@@ -172,6 +189,15 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       })
   }
 
+  const generateMetaData = () => {
+    const metaData: WordpressMetaData = {
+      id: Number(generateUniqueId(6)),
+      key: "long_unique_id",
+      value: `${longUniqueId}`
+    }
+    return metaData;
+  }
+
   const addSerum = () => {
     const serumId = cartData[0].id;
     const analyticsEvent: IAnalyticsEvent = {
@@ -180,8 +206,9 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       serumId
     }
     Promise.allSettled([
-      saveProductToDatabase(serumId, analyticsEvent, "serum"),
-      saveQuizToDatabase(serumId, setApplicationError, quizQuestions)
+      saveProductToDatabase(analyticsEvent, "serum"),
+      saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
+      addUniqueIdToSerum(serumId)
     ])
     .then(result => {
       if(result.some(x => x.status !== "rejected")) {
@@ -210,10 +237,10 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             serumId: (serumToAdd as IRowData).id,
             variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${(serumToAdd as IRowData).additionalInfo.split(" ")[1]}`
           }
-          const uniqueBundleId = Number(Math.random().toString().split('.')[1].slice(0, 4));
           Promise.allSettled([
-            saveProductToDatabase(uniqueBundleId, analyticsEvent, "bundle"),
-            saveQuizToDatabase(uniqueBundleId, setApplicationError, quizQuestions)
+            saveProductToDatabase(analyticsEvent, "bundle"),
+            saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
+            addUniqueIdToSerum((serumToAdd as IRowData).id)
           ])
           .then(result => {
             if(result.some(x => x.status !== "rejected")) {

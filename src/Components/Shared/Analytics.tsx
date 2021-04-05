@@ -18,6 +18,6 @@ export const track = async (event: IAnalyticsEvent) => {
   .catch((error) => console.error(error))
 }
 
-export const generateUniqueId = () => {
-  return btoa(Math.random().toString()).substring(0,12)
+export const generateUniqueId = (digits: number) => {
+  return btoa(Math.random().toString()).substring(0,digits)
 }
