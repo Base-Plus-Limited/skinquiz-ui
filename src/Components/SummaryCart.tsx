@@ -11,6 +11,7 @@ import leavesIcon from './../Assets/leaves_icon.jpg';
 import CartRow from './CartRow';
 import StyledCartTotal from './CartTotal';
 import { generateUniqueId, track } from './Shared/Analytics';
+import { getUrlBasedOnEnvironment } from './Shared/EnvironmentHelper';
 import { saveQuizToDatabase } from './Shared/QuizHelpers';
 import StyledSummaryButton from './SummaryButton';
 import StyledSummaryTitle from './SummaryTitle';
@@ -24,7 +25,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes, serums } = useContext(QuizContext);
 
-  const longUniqueId = Number(generateUniqueId(9));
+  const longUniqueId = Number(generateUniqueId());
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -46,7 +47,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
   }
 
   const sendToWordpress = async () => {
-    return fetch('https://diagnostic-tool-staging.herokuapp.com/api/new-product', {
+    return fetch(`${getUrlBasedOnEnvironment()}/new-product`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const saveProductToDatabase = (event: IAnalyticsEvent, productType: ProductType) => {
     return track(event).then(() => {
-      return fetch('https://diagnostic-tool-staging.herokuapp.com/api/save-product', {
+      return fetch(`${getUrlBasedOnEnvironment()}/save-product`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +112,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
   }
 
   const addUniqueIdToSerum = (id: number) => {
-    return fetch('https://skinquiz-server.herokuapp.com/api/update-serum-meta-data', {
+    return fetch(`${getUrlBasedOnEnvironment()}/update-serum-meta-data`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -169,12 +170,12 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             moisturiserId: product.id,
             variation: sortedIngredients.map(x => x.name).join(" & ")
           }
-          Promise.allSettled([
+          Promise.all([
             saveProductToDatabase(analyticsEvent, "moisturiser"),
             saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
           ])
-          .then(result => {
-            if(result.some(x => x.status !== "rejected")) {
+          .then(results => {
+            if (results.some(result => result.ok !== false)) {
               window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${product.id}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
               return;
             }
@@ -191,7 +192,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const generateMetaData = () => {
     const metaData: WordpressMetaData = {
-      id: Number(generateUniqueId(6)),
+      id: Number(generateUniqueId()),
       key: "long_unique_id",
       value: `${longUniqueId}`
     }
@@ -205,13 +206,13 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       distinct_id: uniqueId,
       serumId
     }
-    Promise.allSettled([
+    Promise.all([
       saveProductToDatabase(analyticsEvent, "serum"),
       saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
       addUniqueIdToSerum(serumId)
     ])
-    .then(result => {
-      if(result.some(x => x.status !== "rejected")) {
+    .then(results => {
+      if (results.some(result => result.ok !== false)) {
         window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=${serumId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`);
         return;
       }
@@ -237,13 +238,13 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             serumId: (serumToAdd as IRowData).id,
             variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${(serumToAdd as IRowData).additionalInfo.split(" ")[1]}`
           }
-          Promise.allSettled([
+          Promise.all([
             saveProductToDatabase(analyticsEvent, "bundle"),
             saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
             addUniqueIdToSerum((serumToAdd as IRowData).id)
           ])
-          .then(result => {
-            if(result.some(x => x.status !== "rejected")) {
+          .then(results => {
+            if (results.some(result => result.ok !== false)) {
               window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=6784&quantity[${product.id}]=1&quantity[${(serumToAdd as IRowData).id}]=1&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
               return;
             }
@@ -251,7 +252,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
               error: true,
               code: 400,
               message: "",
-              uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
+              uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to finish creating your bundle, please refresh and try again`
             })
           })
         }

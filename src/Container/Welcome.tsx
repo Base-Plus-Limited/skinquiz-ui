@@ -4,10 +4,8 @@ import { StyledButton } from '../Components/Button';
 import StyledInput from '../Components/Shared/Input';
 import StyledH1 from '../Components/Shared/H1';
 import StyledText from '../Components/Shared/Text';
-import { Route } from 'react-router-dom';
 import { QuizContext } from '../QuizContext';
-import StyledErrorScreen from '../Components/Shared/ErrorScreen';
-import { track, generateUniqueId } from './../Components/Shared/Analytics';
+import { track, generateUniqueIdAsString } from './../Components/Shared/Analytics';
 
 export interface WelcomeProps {
 }
@@ -17,10 +15,10 @@ export interface WelcomeWrapperProps {
 }
 
 const StyledWelcome: React.SFC<WelcomeProps> = () => {
-  const { toggleQuizVisibility, userName, updateUserName, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
+  const { toggleQuizVisibility, userName, updateUserName, saveUniqueId, uniqueId } = useContext(QuizContext);
 
   const logQuizStarted = () => {
-    const id = generateUniqueId(12);
+    const id = generateUniqueIdAsString(12);
     track({
       distinct_id: id,
       event_type: "Quiz started"
