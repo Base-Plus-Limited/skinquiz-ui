@@ -35,8 +35,8 @@ const state: IQuiz = {
   setApplicationError: (previousApplicationError: SetStateAction<IErrorResponse>) => previousApplicationError,
   dashboardValues: {} as IDashboardValue,
   saveDashboardValues: (previousDashboardValue: SetStateAction<IDashboardValue>) => previousDashboardValue,
-  uniqueId: "",
-  saveUniqueId: (previousUniqueId: SetStateAction<string>) => previousUniqueId,
+  analyticsId: "",
+  saveAnalyticsId: (previousAnalyticsId: SetStateAction<string>) => previousAnalyticsId,
   areSummaryCTAsVisible: false,
   showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility,
   serums: [],
@@ -49,6 +49,8 @@ const state: IQuiz = {
   toggleSelectedMoisturiserSizes: (previousmoisturiserSizes: SetStateAction<IMoisturiserSize[]>) => previousmoisturiserSizes,
   toggleQuizVisibility: (previousQuizVisibility: SetStateAction<boolean>) => previousQuizVisibility,
   isQuizVisible: false,
+  longUniqueId: 0,
+  saveLongUniqueId: (previousLongUniquieId: SetStateAction<number>) => previousLongUniquieId,
 }
 
 export const QuizContext = createContext(state);
@@ -71,7 +73,8 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
   const [dashboardValues, saveDashboardValues] = useState<IDashboardValue>({} as IDashboardValue);
-  const [uniqueId, saveUniqueId] = useState<string>("");
+  const [analyticsId, saveAnalyticsId] = useState<string>("");
+  const [longUniqueId, saveLongUniqueId] = useState<number>(0);
   const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
   const [serums, updateSerums] = useState<ISerum[]>([]);
   const [isLoading, toggleLoading] = useState<boolean>(false);
@@ -120,8 +123,8 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       setApplicationError,
       dashboardValues,
       saveDashboardValues,
-      uniqueId,
-      saveUniqueId,
+      analyticsId,
+      saveAnalyticsId,
       areSummaryCTAsVisible,
       showSummaryCTAs,
       serums,
@@ -131,7 +134,9 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
       isAmendSelected,
       toggleAmendSelected,
       moisturiserSizes,
-      toggleSelectedMoisturiserSizes
+      toggleSelectedMoisturiserSizes,
+      longUniqueId,
+      saveLongUniqueId
     }}>
       {children}
     </QuizContext.Provider>

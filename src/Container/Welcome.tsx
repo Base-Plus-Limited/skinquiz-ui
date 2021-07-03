@@ -5,7 +5,7 @@ import StyledInput from '../Components/Shared/Input';
 import StyledH1 from '../Components/Shared/H1';
 import StyledText from '../Components/Shared/Text';
 import { QuizContext } from '../QuizContext';
-import { track, generateUniqueIdAsString } from './../Components/Shared/Analytics';
+import { track, generateAnalyticsId, generateLongUniqueId } from './../Components/Shared/Analytics';
 
 export interface WelcomeProps {
 }
@@ -15,15 +15,19 @@ export interface WelcomeWrapperProps {
 }
 
 const StyledWelcome: React.SFC<WelcomeProps> = () => {
-  const { toggleQuizVisibility, userName, updateUserName, saveUniqueId, uniqueId } = useContext(QuizContext);
+  const { saveLongUniqueId, toggleQuizVisibility, userName, updateUserName, saveAnalyticsId, analyticsId } = useContext(QuizContext);
+
+  useEffect(() => {
+    saveLongUniqueId(generateLongUniqueId())
+  }, [])
 
   const logQuizStarted = () => {
-    const id = generateUniqueIdAsString(12);
+    const id = generateAnalyticsId(12);
     track({
       distinct_id: id,
       event_type: "Quiz started"
     });
-    saveUniqueId(id);
+    saveAnalyticsId(id);
   }
 
   const logName = (event: ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +37,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
   const logNameEvent = () => {
     if (userName.trim().length > 0)
       track({
-        distinct_id: uniqueId,
+        distinct_id: analyticsId,
         event_type: "Name entered"
       });
     logQuizStarted();

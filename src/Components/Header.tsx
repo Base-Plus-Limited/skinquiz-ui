@@ -15,7 +15,7 @@ export interface HeaderProps {
  
 const StyledHeader: React.FC<HeaderProps> = () => {
 
-  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, uniqueId, showSummaryCTAs } = useContext(QuizContext);
+  const { progressCount, updateQuestionsAnswered, questionsAnswered, ingredients, updateIngredients, selectedSkinConditions, quizQuestions, analyticsId, showSummaryCTAs } = useContext(QuizContext);
 
   const areAllQuestionsAnswered = () => {
     const allQUestionsAnswered = quizQuestions.filter(x => x.answered).length === quizQuestions.length;
@@ -36,7 +36,7 @@ const StyledHeader: React.FC<HeaderProps> = () => {
     updateQuestionsAnswered([...questionsAnswered]);
     resetRanks();
     track({
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       event_type: "Back selected"
     });
   }

@@ -19,11 +19,11 @@ export const track = async (event: IAnalyticsEvent) => {
   .catch((error) => console.error(error))
 }
 
-export const generateUniqueIdAsString = (digits: number) => {
+export const generateAnalyticsId = (digits: number) => {
   return btoa(Math.random().toString()).substring(0,digits)
 }
 
-export const generateUniqueId = () => {
+export const generateLongUniqueId = () => {
   const idAsArray = (Math.random() * (9 - 1) + 1).toString().split('.');
-  return idAsArray[0] + idAsArray[1].substring(1,6);
+  return Number(idAsArray[0] + idAsArray[1].substring(1,6));
 }

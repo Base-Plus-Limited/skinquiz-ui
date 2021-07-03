@@ -10,7 +10,7 @@ import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';
 import CartRow from './CartRow';
 import StyledCartTotal from './CartTotal';
-import { generateUniqueId, track } from './Shared/Analytics';
+import { generateLongUniqueId, track } from './Shared/Analytics';
 import { getUrlBasedOnEnvironment } from './Shared/EnvironmentHelper';
 import { saveQuizToDatabase } from './Shared/QuizHelpers';
 import StyledSummaryButton from './SummaryButton';
@@ -23,9 +23,7 @@ export interface SummaryCartProps {
 
 const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngredients }) => {
 
-  const { uniqueId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes, serums } = useContext(QuizContext);
-
-  const longUniqueId = Number(generateUniqueId());
+  const { analyticsId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes, serums, longUniqueId } = useContext(QuizContext);
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -166,7 +164,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
         if (product) {
           const analyticsEvent: IAnalyticsEvent = {
             event_type: "Quiz completed - Moisturiser Added To Cart",
-            distinct_id: uniqueId,
+            distinct_id: analyticsId,
             moisturiserId: product.id,
             variation: sortedIngredients.map(x => x.name).join(" & ")
           }
@@ -192,7 +190,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const generateMetaData = () => {
     const metaData: WordpressMetaData = {
-      id: Number(generateUniqueId()),
+      id: Number(generateLongUniqueId()),
       key: "long_unique_id",
       value: `${longUniqueId}`
     }
@@ -203,7 +201,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     const serumId = cartData[0].id;
     const analyticsEvent: IAnalyticsEvent = {
       event_type: "Quiz completed - Serum Added To Cart",
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       serumId
     }
     Promise.all([
@@ -233,7 +231,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
           const moisturiserVariation = (cartData.find(x => x.productType === "moisturiser") as IRowData).additionalInfo;
           const analyticsEvent: IAnalyticsEvent = {
             event_type: "Quiz completed - Bundle Added To Cart",
-            distinct_id: uniqueId,
+            distinct_id: analyticsId,
             moisturiserId: product.id,
             serumId: (serumToAdd as IRowData).id,
             variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${(serumToAdd as IRowData).additionalInfo.split(" ")[1]}`
@@ -281,7 +279,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       <CartRows>
         {cartData.map(data => <CartRow key={data.id} rowData={data} size={getSelectedSize()}></CartRow>)}
         {
-          cartData.length !== 0 &&
+          cartData.length &&
           <StyledCartTotal price={getTotalPrice()}>
           </StyledCartTotal>
         }
