@@ -161,7 +161,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   return (
     <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
       <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
-        <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
+        <CloseDescriptionButton onClick={toggleDescriptionVisibility}><i className="fas fa-times"></i></CloseDescriptionButton>
         {
           <Description className="fullIngredients">
           {getFullIngredients() && (getFullIngredients() as WordpressMetaData).value }
@@ -169,7 +169,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
         }
       </FullIngredientsDescription>
       <VariationDescription className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
-        <CloseDescriptionButton onClick={toggleDescriptionVisibility}>X</CloseDescriptionButton>
+        <CloseDescriptionButton onClick={toggleDescriptionVisibility}><i className="fas fa-times"></i></CloseDescriptionButton>
         <Description>
           {
             !isProductAMoisturiser() ?
@@ -235,7 +235,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
             <SizeButtonWrap>
               {
                 moisturiserSizes.map(m => {
-                  return <StyledSizeButton selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
+                  return <StyledSizeButton key={m.id} selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
                 })
               }
             </SizeButtonWrap>
@@ -316,6 +316,8 @@ const ToggleIngredientDescriptionButton = styled.p`
   background: ${props => props.theme.brandColours.baseDefaultGreen};
   color: #fff;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 9pt;
   @media screen and (min-width: 768px) {
     padding: 7px 0;
   }
@@ -334,6 +336,7 @@ const Description = styled.p`
     text-transform: uppercase;
     font-size: 10pt;
     margin-bottom: 3px;
+    font-weight: 600;
   }
 `
 
@@ -350,7 +353,7 @@ const CloseDescriptionButton = styled.span`
 
 const FullIngredientsDescription = styled.div`
   width: 100%;
-  height: calc(100% - 70px);
+  height: calc(100% - 74px);
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-size: 9.5pt;
@@ -367,7 +370,7 @@ const FullIngredientsDescription = styled.div`
 
 const VariationDescription = styled.div`
   width: 100%;
-  height: calc(100% - 67px);
+  height: calc(100% - 74px);
   font-family: ${props => props.theme.bodyFont};
   color: ${props => props.theme.brandColours.baseDarkGreen};
   font-size: 9.5pt;
@@ -459,6 +462,7 @@ const Product = styled.div`
   .name {
     text-transform: uppercase;
     font-size: 10pt;
+    font-weight: 600;
     cursor: pointer;
     margin: 0 0 5px;
     border-left: ${props => props.theme.brandColours.baseDarkGreen};
@@ -475,7 +479,7 @@ const Product = styled.div`
     font-family: ${props => props.theme.bodyFont};
     margin: 0 0 10px 0;
     font-size: 9pt;
-    max-height: 50px;
+    max-height: 40px;
     overflow: hidden;
     line-height: 1.4em;
   }
@@ -484,6 +488,7 @@ const Product = styled.div`
     font-family: ${props => props.theme.subHeadingFont};
     color: ${props => props.theme.brandColours.baseDefaultGreen};
     font-size: 11pt;
+    font-weight: 600;
     text-transform: uppercase;
   }
   hr {

@@ -25,7 +25,7 @@ interface PanelProps {
 
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, uniqueId } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, analyticsId } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     if(answeredQuestion.isMobilePanelOpen && answeredQuestion.id !== 706)
@@ -175,7 +175,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         return;
       }
       track({
-        distinct_id: uniqueId,
+        distinct_id: analyticsId,
         event_type: "Question answered",
         question_id: answeredQuestion.id
       });
@@ -183,7 +183,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       return;
     }
     track({
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       event_type: "Question answered",
       question_id: answeredQuestion.id
     });
@@ -213,7 +213,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     skinConditionQuestion[0].answered = true;
     updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
     track({
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       event_type: "Question answered",
       question_id: skinConditionQuestion[0].id
     });
@@ -325,7 +325,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                           return <StyledAnswer value={answer.value} isDisabled={false} selected={answer.selected} selectAnswer={() => selectAnswer(question, index + 3)} key={index}>{answer.value}
                           </StyledAnswer>
                         })}
-                        <p>{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
+                        <p className="selectedSkinCondition">{selectedSkinConditions.length === 2 ? returnSkinCondition() : ""}</p>
                         {
                           selectedSkinConditions.length === 2 ?
                           <StyledButton onClickHandler={saveSkinConditionAnswer}>Next</StyledButton>
@@ -369,7 +369,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                               <MobileAnswersWrapper>
                                 <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                                 <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
-                                <span className="closePanel" onClick={() => toggleAnswersPanel(question)}>X</span>
+                                <span className="closePanel" onClick={() => toggleAnswersPanel(question)}><i className="fas fa-times"></i></span>
                                   {
                                     question.answers.map((answer, index) => (
                                       <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
@@ -405,7 +405,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                         <MobileAnswersWrapper className="skintoneAnswers">
                           <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                           <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
-                          <span className="closePanel skintoneClose" onClick={() => toggleAnswersPanel(question)}>X</span>
+                          <span className="closePanel skintoneClose" onClick={() => toggleAnswersPanel(question)}><i className="fas fa-times"></i></span>
                             {
                               question.answers.map((answer: IAnswer, index: number) => {
                                 return <StyledSkintoneAnswer selected={answer.selected} value={answer.value} skinColours={answer.skinColours} selectAnswer={() => selectAnswer(question, index)} key={index}>
@@ -419,7 +419,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
                           <MobileAnswersWrapper>
                             <StyledButton entity={"▼"} AnswerSelectedOnMobile={question.answered} onClickHandler={() => toggleAnswersPanel(question)}>{question.answered ? returnSelectedAnswerValue(question) : "Select from the dropdown"}</StyledButton>
                             <Panel className="mobileAnswersPanel" isVisible={question.isMobilePanelOpen} isSkinToneAnswers={question.isSkintoneQuestion}>
-                            <span className="closePanel" onClick={() => toggleAnswersPanel(question)}>X</span>
+                            <span className="closePanel" onClick={() => toggleAnswersPanel(question)}><i className="fas fa-times"></i></span>
                               {
                                 question.answers.map((answer, index) => (
                                   <StyledAnswer isDisabled={answer.disable} value={answer.value} selected={answer.selected} selectAnswer={() => selectAnswer(question, index)} key={index}></StyledAnswer>
@@ -529,6 +529,7 @@ const HalfScreenQuestion = styled.div`
   margin: 0;
   padding: 0 10px;
   font-size: 11pt;
+  font-weight: 600;
   overflow: hidden;
   font-family: ${props => props.theme.subHeadingFont};
   .skintoneAnswers .mobileAnswersPanel {
@@ -547,6 +548,7 @@ const FullScreenQuestion = styled.div`
   font-size: 11pt;
   overflow: hidden;
   grid-row: 1/ span 2;
+  font-weight: 600;
   font-family: ${props => props.theme.subHeadingFont};
 `;
 
@@ -563,6 +565,9 @@ border-bottom: solid 1px ${props => props.theme.brandColours.basePink};
 const SkinConditionQuestion = styled.div`
   font-family: ${props => props.theme.subHeadingFont};
   grid-row: 1/ span 2;
+  .selectedSkinCondition {
+    font-size: 12pt;
+  }
   @media screen and (min-width: 768px) {
     display: grid;
     align-items: center;

@@ -8,6 +8,7 @@ import StyledText from '../Components/Shared/Text';
 import { StyledButton } from '../Components/Button';
 import StyledH1 from '../Components/Shared/H1';
 import { IDashboardValue } from '../Interfaces/DashboardValue';
+import { getUrlBasedOnEnvironment } from '../Components/Shared/EnvironmentHelper';
 
 
 export interface DownloadDataProps {
@@ -18,7 +19,7 @@ const DownloadData: React.SFC<DownloadDataProps> = () => {
   const { setApplicationError, hasApplicationErrored, saveDashboardValues, dashboardValues } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch('/api/completed-quiz')
+    fetch(`${getUrlBasedOnEnvironment()}/completed-quiz`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((dashboardValues: IDashboardValue) => {
         saveDashboardValues(dashboardValues);

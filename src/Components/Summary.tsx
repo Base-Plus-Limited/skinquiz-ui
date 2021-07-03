@@ -18,7 +18,7 @@ export interface SummaryProps {
 }
 
 const StyledSummary: React.FC<SummaryProps> = () => {
-  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, uniqueId, updateIngredients, serums, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected, moisturiserSizes } = useContext(QuizContext);
+  const { cartData, isLoading, toggleLoading, ingredients, userName, baseIngredient, quizQuestions, setQuizToCompleted, setApplicationError, isQuizCompleted, analyticsId, updateIngredients, serums, longUniqueId, questionsAnswered, updateBaseIngredient, toggleAmendSelected, isAmendSelected, moisturiserSizes } = useContext(QuizContext);
 
   useEffect(() => {
     rankIngredients();
@@ -52,19 +52,18 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     toggleAmendSelected(true);
     const foundSerum = cartData.find(d => d.productType === "serum");
     track({
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       event_type: "Quiz completed - Change Ingredients",
       variation: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
       amendSelected: true
     }).then(() => {
-      const tempProductId = Number(Math.random().toString().split('.')[1].slice(0, 5));
-      saveQuizToDatabase(tempProductId, setApplicationError, quizQuestions)
+      saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
         .then(_ => {
           const selectedMoisturiser = getSelectedMoisturiser();
           if (foundSerum) {
-            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+            window.location.assign(`https://baseplus.co.uk/customise?add-to-cart=${foundSerum.id}&productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&longuniqueid=${longUniqueId}&analyticsid=${analyticsId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           } else {
-            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&tempproductid=${tempProductId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
+            window.location.assign(`https://baseplus.co.uk/customise?productone=${sortedIngredients[0].id}&producttwo=${sortedIngredients[1].id}&size=${selectedMoisturiser && selectedMoisturiser.size}&username=${userName}&longuniqueid=${longUniqueId}&analyticsid=${analyticsId}&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer-customise`);
           }
         })
     });
@@ -356,7 +355,7 @@ const Spacer = styled.div`
 
 const ProductsWrap = styled.div`
   .moisturiserDescriptionPanel {
-    height: calc(100% - 120px);
+    height: calc(100% - 127px);
   }
   @media screen and (min-width: 768px) {
     display: grid;

@@ -8,6 +8,8 @@ import { IRowData } from "./RowData";
 import { IMoisturiserSize } from "./MoistuiserSize";
 
 interface IQuiz {
+  isQuizVisible: boolean;
+  toggleQuizVisibility: Dispatch<SetStateAction<boolean>>;
   cartData: IRowData[];
   updateCartData: Dispatch<SetStateAction<IRowData[]>>;
   progressCount: number;
@@ -34,8 +36,8 @@ interface IQuiz {
   setApplicationError: Dispatch<SetStateAction<IErrorResponse>>;
   dashboardValues: IDashboardValue;
   saveDashboardValues: Dispatch<SetStateAction<IDashboardValue>>;
-  uniqueId: string;
-  saveUniqueId: Dispatch<SetStateAction<string>>;
+  analyticsId: string;
+  saveAnalyticsId: Dispatch<SetStateAction<string>>;
   areSummaryCTAsVisible: boolean;
   showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
   serums: ISerum[];
@@ -46,6 +48,8 @@ interface IQuiz {
   toggleAmendSelected: Dispatch<SetStateAction<boolean>>;
   moisturiserSizes: IMoisturiserSize[];
   toggleSelectedMoisturiserSizes: Dispatch<SetStateAction<IMoisturiserSize[]>>;
+  longUniqueId: number;
+  saveLongUniqueId: Dispatch<SetStateAction<number>>;
 }
 
 export default IQuiz;

@@ -24,7 +24,7 @@ const StyledCartRow: React.SFC<CartRowProps> = ({rowData, size}) => {
 
   return ( 
     <Row>
-      <Remove onClick={removeFromCart}>x</Remove>
+      <Remove onClick={removeFromCart}><i className="fas fa-times"></i></Remove>
       <ProductInfo>
         <ProductInfoLine>{getNamePart()}</ProductInfoLine>
         <ProductInfoLine>{rowData.additionalInfo}</ProductInfoLine>

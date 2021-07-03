@@ -1,29 +1,22 @@
 import { ICompletedQuizDBModel } from "../../Interfaces/CompletedQuizDBModel";
 import { IErrorResponse } from "../../Interfaces/ErrorResponse";
 import { IAnswer, IQuizQuestion } from "../../Interfaces/QuizQuestion";
+import { getUrlBasedOnEnvironment } from "./EnvironmentHelper";
 
-export const saveQuizToDatabase = (productId: number, applicationErrorFunc: (value: React.SetStateAction<IErrorResponse>) => void, quizQuestions: IQuizQuestion[]) => {
-  return fetch('/api/save-quiz', {
+export const saveQuizToDatabase = (id: number, applicationErrorFunc: (value: React.SetStateAction<IErrorResponse>) => void, quizQuestions: IQuizQuestion[]) => {
+  return fetch(`${getUrlBasedOnEnvironment()}/save-quiz`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json'
     },
     cache: 'no-cache',
-    body: JSON.stringify(returnCompletedQuizData(productId, quizQuestions))
+    body: JSON.stringify(returnCompletedQuizData(id, quizQuestions))
   })
-    .then(res => res.ok ? res.json() : res.json().then(errorResponse => applicationErrorFunc(errorResponse)))
-    .catch(error => {
-      applicationErrorFunc({
-        error: true,
-        code: error.status,
-        message: error.message
-      })
-    });
 }
 
-const returnCompletedQuizData = (productId: number, quizQuestions: IQuizQuestion[]): ICompletedQuizDBModel => {
+const returnCompletedQuizData = (id: number, quizQuestions: IQuizQuestion[]): ICompletedQuizDBModel => {
   const completedQuiz: ICompletedQuizDBModel = {
-    productId: productId,
+    productId: id,
     quiz: quizQuestions.map(question => (
       {
         questionId: question.id,
