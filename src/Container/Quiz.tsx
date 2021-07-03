@@ -8,12 +8,8 @@ import StyledSummary from '../Components/Summary';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import StyledWelcome from './Welcome';
-import Welcome from './Welcome';
-import StyledH1 from '../Components/Shared/H1';
-import StyledText from '../Components/Shared/Text';
-import StyledInput from '../Components/Shared/Input';
-import { StyledButton } from '../Components/Button';
 import StyledProgressBar from '../Components/ProgressBar';
+import { getUrlBasedOnEnvironment } from '../Components/Shared/EnvironmentHelper';
 
 
 interface QuizProps {
@@ -23,10 +19,10 @@ interface QuizProps {
 
 const StyledQuiz: React.FC<QuizProps> = () => {
 
-  const { isQuizVisible, updateSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, updateBaseIngredient, setApplicationError, hasApplicationErrored, userName } = useContext(QuizContext);
+  const { isQuizVisible, updateSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, updateBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch('https://diagnostic-tool-staging.herokuapp.com/api/questions')
+    fetch(`${getUrlBasedOnEnvironment()}/questions`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch((error) => {
@@ -37,7 +33,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         })
       });
 
-    fetch('https://diagnostic-tool-staging.herokuapp.com/api/ingredients')
+    fetch(`${getUrlBasedOnEnvironment()}/ingredients`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((ingredients: IIngredient[]) => {
         const filteredIngredients = ingredients.filter(ingredient => ingredient.id !== 1474);
@@ -54,7 +50,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
       });
 
 
-    fetch('https://diagnostic-tool-staging.herokuapp.com/api/serums')
+    fetch(`${getUrlBasedOnEnvironment()}/serums`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((serums: ISerum[]) => updateSerums(serums))
       .catch((error) => {

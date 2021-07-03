@@ -36,8 +36,8 @@ interface IQuiz {
   setApplicationError: Dispatch<SetStateAction<IErrorResponse>>;
   dashboardValues: IDashboardValue;
   saveDashboardValues: Dispatch<SetStateAction<IDashboardValue>>;
-  uniqueId: string;
-  saveUniqueId: Dispatch<SetStateAction<string>>;
+  analyticsId: string;
+  saveAnalyticsId: Dispatch<SetStateAction<string>>;
   areSummaryCTAsVisible: boolean;
   showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
   serums: ISerum[];
@@ -48,6 +48,8 @@ interface IQuiz {
   toggleAmendSelected: Dispatch<SetStateAction<boolean>>;
   moisturiserSizes: IMoisturiserSize[];
   toggleSelectedMoisturiserSizes: Dispatch<SetStateAction<IMoisturiserSize[]>>;
+  longUniqueId: number;
+  saveLongUniqueId: Dispatch<SetStateAction<number>>;
 }
 
 export default IQuiz;

@@ -4,10 +4,8 @@ import { StyledButton } from '../Components/Button';
 import StyledInput from '../Components/Shared/Input';
 import StyledH1 from '../Components/Shared/H1';
 import StyledText from '../Components/Shared/Text';
-import { Route } from 'react-router-dom';
 import { QuizContext } from '../QuizContext';
-import StyledErrorScreen from '../Components/Shared/ErrorScreen';
-import { track, generateUniqueId } from './../Components/Shared/Analytics';
+import { track, generateAnalyticsId, generateLongUniqueId } from './../Components/Shared/Analytics';
 
 export interface WelcomeProps {
 }
@@ -17,15 +15,19 @@ export interface WelcomeWrapperProps {
 }
 
 const StyledWelcome: React.SFC<WelcomeProps> = () => {
-  const { toggleQuizVisibility, userName, updateUserName, hasApplicationErrored, saveUniqueId, uniqueId } = useContext(QuizContext);
+  const { saveLongUniqueId, toggleQuizVisibility, userName, updateUserName, saveAnalyticsId, analyticsId } = useContext(QuizContext);
+
+  useEffect(() => {
+    saveLongUniqueId(generateLongUniqueId())
+  }, [])
 
   const logQuizStarted = () => {
-    const id = generateUniqueId();
+    const id = generateAnalyticsId(12);
     track({
       distinct_id: id,
       event_type: "Quiz started"
     });
-    saveUniqueId(id);
+    saveAnalyticsId(id);
   }
 
   const logName = (event: ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +37,7 @@ const StyledWelcome: React.SFC<WelcomeProps> = () => {
   const logNameEvent = () => {
     if (userName.trim().length > 0)
       track({
-        distinct_id: uniqueId,
+        distinct_id: analyticsId,
         event_type: "Name entered"
       });
     logQuizStarted();

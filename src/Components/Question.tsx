@@ -25,7 +25,7 @@ interface PanelProps {
 
 
 const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) => {
-  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, uniqueId } = useContext(QuizContext);
+  const { questionInputAnswer, updateQuestionInputAnswer, quizQuestions, updateQuizQuestions, questionsAnswered, updateQuestionsAnswered, selectedSkinConditions, updateSelectedSkinConditions, analyticsId } = useContext(QuizContext);
 
   const selectAnswer = (answeredQuestion: IQuizQuestion, answerIndex: number) => {
     if(answeredQuestion.isMobilePanelOpen && answeredQuestion.id !== 706)
@@ -175,7 +175,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
         return;
       }
       track({
-        distinct_id: uniqueId,
+        distinct_id: analyticsId,
         event_type: "Question answered",
         question_id: answeredQuestion.id
       });
@@ -183,7 +183,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
       return;
     }
     track({
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       event_type: "Question answered",
       question_id: answeredQuestion.id
     });
@@ -213,7 +213,7 @@ const StyledQuestion: React.FC<QuestionProps> = ({ questions }: QuestionProps) =
     skinConditionQuestion[0].answered = true;
     updateQuestionsAnswered([...questionsAnswered, skinConditionQuestion[0]]);
     track({
-      distinct_id: uniqueId,
+      distinct_id: analyticsId,
       event_type: "Question answered",
       question_id: skinConditionQuestion[0].id
     });

@@ -235,7 +235,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
             <SizeButtonWrap>
               {
                 moisturiserSizes.map(m => {
-                  return <StyledSizeButton selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
+                  return <StyledSizeButton key={m.id} selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
                 })
               }
             </SizeButtonWrap>
