@@ -2,8 +2,8 @@ import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { QuizContext } from '../QuizContext';
 import productsIcon from './../Assets/products_icon.jpg';
-import { IIngredient } from '../Interfaces/WordpressProduct';
-import { IAnswer, IQuizQuestion } from '../Interfaces/QuizQuestion';
+import { IShopifyUIProduct } from '../Interfaces/ShopifyProduct';
+import { IAnswer } from '../Interfaces/QuizQuestion';
 import LoadingAnimation from './Shared/LoadingAnimation';
 import { track } from './Shared/Analytics';
 import { ISkinConcernsAndIngredients } from '../Interfaces/SkinConcernsAndIngredients';
@@ -26,10 +26,10 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }, [])
 
   enum SpecialCaseProducts {
-    LemonSeedOil = 697,
-    TeaTreeOil = 2054,
-    Niacinamide = 698,
-    VitaminC = 694
+    LemonSeedOil = 6960043065493,
+    TeaTreeOil = 6960042147989,
+    Niacinamide = 6960042868885,
+    VitaminC = 6960043262101
   }
 
   enum QuestionIds {
@@ -54,7 +54,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     track({
       distinct_id: analyticsId,
       event_type: "Quiz completed - Change Ingredients",
-      variation: `${sortedIngredients[0].name} & ${sortedIngredients[1].name}`,
+      variation: `${sortedIngredients[0].title} & ${sortedIngredients[1].title}`,
       amendSelected: true
     }).then(() => {
       saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
@@ -87,7 +87,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     const filteredAnswers = (answers.filter(x => x !== undefined)) as string[];
 
 
-    let updatedIngredientList: IIngredient[] = ingredients;
+    let updatedIngredientList: IShopifyUIProduct[] = ingredients;
 
     if (filteredAnswers.some(x => x.toLowerCase() === 'lemon oil'))
       updatedIngredientList = updatedIngredientList.filter(x => x.id !== SpecialCaseProducts.LemonSeedOil);
@@ -100,8 +100,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
     updatedIngredientList.forEach(ingredient => {
       filteredAnswers.forEach(a => {
-        ingredient.tags.forEach(tag => {
-          if (tag.name === a)
+        ingredient.tags_as_array.forEach(tag => {
+          if (tag === a)
             ingredient.rank = ingredient.rank + 1;
         })
       })
@@ -109,13 +109,13 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     updateIngredients(processIngredientsForSelection(updatedIngredientList, skinConcernAnswers));
   }
 
-  const processIngredientsForSelection = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+  const processIngredientsForSelection = (rankedIngredients: IShopifyUIProduct[], skinConcerns: string[]) => {
     const categorisedIngredients = populateSkinConcernsAndIngredients(rankedIngredients, skinConcerns);
     categorisedIngredients.ingredientsOne = getHighestRankedIngredients(categorisedIngredients.ingredientsOne);
     categorisedIngredients.ingredientsTwo = getHighestRankedIngredients(removeIngredientIfInSecondList(categorisedIngredients.ingredientsOne[0].id, categorisedIngredients.ingredientsTwo));
 
-    let ingredientOne: IIngredient;
-    let ingredientTwo: IIngredient;
+    let ingredientOne: IShopifyUIProduct;
+    let ingredientTwo: IShopifyUIProduct;
 
     categorisedIngredients.ingredientsOne.length > 1 ?
       ingredientOne = categorisedIngredients.ingredientsOne[returnRandomIndex(categorisedIngredients.ingredientsOne)] :
@@ -131,7 +131,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return selectIngredientsForSummaryScreen(rankedIngredients, ingredientOne, ingredientTwo);
   }
 
-  const filterSpecialCaseIngredient = (ingredientOne: IIngredient, categorisedIngredients: ISkinConcernsAndIngredients) => {
+  const filterSpecialCaseIngredient = (ingredientOne: IShopifyUIProduct, categorisedIngredients: ISkinConcernsAndIngredients) => {
     if ((ingredientOne.id === SpecialCaseProducts.Niacinamide) && (categorisedIngredients.ingredientsTwo.length === 1) && (categorisedIngredients.ingredientsOne.length !== 1)) {
       categorisedIngredients.ingredientsTwo = categorisedIngredients.ingredientsOne.filter(x => x.id !== SpecialCaseProducts.Niacinamide);
       return categorisedIngredients.ingredientsTwo;
@@ -143,11 +143,11 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return categorisedIngredients.ingredientsTwo;
   }
 
-  const returnRandomIndex = (ingredients: IIngredient[]) => {
+  const returnRandomIndex = (ingredients: IShopifyUIProduct[]) => {
     return Math.floor(Math.random() * Math.floor(ingredients.length));
   }
 
-  const selectIngredientsForSummaryScreen = (rankedIngredients: IIngredient[], ingredientOne: IIngredient, ingredientTwo: IIngredient) => {
+  const selectIngredientsForSummaryScreen = (rankedIngredients: IShopifyUIProduct[], ingredientOne: IShopifyUIProduct, ingredientTwo: IShopifyUIProduct) => {
     return rankedIngredients.map(ingredient => {
       if (ingredient.id === ingredientOne.id)
         ingredient.isSelectedForSummary = ingredient.id === ingredientOne.id;
@@ -157,7 +157,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     });
   }
 
-  const populateSkinConcernsAndIngredients = (rankedIngredients: IIngredient[], skinConcerns: string[]) => {
+  const populateSkinConcernsAndIngredients = (rankedIngredients: IShopifyUIProduct[], skinConcerns: string[]) => {
     const categorisedIngredients: ISkinConcernsAndIngredients = {
       concernOne: "",
       ingredientsOne: [],
@@ -177,15 +177,15 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     return categorisedIngredients;
   }
 
-  const doTagsMatchSkinConcern = (ingredient: IIngredient, skinConcern: string) => {
-    return ingredient.tags.some(tag => tag.name.toLowerCase() === skinConcern);
+  const doTagsMatchSkinConcern = (ingredient: IShopifyUIProduct, skinConcern: string) => {
+    return ingredient.tags_as_array.some(tag => tag.toLowerCase() === skinConcern);
   }
 
-  const removeIngredientIfInSecondList = (id: number, ingredientListTwo: IIngredient[]) => {
+  const removeIngredientIfInSecondList = (id: number, ingredientListTwo: IShopifyUIProduct[]) => {
     return ingredientListTwo.filter(x => x.id !== id);
   }
 
-  const getHighestRankedIngredients = (ingredients: IIngredient[]) => {
+  const getHighestRankedIngredients = (ingredients: IShopifyUIProduct[]) => {
     const highestRank = Math.max(...ingredients.map(x => x.rank));
     return ingredients.filter(x => x.rank === highestRank);
   }
@@ -199,7 +199,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const getSelectedSerum = () => {
-    updateMoisturiserPrice();
+    // updateMoisturiserPrice();
     const skinConcernsAnswer = questionsAnswered
       .filter(x => x.id === QuestionIds.skinConcernsAndConditions)
       .map(a => a.answers.filter(x => x.selected))[0];
@@ -261,20 +261,20 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const getSelectedMoisturiser = () => moisturiserSizes.find(x => x.selected);
 
-  const updateMoisturiserPrice = () => {
-    baseIngredient.price = getPrice();
-    updateBaseIngredient(baseIngredient);
-  }
+  // const updateMoisturiserPrice = () => {
+  //   baseIngredient.variants[0].price = getPrice();
+  //   updateBaseIngredient(baseIngredient);
+  // }
 
-  const getPrice = () => {
-    const selectedMoisturiser = getSelectedMoisturiser();
-    const ingerdientsPrice = sortedIngredients.map(i => Number(i.price)).reduce((a, c) => a + c);
-    const minus75Percent = ingerdientsPrice * 0.75;
-    return String(sortedIngredients
-      .filter(x => x.isSelectedForSummary)
-      .map(x => Number(x.price))
-      .reduce((a, c) => a + c, Number((selectedMoisturiser && selectedMoisturiser.size) === "50ml" ? baseIngredient.regular_price : Number(baseIngredient.smallerSizePrice) - minus75Percent)))
-  }
+  // const getPrice = () => {
+  //   const selectedMoisturiser = getSelectedMoisturiser();
+  //   const ingerdientsPrice = sortedIngredients.map(i => Number(i.variants[0].price)).reduce((a, c) => a + c);
+  //   const minus75Percent = ingerdientsPrice * 0.75;
+  //   return String(sortedIngredients
+  //     .filter(x => x.isSelectedForSummary)
+  //     .map(x => Number(x.variants[0].price))
+  //     .reduce((a, c) => a + c, Number((selectedMoisturiser && selectedMoisturiser.size) === "50ml" ? baseIngredient.variants[1].price : Number(baseIngredient.variants[0].price) - minus75Percent)))
+  // }
 
   const formatAnswersToLowercase = (answers: string | string[]) => {
     if (Array.isArray(answers)) {

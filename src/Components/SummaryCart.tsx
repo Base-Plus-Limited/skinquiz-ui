@@ -4,8 +4,8 @@ import { IAnalyticsEvent } from '../Interfaces/Analytics';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import { IRowData } from '../Interfaces/RowData';
-import { IIngredient, ProductType, WordpressMetaData, WordpressProduct } from '../Interfaces/WordpressProduct';
-
+import { ProductType, WordpressMetaData, WordpressProduct } from '../Interfaces/WordpressProduct';
+import { IIngredient } from '../Interfaces/ShopifyProduct';
 import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';
 import CartRow from './CartRow';
@@ -78,10 +78,10 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     return {
       name: getProductName(),
       type: 'simple',
-      regular_price: baseIngredient.price,
-      purchase_note: `Your custom mixture will include ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
+      regular_price: baseIngredient.variants[0].price,
+      purchase_note: `Your custom mixture will include ${sortedIngredients[0].title}, ${sortedIngredients[1].title} & the signature base+ ingredient`,
       description: '',
-      short_description: `Your custom mixture including ${sortedIngredients[0].name}, ${sortedIngredients[1].name} & the signature base+ ingredient`,
+      short_description: `Your custom mixture including ${sortedIngredients[0].title}, ${sortedIngredients[1].title} & the signature base+ ingredient`,
       categories: [
         {
           id: 21
@@ -137,14 +137,14 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     if (type === "moisturiser") {
       return sortedIngredients.map(ingredient => (
         {
-          name: ingredient.name,
+          name: ingredient.title,
           id: ingredient.id
         }
       ))
     } else if(type === "serum") {
       return cartData[0].additionalInfo.split(" ")[1];
     } else {
-      const mixture = sortedIngredients.map(ingredient => ingredient.name).join(" & ");
+      const mixture = sortedIngredients.map(ingredient => ingredient.title).join(" & ");
       const serumVariation = (cartData.find(d => d.productType === "serum") as IRowData).additionalInfo.split(" ")[1];
       return `Moisturiser: ${mixture}, Serum: ${serumVariation}`;
     }
@@ -152,8 +152,8 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
 
   const getProductName = (): string => {
     if(userName)
-      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].name}, ${sortedIngredients[1].name}), ${getSelectedSize()}`;
-    return `Your Bespoke Moisturiser (${sortedIngredients[0].name} & ${sortedIngredients[1].name}), ${getSelectedSize()}`;
+      return `${userName}'s Bespoke Moisturiser (${sortedIngredients[0].title}, ${sortedIngredients[1].title}), ${getSelectedSize()}`;
+    return `Your Bespoke Moisturiser (${sortedIngredients[0].title} & ${sortedIngredients[1].title}), ${getSelectedSize()}`;
   }
 
   const getSelectedSize = () => moisturiserSizes.filter(s => s.selected)[0].size;
@@ -166,7 +166,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             event_type: "Quiz completed - Moisturiser Added To Cart",
             distinct_id: analyticsId,
             moisturiserId: product.id,
-            variation: sortedIngredients.map(x => x.name).join(" & ")
+            variation: sortedIngredients.map(x => x.title).join(" & ")
           }
           Promise.all([
             saveProductToDatabase(analyticsEvent, "moisturiser"),
@@ -279,7 +279,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
       <CartRows>
         {cartData.map(data => <CartRow key={data.id} rowData={data} size={getSelectedSize()}></CartRow>)}
         {
-          cartData.length &&
+          cartData.length !== 0 &&
           <StyledCartTotal price={getTotalPrice()}>
           </StyledCartTotal>
         }

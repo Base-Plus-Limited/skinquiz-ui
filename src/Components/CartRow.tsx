@@ -24,7 +24,7 @@ const StyledCartRow: React.SFC<CartRowProps> = ({rowData, size}) => {
 
   return ( 
     <Row>
-      <Remove onClick={removeFromCart}><i className="fas fa-times"></i></Remove>
+      <Remove onClick={removeFromCart}>x</Remove>
       <ProductInfo>
         <ProductInfoLine>{getNamePart()}</ProductInfoLine>
         <ProductInfoLine>{rowData.additionalInfo}</ProductInfoLine>
@@ -35,7 +35,7 @@ const StyledCartRow: React.SFC<CartRowProps> = ({rowData, size}) => {
 }
 
 const Remove = styled.span`
-  font-size: 14pt;
+  font-size: 15pt;
   font-weight: 600;
   font-family: ${props => props.theme.subHeadingFont};
   cursor: pointer;

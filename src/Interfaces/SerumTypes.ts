@@ -1,6 +1,6 @@
 export enum SerumType {
-  Allantoin = 5824,
-  VitaminC = 5823,
-  Emulsion = 5822,
-  Pineapple = 5821
+  Allantoin = 6959971827861,
+  VitaminC = 6959971401877,
+  Emulsion = 6959970058389,
+  Pineapple = 6957835092117
 }

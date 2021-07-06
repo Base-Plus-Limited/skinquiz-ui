@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import { IQuizQuestion } from '../Interfaces/QuizQuestion';
 import StyledQuestion from '../Components/Question';
 import { QuizContext } from '../QuizContext';
-import { IIngredient, ISerum } from '../Interfaces/WordpressProduct';
 import StyledSummary from '../Components/Summary';
 import LoadingAnimation from '../Components/Shared/LoadingAnimation';
 import StyledErrorScreen from '../Components/Shared/ErrorScreen';
 import StyledWelcome from './Welcome';
 import StyledProgressBar from '../Components/ProgressBar';
 import { getUrlBasedOnEnvironment } from '../Components/Shared/EnvironmentHelper';
+import { IShopifyUIProduct } from '../Interfaces/ShopifyProduct';
 
 
 interface QuizProps {
@@ -33,13 +33,16 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         })
       });
 
-    fetch(`${getUrlBasedOnEnvironment()}/ingredients`)
+    fetch(`${getUrlBasedOnEnvironment()}/products`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-      .then((ingredients: IIngredient[]) => {
-        const filteredIngredients = ingredients.filter(ingredient => ingredient.id !== 1474);
-        const baseIngredient = (ingredients.find(ingredient => ingredient.id === 1474) as IIngredient);
-        updateBaseIngredient(baseIngredient);
-        updateIngredients(filteredIngredients);
+      .then(({serums, baseFormula, ingredients}: {
+        serums: IShopifyUIProduct[],
+        baseFormula: IShopifyUIProduct,
+        ingredients: IShopifyUIProduct[]
+      }) => {
+        updateBaseIngredient(baseFormula);
+        updateIngredients(ingredients);
+        updateSerums(serums);
       })
       .catch((error) => {
         setApplicationError({
@@ -48,19 +51,6 @@ const StyledQuiz: React.FC<QuizProps> = () => {
           message: error.message
         })
       });
-
-
-    fetch(`${getUrlBasedOnEnvironment()}/serums`)
-      .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
-      .then((serums: ISerum[]) => updateSerums(serums))
-      .catch((error) => {
-        setApplicationError({
-          error: true,
-          code: error.status,
-          message: error.message
-        })
-      });
-
   }, []);
 
   const formattedQuiz = () => {

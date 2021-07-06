@@ -1,11 +1,11 @@
 import { IQuizQuestion } from "./QuizQuestion";
 import { Dispatch, SetStateAction } from 'react';
-import { IIngredient, ISerum } from "./WordpressProduct";
 import { ISkinCondition } from "./SkinCondition";
 import { IErrorResponse } from "./ErrorResponse";
 import { IDashboardValue } from "./DashboardValue";
 import { IRowData } from "./RowData";
 import { IMoisturiserSize } from "./MoistuiserSize";
+import { IShopifyUIProduct } from "./ShopifyProduct";
 
 interface IQuiz {
   isQuizVisible: boolean;
@@ -16,8 +16,8 @@ interface IQuiz {
   updateCount: Dispatch<SetStateAction<number>>;
   quizQuestions: IQuizQuestion[];
   updateQuizQuestions: Dispatch<SetStateAction<IQuizQuestion[]>>;
-  ingredients: IIngredient[];
-  updateIngredients: Dispatch<SetStateAction<IIngredient[]>>;
+  ingredients: IShopifyUIProduct[];
+  updateIngredients: Dispatch<SetStateAction<IShopifyUIProduct[]>>;
   questionsAnswered: IQuizQuestion[];
   updateQuestionsAnswered: Dispatch<SetStateAction<IQuizQuestion[]>>;
   questionInputAnswer: string;
@@ -26,8 +26,8 @@ interface IQuiz {
   updateSelectedSkinConditions: Dispatch<SetStateAction<ISkinCondition[]>>;
   userName: string;
   updateUserName: Dispatch<SetStateAction<string>>;
-  baseIngredient: IIngredient;
-  updateBaseIngredient: Dispatch<SetStateAction<IIngredient>>;
+  baseIngredient: IShopifyUIProduct;
+  updateBaseIngredient: Dispatch<SetStateAction<IShopifyUIProduct>>;
   setQuizToCompleted: Dispatch<SetStateAction<boolean>>;
   isQuizCompleted: boolean;
   isAnswersPanelVisible: boolean;
@@ -40,8 +40,8 @@ interface IQuiz {
   saveAnalyticsId: Dispatch<SetStateAction<string>>;
   areSummaryCTAsVisible: boolean;
   showSummaryCTAs: Dispatch<SetStateAction<boolean>>;
-  serums: ISerum[];
-  updateSerums: Dispatch<SetStateAction<ISerum[]>>;
+  serums: IShopifyUIProduct[];
+  updateSerums: Dispatch<SetStateAction<IShopifyUIProduct[]>>;
   isLoading: boolean;
   toggleLoading: Dispatch<SetStateAction<boolean>>;
   isAmendSelected: boolean;

@@ -1,8 +1,8 @@
-import { IIngredient } from "./WordpressProduct";
+import { IShopifyUIProduct } from "./ShopifyProduct";
 
 export interface ISkinConcernsAndIngredients { 
   concernOne: string;
   concernTwo: string;
-  ingredientsOne: IIngredient[];
-  ingredientsTwo: IIngredient[];
+  ingredientsOne: IShopifyUIProduct[];
+  ingredientsTwo: IShopifyUIProduct[];
 }

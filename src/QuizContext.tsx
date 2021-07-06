@@ -1,12 +1,12 @@
 import React, { createContext, SetStateAction, useState } from 'react';
 import { IQuizQuestion } from './Interfaces/QuizQuestion';
 import IQuiz from './Interfaces/QuizState';
-import { IIngredient, ISerum } from './Interfaces/WordpressProduct';
 import { ISkinCondition } from './Interfaces/SkinCondition';
 import { IErrorResponse } from './Interfaces/ErrorResponse';
 import { IDashboardValue } from './Interfaces/DashboardValue';
 import { IRowData } from './Interfaces/RowData';
 import { IMoisturiserSize } from './Interfaces/MoistuiserSize';
+import { IShopifyUIProduct } from './Interfaces/ShopifyProduct';
 
 const state: IQuiz = {
   cartData: [],
@@ -16,7 +16,7 @@ const state: IQuiz = {
   quizQuestions: [],
   updateQuizQuestions: (previousQuizQuestions: SetStateAction<IQuizQuestion[]>) => previousQuizQuestions,
   ingredients: [],
-  updateIngredients: (previousIngredients: SetStateAction<IIngredient[]>) => previousIngredients,
+  updateIngredients: (previousIngredients: SetStateAction<IShopifyUIProduct[]>) => previousIngredients,
   questionsAnswered: [],
   updateQuestionsAnswered: (previousQuestionsAnswered: SetStateAction<IQuizQuestion[]>) => previousQuestionsAnswered,
   questionInputAnswer: "",
@@ -25,8 +25,8 @@ const state: IQuiz = {
   updateSelectedSkinConditions: (previousselectedSkinConditions: SetStateAction<ISkinCondition[]>) => previousselectedSkinConditions,
   userName: "",
   updateUserName: (previousUserName: SetStateAction<string>) => previousUserName,
-  baseIngredient: {} as IIngredient,
-  updateBaseIngredient: (previousBaseIngredient: SetStateAction<IIngredient>) => previousBaseIngredient,
+  baseIngredient: {} as IShopifyUIProduct,
+  updateBaseIngredient: (previousBaseIngredient: SetStateAction<IShopifyUIProduct>) => previousBaseIngredient,
   isQuizCompleted: false,
   setQuizToCompleted: (previousCompletedQuizState: SetStateAction<boolean>) => previousCompletedQuizState,
   isAnswersPanelVisible: false,
@@ -40,12 +40,21 @@ const state: IQuiz = {
   areSummaryCTAsVisible: false,
   showSummaryCTAs: (previousVisibility: SetStateAction<boolean>) => previousVisibility,
   serums: [],
-  updateSerums: (perviousSerums: SetStateAction<ISerum[]>) => perviousSerums,
+  updateSerums: (perviousSerums: SetStateAction<IShopifyUIProduct[]>) => perviousSerums,
   isLoading: false,
   toggleLoading: (previousLoading: SetStateAction<boolean>) => previousLoading,
   isAmendSelected: false,
   toggleAmendSelected: (previousAmendState: SetStateAction<boolean>) => previousAmendState,
-  moisturiserSizes: [],
+  moisturiserSizes: [{
+    size: "30ml",
+    selected: true,
+    id: "30ml",
+  },
+  {
+    size: "50ml",
+    selected: false,
+    id: "50ml",
+  }],
   toggleSelectedMoisturiserSizes: (previousmoisturiserSizes: SetStateAction<IMoisturiserSize[]>) => previousmoisturiserSizes,
   toggleQuizVisibility: (previousQuizVisibility: SetStateAction<boolean>) => previousQuizVisibility,
   isQuizVisible: false,
@@ -63,12 +72,12 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [cartData, updateCartData] = useState<IRowData[]>([]);
   const [progressCount, updateCount] = useState<number>(0);
   const [quizQuestions, updateQuizQuestions] = useState<IQuizQuestion[]>([]);
-  const [ingredients, updateIngredients] = useState<IIngredient[]>([]);
+  const [ingredients, updateIngredients] = useState<IShopifyUIProduct[]>([]);
   const [questionsAnswered, updateQuestionsAnswered] = useState<IQuizQuestion[]>([]);
   const [questionInputAnswer, updateQuestionInputAnswer] = useState<string>("");
   const [selectedSkinConditions, updateSelectedSkinConditions] = useState<ISkinCondition[]>([]);
   const [userName, updateUserName] = useState<string>("");
-  const [baseIngredient, updateBaseIngredient] = useState<IIngredient>({} as IIngredient);
+  const [baseIngredient, updateBaseIngredient] = useState<IShopifyUIProduct>({} as IShopifyUIProduct);
   const [isQuizCompleted, setQuizToCompleted] = useState<boolean>(false);
   const [isAnswersPanelVisible, setAnswersPanelVisibility] = useState<boolean>(false);
   const [hasApplicationErrored, setApplicationError] = useState<IErrorResponse>({} as IErrorResponse);
@@ -76,7 +85,7 @@ export const QuizProvider: React.SFC<QuizProviderProps> = ({ children }) => {
   const [analyticsId, saveAnalyticsId] = useState<string>("");
   const [longUniqueId, saveLongUniqueId] = useState<number>(0);
   const [areSummaryCTAsVisible, showSummaryCTAs] = useState<boolean>(false);
-  const [serums, updateSerums] = useState<ISerum[]>([]);
+  const [serums, updateSerums] = useState<IShopifyUIProduct[]>([]);
   const [isLoading, toggleLoading] = useState<boolean>(false);
   const [isAmendSelected, toggleAmendSelected] = useState<boolean>(false);
   const [isQuizVisible, toggleQuizVisibility] = useState<boolean>(false);

@@ -10,18 +10,6 @@ export interface ISerum extends WordpressProduct {
   isSelectedForUpsell: boolean;
 }
 
-export interface IIngredient extends WordpressProduct {
-  rank: number;
-  smallerSizePrice: string;
-  selectedSize?: MoisturiserSizeIds;
-  isIngredientsPanelOpen: boolean;
-  isDescriptionPanelOpen: boolean;
-  showDescription: boolean;
-  previouslyRanked: boolean;
-  isSelectedForSummary: boolean;
-  commonlyUsedFor: string[];
-  totalMoisturiserPrice: string;
-}
 
 export interface WordpressProduct {
   id: number;
