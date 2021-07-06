@@ -81,7 +81,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       productName = product.title;
       additionalInfo = `with ${formatIngredientNames()}`;
       price = getProductPrice();
-      id = product.id === ProductTypeId.ThirtyMlVariant ? product.variants[0].id : product.variants[1].id;
+      id = isSelectedMoisturiserSize50Ml() ? product.variants[1].id : product.variants[0].id;
     }
 
     const rowData: IRowData[] = [{  
