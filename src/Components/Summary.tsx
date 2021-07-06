@@ -128,6 +128,12 @@ const StyledSummary: React.FC<SummaryProps> = () => {
     } else {
       ingredientTwo = categorisedIngredients.ingredientsTwo[0];
     }
+
+    if (ingredientOne.id === ingredientTwo.id) {
+      const x = categorisedIngredients.ingredientsOne.filter(i => i.id !== ingredientTwo.id);
+      ingredientTwo = x[0];
+    }
+
     return selectIngredientsForSummaryScreen(rankedIngredients, ingredientOne, ingredientTwo);
   }
 
@@ -325,6 +331,7 @@ const StyledSummary: React.FC<SummaryProps> = () => {
               </StyledSummaryProduct>
               <StyledSummaryProduct
                 product={getSelectedSerum()}
+                ingredients={sortedIngredients}
               >
               </StyledSummaryProduct>
             </ProductsWrap>

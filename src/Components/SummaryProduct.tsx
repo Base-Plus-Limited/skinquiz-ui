@@ -9,7 +9,7 @@ import StyledSizeButton from './SizeButton';
 
 export interface SummaryProductProps {
   product: IShopifyUIProduct;
-  ingredients?: IIngredient[];
+  ingredients: IIngredient[];
   onAmend?: () => void;
 }
 
@@ -70,21 +70,25 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     let productName;
     let additionalInfo;
     let price = "";
+    let id = 0;
     if (product.product_type === "serum") {
       productName = `${product.title.split(" ")[0]} ${product.title.split(" ")[1]} ${product.title.split(" ")[2]}`;
       additionalInfo = `with ${product.title.split(" - ")[1]}`;
       price = getProductPrice();
+      console.log(product)
+      id = product.variants[0].id;
     } else {
       productName = product.title;
       additionalInfo = `with ${formatIngredientNames()}`;
       price = getProductPrice();
+      id = product.id === ProductTypeId.ThirtyMlVariant ? product.variants[0].id : product.variants[1].id;
     }
 
     const rowData: IRowData[] = [{  
       productName,
       additionalInfo,
       price,
-      id: product.id,
+      id,
       productType: isProductAMoisturiser() ? "moisturiser" : "serum"
     }]
 
@@ -151,6 +155,11 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     return product.images[0].src;
   }
 
+  const getIngredientTitle = () => {
+    const foundIngredient = ingredients.find(x => !x.showDescription);
+    return foundIngredient ? foundIngredient.title : "";
+  }
+
   return (
     <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
       <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
@@ -185,9 +194,7 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
           isProductAMoisturiser() &&
           <ToggleIngredientDescriptionButton
             onClick={toggleActiveDescription}
-          >View {
-              ((ingredients as IIngredient[]).find(x => !x.showDescription) as IIngredient).title
-            }</ToggleIngredientDescriptionButton>
+          >View { getIngredientTitle() }</ToggleIngredientDescriptionButton>
         }
       </VariationDescription>
       <img

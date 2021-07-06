@@ -1,4 +1,4 @@
-import { ProductType } from "./WordpressProduct";
+import { ProductType } from "./ShopifyProduct";
 
 export interface IRowData {
   productName: string; 
