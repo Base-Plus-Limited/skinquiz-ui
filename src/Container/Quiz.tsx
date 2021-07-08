@@ -22,7 +22,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
   const { isQuizVisible, updateSerums, quizQuestions, updateQuizQuestions, updateIngredients, questionsAnswered, updateCount, updateBaseIngredient, setApplicationError, hasApplicationErrored } = useContext(QuizContext);
 
   useEffect(() => {
-    fetch(`${getUrlBasedOnEnvironment()}/questions`)
+    fetch(`${getUrlBasedOnEnvironment()}/get-questions`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then((questions: IQuizQuestion[]) => updateQuizQuestions(questions))
       .catch((error) => {
@@ -33,7 +33,7 @@ const StyledQuiz: React.FC<QuizProps> = () => {
         })
       });
 
-    fetch(`${getUrlBasedOnEnvironment()}/products`)
+    fetch(`${getUrlBasedOnEnvironment()}/get-products`)
       .then(res => res.ok ? res.json() : res.json().then(errorResponse => setApplicationError(errorResponse)))
       .then(({serums, baseFormula, ingredients}: {
         serums: IShopifyUIProduct[],

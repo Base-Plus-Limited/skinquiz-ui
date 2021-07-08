@@ -22,7 +22,7 @@ export interface SummaryCartProps {
 
 const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngredients }) => {
 
-  const { analyticsId, cartData, toggleLoading, setApplicationError, quizQuestions, baseIngredient, moisturiserSizes, serums, longUniqueId } = useContext(QuizContext);
+  const { analyticsId, cartData, toggleLoading, setApplicationError, quizQuestions, moisturiserSizes, longUniqueId } = useContext(QuizContext);
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -107,19 +107,19 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     });
   }
 
-  const addUniqueIdToSerum = (id: number) => {
-    return fetch(`${getUrlBasedOnEnvironment()}/update-serum-meta-data`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      cache: 'no-cache',
-      body: JSON.stringify({ 
-        selectedSerumId: id,
-        quizIdsMeta: generateMetaData()
-      })
-    })
-  }
+  // const addUniqueIdToSerum = (id: number) => {
+  //   return fetch(`${getUrlBasedOnEnvironment()}/update-serum-meta-data`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     cache: 'no-cache',
+  //     body: JSON.stringify({ 
+  //       selectedSerumId: id,
+  //       quizIdsMeta: generateMetaData()
+  //     })
+  //   })
+  // }
 
   const createFinalProductToSaveToDatabase = (productType: ProductType) => {
     const databaseProduct: ICustomProductDBModel = {
@@ -194,15 +194,6 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             })
         }
       })
-  }
-
-  const generateMetaData = () => {
-    // const metaData: WordpressMetaData = {
-    //   id: Number(generateLongUniqueId()),
-    //   key: "long_unique_id",
-    //   value: `${longUniqueId}`
-    // }
-    // return metaData;
   }
 
   const addSerum = () => {

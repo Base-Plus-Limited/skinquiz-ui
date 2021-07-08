@@ -13,6 +13,8 @@ import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
 import SummaryCart from './SummaryCart';
 import { saveQuizToDatabase } from './Shared/QuizHelpers';
 import { SerumType } from '../Interfaces/SerumTypes';
+import StyledSummarySerum from './SummarySerum';
+import StyledSummaryMoisturiser from './SummaryMoisturiser';
 
 export interface SummaryProps {
 }
@@ -205,7 +207,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   }
 
   const getSelectedSerum = () => {
-    // updateMoisturiserPrice();
     const skinConcernsAnswer = questionsAnswered
       .filter(x => x.id === QuestionIds.skinConcernsAndConditions)
       .map(a => a.answers.filter(x => x.selected))[0];
@@ -267,21 +268,6 @@ const StyledSummary: React.FC<SummaryProps> = () => {
 
   const getSelectedMoisturiser = () => moisturiserSizes.find(x => x.selected);
 
-  // const updateMoisturiserPrice = () => {
-  //   baseIngredient.variants[0].price = getPrice();
-  //   updateBaseIngredient(baseIngredient);
-  // }
-
-  // const getPrice = () => {
-  //   const selectedMoisturiser = getSelectedMoisturiser();
-  //   const ingerdientsPrice = sortedIngredients.map(i => Number(i.variants[0].price)).reduce((a, c) => a + c);
-  //   const minus75Percent = ingerdientsPrice * 0.75;
-  //   return String(sortedIngredients
-  //     .filter(x => x.isSelectedForSummary)
-  //     .map(x => Number(x.variants[0].price))
-  //     .reduce((a, c) => a + c, Number((selectedMoisturiser && selectedMoisturiser.size) === "50ml" ? baseIngredient.variants[1].price : Number(baseIngredient.variants[0].price) - minus75Percent)))
-  // }
-
   const formatAnswersToLowercase = (answers: string | string[]) => {
     if (Array.isArray(answers)) {
       return (answers as string[]).map(x => x.toLowerCase());
@@ -323,17 +309,16 @@ const StyledSummary: React.FC<SummaryProps> = () => {
             >
             </StyledSummaryTitle>
             <ProductsWrap>
-              <StyledSummaryProduct
+              <StyledSummaryMoisturiser
                 product={baseIngredient}
                 ingredients={sortedIngredients}
                 onAmend={amendIngredients}
               >
-              </StyledSummaryProduct>
-              <StyledSummaryProduct
+              </StyledSummaryMoisturiser>
+              <StyledSummarySerum
                 product={getSelectedSerum()}
-                ingredients={sortedIngredients}
               >
-              </StyledSummaryProduct>
+              </StyledSummarySerum>
             </ProductsWrap>
           </SummaryProducts>
           <Spacer></Spacer>

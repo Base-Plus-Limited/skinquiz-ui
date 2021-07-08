@@ -1,19 +1,19 @@
 import React, { useContext, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-import { MoisturiserSizeIds } from '../Interfaces/MoistuiserSize';
+import { IMoisturiserSize, MoisturiserSizeIds } from '../Interfaces/MoistuiserSize';
 import { IRowData } from '../Interfaces/RowData';
 import { IShopifySerum, IIngredient, IShopifyUIProduct } from '../Interfaces/ShopifyProduct';
 import { QuizContext } from '../QuizContext';
 import StyledText from './Shared/Text';
 import StyledSizeButton from './SizeButton';
 
-export interface SummaryProductProps {
+export interface SummaryMoisturiserProps {
   product: IShopifyUIProduct;
   ingredients: IIngredient[];
   onAmend?: () => void;
 }
 
-const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredients, onAmend }: SummaryProductProps) => {
+const StyledSummaryMoisturiser: React.FC<SummaryMoisturiserProps> = ({ product, ingredients, onAmend }: SummaryMoisturiserProps) => {
 
   const { toggleSelectedMoisturiserSizes, moisturiserSizes, cartData, updateCartData, serums, updateSerums, updateIngredients, updateBaseIngredient } = useContext(QuizContext);
 
@@ -26,11 +26,9 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   const visibleIngredient = (ingredients && ingredients.length > 0) ? ingredients.filter(x => x.showDescription) : [];
 
   useEffect(() => {
-    if (ingredients) {
-      ingredients.forEach((x, i) => {
-        x.showDescription = i === 0;
-      })
-    }
+    ingredients.forEach((x, i) => {
+      x.showDescription = i === 0;
+    })
   }, []);
 
   const isSelectedMoisturiserSize50Ml = () => moisturiserSizes
@@ -38,58 +36,33 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     .some(s => s.size === "50ml");
 
   const getProductPrice = () => {
-    if (isProductAMoisturiser()) {
-      if (isSelectedMoisturiserSize50Ml()) {
-        return (Number(product.variants[1].price) + addIngredientsPrice()).toFixed(2);
-      } else {
-        return (Number(product.variants[0].price) + addIngredientsPrice()).toFixed(2);
-      }
-    }
-    return Number(product.variants[0].price).toFixed(2);
+    if (isSelectedMoisturiserSize50Ml())
+      return (Number(product.variants[1].price) + addIngredientsPrice()).toFixed(2);
+    return (Number(product.variants[0].price) + addIngredientsPrice()).toFixed(2);
   }
 
   const addIngredientsPrice = () => {
-    if (ingredients) {
-      const ingerdientsPrice = ingredients.map(i => Number(i.variants[0].price)).reduce((a, c) => a + c);
-      if (isSelectedMoisturiserSize50Ml())
-        return ingerdientsPrice;
-      const minus75Percent = ingerdientsPrice * 0.75;
-      const discount = ingerdientsPrice - minus75Percent;
-      return discount;
-    }
-    return 0;
+    const ingerdientsPrice = ingredients.map(i => Number(i.variants[0].price)).reduce((a, c) => a + c);
+    if (isSelectedMoisturiserSize50Ml())
+      return ingerdientsPrice;
+    const minus75Percent = ingerdientsPrice * 0.75;
+    const discount = ingerdientsPrice - minus75Percent;
+    return discount;
   }
 
-  const formatIngredientNames = () => isProductAMoisturiser() && (ingredients as IIngredient[]).map(i => i.title).join(" & ");
+  const formatIngredientNames = () => ingredients.map(i => i.title).join(" & ");
 
   const toggleProductAddToCart = () => {
-    if (cartData.some(d => d.id === product.variants[0].id)) {
-      updateCartData(cartData.filter(d => d.id !== product.variants[0].id));
+    if (cartData.some(d => d.id === product.variants[isSelectedMoisturiserSize50Ml() ? 1 : 0].id)) {
+      updateCartData(cartData.filter(d => d.id !== product.variants[isSelectedMoisturiserSize50Ml() ? 1 : 0].id));
       return;
     }
-    let productName;
-    let additionalInfo;
-    let price = "";
-    let id = 0;
-    if (product.product_type === "serum") {
-      productName = `${product.title.split(" ")[0]} ${product.title.split(" ")[1]} ${product.title.split(" ")[2]}`;
-      additionalInfo = `with ${product.title.split(" - ")[1]}`;
-      price = getProductPrice();
-      console.log(product)
-      id = product.variants[0].id;
-    } else {
-      productName = product.title;
-      additionalInfo = `with ${formatIngredientNames()}`;
-      price = getProductPrice();
-      id = isSelectedMoisturiserSize50Ml() ? product.variants[1].id : product.variants[0].id;
-    }
-
     const rowData: IRowData[] = [{  
-      productName,
-      additionalInfo,
-      price,
-      id,
-      productType: isProductAMoisturiser() ? "moisturiser" : "serum"
+      productName: product.title,
+      additionalInfo: `with ${formatIngredientNames()}`,
+      price: getProductPrice(),
+      id: isSelectedMoisturiserSize50Ml() ? product.variants[1].id : product.variants[0].id,
+      productType: "moisturiser"
     }]
 
     updateCartData([...cartData, ...rowData]);
@@ -101,25 +74,15 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
     } else {
       product.isDescriptionPanelOpen = !product.isDescriptionPanelOpen;
     }
-    if (isProductAMoisturiser()) {
-      const ingredientCopy: IShopifyUIProduct = JSON.parse(JSON.stringify(product));
-      updateBaseIngredient(ingredientCopy);
-    } else {
-      updateSerums([...serums, (product as IShopifyUIProduct)])
-    }
+    const ingredientCopy: IShopifyUIProduct = JSON.parse(JSON.stringify(product));
+    updateBaseIngredient(ingredientCopy);
   };
 
   const toggleFullIngredientsVisibility = () => {
     product.isIngredientsPanelOpen = !product.isIngredientsPanelOpen;
-    if (isProductAMoisturiser()) {
-      const ingredientCopy: IShopifyUIProduct = JSON.parse(JSON.stringify(product));
-      updateBaseIngredient(ingredientCopy);
-    } else {
-      updateSerums([...serums, (product as IShopifyUIProduct)]);
-    }
+    const ingredientCopy: IShopifyUIProduct = JSON.parse(JSON.stringify(product));
+    updateBaseIngredient(ingredientCopy);
   };
-
-  const isProductAMoisturiser = () => product.id === ProductTypeId.Moisturiser;
 
   const toggleActiveDescription = () => {
     updateIngredients((ingredients as IShopifyUIProduct[]).map(x => {
@@ -146,13 +109,9 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   }
 
   const getProductImage = () => {
-    if (isProductAMoisturiser()) {
-      if (moisturiserSizes.filter(x => x.selected)[0].size === "50ml") {
-        return product.images[0].src;
-      }
-      return product.images[1].src;
-    }
-    return product.images[0].src;
+    if ((moisturiserSizes.find(x => x.selected) as IMoisturiserSize).size === "50ml")
+      return product.images[0].src;
+    return product.images[1].src;
   }
 
   const getIngredientTitle = () => {
@@ -161,8 +120,8 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
   }
 
   return (
-    <Product className={isProductAMoisturiser() ? "moisturiser" : ""}>
-      <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
+    <Product className="moisturiser">
+      <FullIngredientsDescription className={`${product.isIngredientsPanelOpen ? "resetTransform" : ""} moisturiserDescriptionPanel`}>
         <CloseDescriptionButton onClick={toggleDescriptionVisibility}>x</CloseDescriptionButton>
         {
           <Description className="fullIngredients">
@@ -170,28 +129,19 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
           </Description>
         }
       </FullIngredientsDescription>
-      <VariationDescription className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} ${isProductAMoisturiser() ? "moisturiserDescriptionPanel" : ""}`}>
+      <VariationDescription className={`${product.isDescriptionPanelOpen ? "resetTransform" : ""} moisturiserDescriptionPanel`}>
         <CloseDescriptionButton onClick={toggleDescriptionVisibility}>x</CloseDescriptionButton>
         <Description>
           {
-            isProductAMoisturiser() ?
-              <Fragment>
-                <span>
-                  { visibleIngredient.length > 0 && visibleIngredient[0].title }
-                </span>
-                { visibleIngredient.length > 0 && visibleIngredient[0].description }
-              </Fragment>
-              :
-              <Fragment>
-                <span>
-                  { (product as IShopifySerum).title.split("- ")[1] }
-                </span>
-                { (product as IShopifySerum).variationDescription }
-              </Fragment> 
+            <Fragment>
+              <span>
+                { visibleIngredient.length > 0 && visibleIngredient[0].title }
+              </span>
+              { visibleIngredient.length > 0 && visibleIngredient[0].description }
+          </Fragment>
           }
         </Description>
         {
-          isProductAMoisturiser() &&
           <ToggleIngredientDescriptionButton
             onClick={toggleActiveDescription}
           >View { getIngredientTitle() }</ToggleIngredientDescriptionButton>
@@ -200,45 +150,33 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
       <img
         className="productImage"
         onClick={toggleProductAddToCart}
-        src={getProductImage()} alt="" width={
-          product.hasOwnProperty("isSelectedForUpsell") ?
-            80
-            :
-            200
-        } />
+        src={getProductImage()} alt="" width="200" />
       <p
         onClick={toggleProductAddToCart}
         className="name"
       >{product.title}</p>
-      <p className="desc">{
-        product.hasOwnProperty("isSelectedForUpsell") ?
-          product.description.substring(0, 100)+"..."
-          :
-          "Personalised with:"
-      }</p>
+      <p className="desc">Personalised with:</p>
       {
-        ingredients &&
         <p className="mixture">
           {formatIngredientNames()}
         </p>
       }
       <hr></hr>
-      <ReadMoreText onClick={toggleDescriptionVisibility}>Read more about {isProductAMoisturiser() ? formatIngredientNames() : product.title.split("- ")[1]}</ReadMoreText>
+      <ReadMoreText onClick={toggleDescriptionVisibility}>Read more about {formatIngredientNames()}</ReadMoreText>
       {
-        isProductAMoisturiser() &&
-          <SizeWrap>
-            <StyledText text="Size"></StyledText>
-            <SizeButtonWrap>
-              {
-                moisturiserSizes.map(m => {
-                  return <StyledSizeButton key={m.id} selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
-                })
-              }
-            </SizeButtonWrap>
-          </SizeWrap>
+        <SizeWrap>
+          <StyledText text="Size"></StyledText>
+          <SizeButtonWrap>
+            {
+              moisturiserSizes.map(m => {
+                return <StyledSizeButton key={m.id} selectSize={() => toggleSelectedSize(m.id)} selected={m.selected}>{m.size}</StyledSizeButton>
+              })
+            }
+          </SizeButtonWrap>
+        </SizeWrap>
       }
       {
-        cartData.some(d => d.id === product.variants[0].id) ?
+        cartData.some(d => d.id === product.variants[isSelectedMoisturiserSize50Ml() ? 1 : 0].id) ?
           (<RemoveFromRoutineButton
             onClick={toggleProductAddToCart}
           >
@@ -258,12 +196,11 @@ const StyledSummaryProduct: React.FC<SummaryProductProps> = ({ product, ingredie
           )
       }
       {
-        isProductAMoisturiser() &&
-          <ChangeIngredientButton
-            onClick={onAmend}
-          >
-            <span>Change ingredients</span>
-          </ChangeIngredientButton>
+        <ChangeIngredientButton
+          onClick={onAmend}
+        >
+          <span>Change ingredients</span>
+        </ChangeIngredientButton>
       }
       {
         <FullIngredientsButton
@@ -506,4 +443,4 @@ const Product = styled.div`
   }
 `
 
-export default StyledSummaryProduct;
+export default StyledSummaryMoisturiser;
