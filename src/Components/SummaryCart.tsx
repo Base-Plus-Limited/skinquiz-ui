@@ -4,7 +4,7 @@ import { IAnalyticsEvent } from '../Interfaces/Analytics';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import { IRowData } from '../Interfaces/RowData';
-import { IIngredient, ProductType } from '../Interfaces/ShopifyProduct';
+import { IIngredient, IShopifyProduct, ProductType } from '../Interfaces/ShopifyProduct';
 import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';
 import CartRow from './CartRow';
@@ -43,57 +43,56 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     }
   }
 
-  // const sendToWordpress = async () => {
-  //   return fetch(`${getUrlBasedOnEnvironment()}/new-product`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     cache: 'no-cache',
-  //     body: JSON.stringify(getNewProduct())
-  //   })
-  //   .then(res => {
-  //     if(res.ok)
-  //       return res.json();
-  //     res.json()
-  //       .then((errorResponse: IErrorResponse) => {
-  //         errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
-  //         setApplicationError(errorResponse);
-  //       })
-  //   }) 
-  //   .then((product: WordpressProduct) => product)
-  //   .catch((error: IErrorResponse) => {
-  //     setApplicationError({
-  //       error: true,
-  //       code: error.code,
-  //       message: error.message,
-  //       uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
-  //     })
-  //     return undefined;
-  //   });
-  // }
+  const sendToShopify = async () => {
+    return fetch(`${getUrlBasedOnEnvironment()}/create-new-product`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-cache',
+      body: JSON.stringify(createCustomMoisturiser())
+    })
+    .then(res => {
+      if(res.ok)
+        return res.json();
+      res.json()
+        .then((errorResponse: IErrorResponse) => {
+          errorResponse.uiMessage = `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`;
+          setApplicationError(errorResponse);
+        })
+    }) 
+    .then((response: {id: number}) => response.id)
+    .catch((error: IErrorResponse) => {
+      setApplicationError({
+        error: true,
+        code: error.code,
+        message: error.message,
+        uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to create your product`
+      })
+      return undefined;
+    });
+  }
 
-  // const getNewProduct = () => {
-  //   return {
-  //     name: getProductName(),
-  //     type: 'simple',
-  //     regular_price: baseIngredient.variants[0].price,
-  //     purchase_note: `Your custom mixture will include ${sortedIngredients[0].title}, ${sortedIngredients[1].title} & the signature base+ ingredient`,
-  //     description: '',
-  //     short_description: `Your custom mixture including ${sortedIngredients[0].title}, ${sortedIngredients[1].title} & the signature base+ ingredient`,
-  //     categories: [
-  //       {
-  //         id: 21
-  //       }
-  //     ],
-  //     meta_data: [generateMetaData()],
-  //     images: [
-  //       {
-  //         src: getSelectedSize() === "50ml" ? 'https://baseplus.co.uk/wp-content/uploads/2019/11/basetubeedited-e1590996899944.png' : "https://baseplus.co.uk/wp-content/uploads/2021/02/base-moistuirser-small-scaled.jpg"
-  //       }
-  //     ]
-  //   }
-  // }
+  const createCustomMoisturiser = () => {
+    return {
+      product: {
+        title: getProductName(),
+        vendor: "Base Plus",
+        body_html: "",
+        product_type: "custom",
+        images: [
+          {
+            "src": getSelectedSize() === "50ml" ? 'https://cdn.shopify.com/s/files/1/0571/8694/3125/products/basetubeedited-e1590996899944_5f7e98f0-4131-4c71-a18e-5414a34d359c.png?v=1625339571' : "https://cdn.shopify.com/s/files/1/0571/8694/3125/products/base-moistuirser-small-scaled.jpg?v=1625340030"
+          }
+        ],
+        variants: [
+          {
+            price: (cartData.find(cd => cd.productType === "moisturiser") as IRowData).price
+          }
+        ]
+      }
+    }
+  }
 
   const saveProductToDatabase = (event: IAnalyticsEvent, productType: ProductType) => {
     return track(event).then(() => {
@@ -158,30 +157,42 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
   const getSelectedSize = () => moisturiserSizes.filter(s => s.selected)[0].size;
 
   const addMoisturiser = () => {
-    const moisturiserId = cartData[0].id;
-    const analyticsEvent: IAnalyticsEvent = {
-      event_type: "Quiz completed - Moisturiser Added To Cart",
-      distinct_id: analyticsId,
-      moisturiserId: cartData[0].id,
-      variation: sortedIngredients.map(x => x.title).join(" & ")
-    }
-    Promise.all([
-      saveProductToDatabase(analyticsEvent, "moisturiser"),
-      saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
-    ])
-      .then(results => {
-        if (results.some(result => result.ok !== false)) {
-          window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${moisturiserId}:1`)
+    sendToShopify()
+      .then(id => {
+        if (id === undefined) {
+          setApplicationError({
+            error: true,
+            code: 400,
+            message: "",
+            uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your moisturiser. Please refresh and try again`
+          })
           return;
+        } else {
+          const analyticsEvent: IAnalyticsEvent = {
+            event_type: "Quiz completed - Moisturiser Added To Cart",
+            distinct_id: analyticsId,
+            moisturiserId: id,
+            variation: sortedIngredients.map(x => x.title).join(" & ")
+          }
+          Promise.all([
+            saveProductToDatabase(analyticsEvent, "moisturiser"),
+            saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
+          ])
+            .then(results => {
+              if (results.some(result => result.ok !== false)) {
+                window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${id}:1`)
+                return;
+              }
+            })
+            .catch(error => {
+              setApplicationError({
+                error: true,
+                code: 400,
+                message: "",
+                uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your moisturiser. Please refresh and try again`
+              })
+            })
         }
-      })
-      .catch(error => {
-        setApplicationError({
-          error: true,
-          code: 400,
-          message: "",
-          uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your moisturiser. Please refresh and try again`
-        })
       })
   }
 
@@ -223,37 +234,37 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
   }
 
   const addBundle = () => {
-    // sendToWordpress()
-    //   .then(product => {
-    //     if (product) {
-    //       const serumToAdd = cartData.find(x => x.productType === "serum");
-    //       const moisturiserVariation = (cartData.find(x => x.productType === "moisturiser") as IRowData).additionalInfo;
-    //       const analyticsEvent: IAnalyticsEvent = {
-    //         event_type: "Quiz completed - Bundle Added To Cart",
-    //         distinct_id: analyticsId,
-    //         moisturiserId: product.id,
-    //         serumId: (serumToAdd as IRowData).id,
-    //         variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${(serumToAdd as IRowData).additionalInfo.split(" ")[1]}`
-    //       }
-    //       Promise.all([
-    //         saveProductToDatabase(analyticsEvent, "bundle"),
-    //         saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
-    //         addUniqueIdToSerum((serumToAdd as IRowData).id)
-    //       ])
-    //       .then(results => {
-    //         if (results.some(result => result.ok !== false)) {
-    //           window.location.assign(`https://baseplus.co.uk/checkout?add-to-cart=6784&quantity[${product.id}]=1&quantity[${(serumToAdd as IRowData).id}]=1&utm_source=skin-quiz&utm_medium=web&utm_campaign=new-customer`)
-    //           return;
-    //         }
-    //         setApplicationError({
-    //           error: true,
-    //           code: 400,
-    //           message: "",
-    //           uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to finish creating your bundle, please refresh and try again`
-    //         })
-    //       })
-    //     }
-    //   })
+    sendToShopify()
+      .then(moisturiserId => {
+        if (moisturiserId === undefined) {
+          setApplicationError({
+            error: true,
+            code: 400,
+            message: "",
+            uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your moisturiser. Please refresh and try again`
+          });
+        } else {
+          const serum = (cartData.find(x => x.productType === "serum") as IRowData);
+          const moisturiserVariation = (cartData.find(x => x.productType === "moisturiser") as IRowData).additionalInfo;
+          const analyticsEvent: IAnalyticsEvent = {
+            event_type: "Quiz completed - Bundle Added To Cart",
+            distinct_id: analyticsId,
+            moisturiserId,
+            serumId: serum.id,
+            variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${serum.additionalInfo.split(" ")[1]}`
+          }
+          Promise.all([
+            saveProductToDatabase(analyticsEvent, "bundle"),
+            saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
+            //addUniqueIdToSerum((serum as IRowData).id)
+          ])
+          .then(results => {
+            if (results.some(result => result.ok !== false)) {
+              window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${moisturiserId}:1,${serum.id}:1`);
+            }
+          });
+        };
+      });
   }
 
   const addToCart = () => {
