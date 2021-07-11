@@ -4,12 +4,12 @@ import { IAnalyticsEvent } from '../Interfaces/Analytics';
 import ICustomProductDBModel from '../Interfaces/CustomProduct';
 import { IErrorResponse } from '../Interfaces/ErrorResponse';
 import { IRowData } from '../Interfaces/RowData';
-import { IIngredient, IShopifyProduct, ProductType } from '../Interfaces/ShopifyProduct';
+import { IIngredient, IShopifyProduct, IShopifySerum, ProductType } from '../Interfaces/ShopifyProduct';
 import { QuizContext } from '../QuizContext';
 import leavesIcon from './../Assets/leaves_icon.jpg';
 import CartRow from './CartRow';
 import StyledCartTotal from './CartTotal';
-import { generateLongUniqueId, track } from './Shared/Analytics';
+import { track } from './Shared/Analytics';
 import { getUrlBasedOnEnvironment } from './Shared/EnvironmentHelper';
 import { saveQuizToDatabase } from './Shared/QuizHelpers';
 import StyledSummaryButton from './SummaryButton';
@@ -22,7 +22,7 @@ export interface SummaryCartProps {
 
 const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngredients }) => {
 
-  const { analyticsId, cartData, toggleLoading, setApplicationError, quizQuestions, moisturiserSizes, longUniqueId } = useContext(QuizContext);
+  const { analyticsId, cartData, toggleLoading, serums, setApplicationError, quizQuestions, moisturiserSizes, longUniqueId } = useContext(QuizContext);
 
   const getCartItemType = () => cartData[0].productName.toLowerCase().includes("serum") ? "serum" : "moisturiser";
 
@@ -43,14 +43,14 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     }
   }
 
-  const sendToShopify = async () => {
+  const sendToShopify = async (data: any) => {
     return fetch(`${getUrlBasedOnEnvironment()}/create-new-product`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       cache: 'no-cache',
-      body: JSON.stringify(createCustomMoisturiser())
+      body: JSON.stringify(data)
     })
     .then(res => {
       if(res.ok)
@@ -80,6 +80,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
         vendor: "Base Plus",
         body_html: "",
         product_type: "custom",
+        metafields: [generateMetaField()],
         images: [
           {
             "src": getSelectedSize() === "50ml" ? 'https://cdn.shopify.com/s/files/1/0571/8694/3125/products/basetubeedited-e1590996899944_5f7e98f0-4131-4c71-a18e-5414a34d359c.png?v=1625339571' : "https://cdn.shopify.com/s/files/1/0571/8694/3125/products/base-moistuirser-small-scaled.jpg?v=1625340030"
@@ -88,6 +89,30 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
         variants: [
           {
             price: (cartData.find(cd => cd.productType === "moisturiser") as IRowData).price
+          }
+        ]
+      }
+    }
+  }
+
+  const createCustomSerum = () => {
+    const variantId = (cartData.find(cd => cd.productType === "serum") as IRowData).id;
+    const selectedSerum = (serums.find(s => s.variants[0].id === variantId) as IShopifyProduct)
+    return {
+      product: {
+        title: userName ? `${userName}'s ${selectedSerum.title}` : `Your ${selectedSerum.title}`,
+        vendor: "Base Plus",
+        body_html: "",
+        product_type: "custom",
+        metafields: [generateMetaField()],
+        images: [
+          {
+            src: "https://cdn.shopify.com/s/files/1/0571/8694/3125/products/serum_4878a439-0a20-443a-988a-1e07a66abacf.png"
+          }
+        ],
+        variants: [
+          {
+            price: (cartData.find(cd => cd.productType === "serum") as IRowData).price
           }
         ]
       }
@@ -107,19 +132,15 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
     });
   }
 
-  // const addUniqueIdToSerum = (id: number) => {
-  //   return fetch(`${getUrlBasedOnEnvironment()}/update-serum-meta-data`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     cache: 'no-cache',
-  //     body: JSON.stringify({ 
-  //       selectedSerumId: id,
-  //       quizIdsMeta: generateMetaData()
-  //     })
-  //   })
-  // }
+  const generateMetaField = () => {
+    return {
+      namespace: "skin_quiz_data",
+      key: "quiz_id",
+      value: longUniqueId,
+      description: "Quiz id to link an order to a quiz for analysis",
+      value_type: "integer"
+    }
+  }
 
   const createFinalProductToSaveToDatabase = (productType: ProductType) => {
     const databaseProduct: ICustomProductDBModel = {
@@ -157,7 +178,7 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
   const getSelectedSize = () => moisturiserSizes.filter(s => s.selected)[0].size;
 
   const addMoisturiser = () => {
-    sendToShopify()
+    sendToShopify(createCustomMoisturiser())
       .then(id => {
         if (id === undefined) {
           setApplicationError({
@@ -166,7 +187,6 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             message: "",
             uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your moisturiser. Please refresh and try again`
           })
-          return;
         } else {
           const analyticsEvent: IAnalyticsEvent = {
             event_type: "Quiz completed - Moisturiser Added To Cart",
@@ -193,41 +213,54 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
               })
             })
         }
-      })
+      });
   }
 
   const addSerum = () => {
-    const serumId = cartData[0].id;
-    const analyticsEvent: IAnalyticsEvent = {
-      event_type: "Quiz completed - Serum Added To Cart",
-      distinct_id: analyticsId,
-      serumId
-    }
-    Promise.all([
-      saveProductToDatabase(analyticsEvent, "serum"),
-      saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
-      // addUniqueIdToSerum(serumId)
-    ])
-    .then(results => {
-      if (results.some(result => result.ok !== false)) {
-        window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${serumId}:1`);
-        return;
+    sendToShopify(createCustomSerum())
+    .then(id => {
+      if (id === undefined) {
+        setApplicationError({
+          error: true,
+          code: 400,
+          message: "",
+          uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your serum. Please refresh and try again`
+        })
+      } else {
+        const analyticsEvent: IAnalyticsEvent = {
+          event_type: "Quiz completed - Serum Added To Cart",
+          distinct_id: analyticsId,
+          serumId: id
+        }
+        Promise.all([
+          saveProductToDatabase(analyticsEvent, "serum"),
+          saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
+        ])
+          .then(results => {
+            if (results.some(result => result.ok !== false)) {
+              window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${id}:1`)
+              return;
+            }
+          })
+          .catch(error => {
+            setApplicationError({
+              error: true,
+              code: 400,
+              message: "",
+              uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your moisturiser. Please refresh and try again`
+            })
+          })
       }
-    })
-    .catch(error => {
-      setApplicationError({
-        error: true,
-        code: 400,
-        message: "",
-        uiMessage: `Sorry${userName ? ` ${userName}` : ""} we weren't able to add your serum. Please refresh and try again`
-      })
-    })
+    });
   }
 
   const addBundle = () => {
-    sendToShopify()
-      .then(moisturiserId => {
-        if (moisturiserId === undefined) {
+    Promise.all([
+      sendToShopify(createCustomSerum()),
+      sendToShopify(createCustomMoisturiser())
+    ])
+      .then(([serumId,moisturiserId]) => {
+        if ((serumId === undefined) || (moisturiserId === undefined)) {
           setApplicationError({
             error: true,
             code: 400,
@@ -241,17 +274,16 @@ const StyledSummaryCart: React.SFC<SummaryCartProps> = ({ userName, sortedIngred
             event_type: "Quiz completed - Bundle Added To Cart",
             distinct_id: analyticsId,
             moisturiserId,
-            serumId: serum.id,
+            serumId,
             variation: `Moisturiser: ${moisturiserVariation.split("with ")[1]}, Serum: ${serum.additionalInfo.split(" ")[1]}`
           }
           Promise.all([
             saveProductToDatabase(analyticsEvent, "bundle"),
-            saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions),
-            //addUniqueIdToSerum((serum as IRowData).id)
+            saveQuizToDatabase(longUniqueId, setApplicationError, quizQuestions)
           ])
           .then(results => {
             if (results.some(result => result.ok !== false)) {
-              window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${moisturiserId}:1,${serum.id}:1`);
+              window.location.assign(`https://base-plus-skincare.myshopify.com/cart/${moisturiserId}:1,${serumId}:1`);
             }
           });
         };

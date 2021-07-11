@@ -8,7 +8,6 @@ import LoadingAnimation from './Shared/LoadingAnimation';
 import { track } from './Shared/Analytics';
 import { ISkinConcernsAndIngredients } from '../Interfaces/SkinConcernsAndIngredients';
 import StyledSummaryTitle from './SummaryTitle';
-import StyledSummaryProduct from './SummaryProduct';
 import { SkinConditonAnswers } from '../Interfaces/WordpressQuestion';
 import SummaryCart from './SummaryCart';
 import { saveQuizToDatabase } from './Shared/QuizHelpers';
@@ -277,9 +276,8 @@ const StyledSummary: React.FC<SummaryProps> = () => {
   } 
 
   const getLoadingProductType = () => {
-    if (isAmendSelected) {
+    if (isAmendSelected)
       return "product"
-    }
     if (cartData.length === 1) {
       if (cartData.some(d => d.productType === "serum"))
         return "serum"
